@@ -8,10 +8,12 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { ChannelLegend } from "@/components/shared/channel-legend";
+import { EnrichedChannelLegend } from "@/components/shared/enriched-channel-legend";
 import { InsightCard } from "@/components/cards/insight-card";
-import { DATA, CHANNELS, type Channel } from "@/lib/data";
+import { ENRICHED_DATA } from "@/lib/mock-enriched-data";
+import { ENRICHED_CHANNELS, type EnrichedChannel } from "@/lib/enriched-data";
 import { fmt } from "@/lib/utils";
+import { Phone, Mail, MessageSquare } from "lucide-react";
 
 const stagger = {
   hidden: { opacity: 0 },
@@ -52,6 +54,10 @@ function getStageColor(stage: string) {
   return colors[stage] || "bg-secondary text-muted-foreground";
 }
 
+function isBDRChannel(channel: string) {
+  return channel === 'bdr_call' || channel === 'bdr_email' || channel === 'bdr_linkedin';
+}
+
 // Timeline date range
 const DATE_MIN = new Date("2024-02-01").getTime();
 const DATE_MAX = new Date("2025-01-31").getTime();
@@ -69,8 +75,8 @@ const TIMELINE_LABELS = [
 
 export default function JourneysPage() {
   // Top 10 accounts by deal size
-  const top10 = [...DATA]
-    .sort((a, b) => b.deal - a.deal)
+  const top10 = [...ENRICHED_DATA]
+    .sort((a, b) => b.deal_amount - a.deal_amount)
     .slice(0, 10);
 
   return (
@@ -86,14 +92,15 @@ export default function JourneysPage() {
           Account Journeys
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Visualize the complete marketing journey for key accounts. Each dot
-          represents a marketing touchpoint, colored by channel.
+          Visualize the complete marketing journey for key accounts. Each marker
+          represents a marketing touchpoint, colored by enriched channel. BDR touches
+          use distinct icons.
         </p>
       </motion.div>
 
-      {/* Channel Legend */}
+      {/* Enriched Channel Legend */}
       <motion.div variants={fadeUp}>
-        <ChannelLegend />
+        <EnrichedChannelLegend />
       </motion.div>
 
       {/* Journey Timeline */}
@@ -104,7 +111,7 @@ export default function JourneysPage() {
               Top 10 Accounts by Deal Size
             </CardTitle>
             <p className="text-xs text-muted-foreground">
-              Marketing touchpoint timeline from Feb 2024 to Jan 2025
+              Marketing touchpoint timeline from Feb 2024 to Jan 2025 — hover for detail
             </p>
           </CardHeader>
           <CardContent>
@@ -129,17 +136,17 @@ export default function JourneysPage() {
             <div className="space-y-3">
               {top10.map((acc) => (
                 <div
-                  key={acc.name}
+                  key={acc.account_name}
                   className="flex items-center rounded-md py-2 transition-colors hover:bg-accent/30"
                 >
                   {/* Account info */}
                   <div className="w-40 shrink-0 pr-3">
                     <p className="truncate text-sm font-medium text-foreground">
-                      {acc.name}
+                      {acc.account_name}
                     </p>
                     <div className="flex items-center gap-2">
                       <span className="font-mono text-xs text-muted-foreground">
-                        {fmt(acc.deal)}
+                        {fmt(acc.deal_amount)}
                       </span>
                       <Badge
                         variant="secondary"
@@ -156,7 +163,7 @@ export default function JourneysPage() {
                     <div className="absolute top-1/2 left-0 right-0 h-px -translate-y-1/2 bg-border" />
 
                     {/* Touchpoint dots */}
-                    {acc.touches.map((touch, idx) => {
+                    {acc.touchpoints.map((touch, idx) => {
                       const touchDate = new Date(touch.date).getTime();
                       const pctPos = Math.min(
                         Math.max(
@@ -165,17 +172,34 @@ export default function JourneysPage() {
                         ),
                         100
                       );
+                      const channelColor =
+                        ENRICHED_CHANNELS[touch.channel as EnrichedChannel]?.color || "hsl(220, 10%, 50%)";
+                      const isBDR = isBDRChannel(touch.channel);
+
                       return (
                         <UITooltip key={idx}>
                           <TooltipTrigger asChild>
                             <div
-                              className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 h-3 w-3 rounded-full border-2 border-card cursor-pointer transition-transform hover:scale-150"
+                              className={`absolute top-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-transform hover:scale-150 ${
+                                isBDR
+                                  ? "flex h-4 w-4 items-center justify-center rounded-sm border border-card"
+                                  : "h-3 w-3 rounded-full border-2 border-card"
+                              }`}
                               style={{
                                 left: `${pctPos}%`,
-                                backgroundColor:
-                                  CHANNELS[touch.channel].color,
+                                backgroundColor: channelColor,
                               }}
-                            />
+                            >
+                              {touch.channel === 'bdr_call' && (
+                                <Phone className="h-2.5 w-2.5 text-white" />
+                              )}
+                              {touch.channel === 'bdr_email' && (
+                                <Mail className="h-2.5 w-2.5 text-white" />
+                              )}
+                              {touch.channel === 'bdr_linkedin' && (
+                                <MessageSquare className="h-2.5 w-2.5 text-white" />
+                              )}
+                            </div>
                           </TooltipTrigger>
                           <TooltipContent
                             side="top"
@@ -184,12 +208,44 @@ export default function JourneysPage() {
                             <p className="text-xs font-semibold">
                               {touch.date}
                             </p>
-                            <p className="text-xs text-muted-foreground">
-                              {CHANNELS[touch.channel].name}
+                            <p className="text-xs font-medium" style={{ color: channelColor }}>
+                              {ENRICHED_CHANNELS[touch.channel as EnrichedChannel]?.name || touch.channel}
                             </p>
                             <p className="text-xs text-muted-foreground">
-                              {touch.campaign}
+                              {touch.interaction_detail}
                             </p>
+                            {/* Enhanced tooltip: page URL, content asset, email, ad creative */}
+                            {touch.page_url && (
+                              <p className="text-[10px] text-muted-foreground">
+                                Page: {touch.page_url}
+                              </p>
+                            )}
+                            {touch.content_asset && (
+                              <p className="text-[10px] text-muted-foreground">
+                                Content: {touch.content_asset}
+                              </p>
+                            )}
+                            {touch.email_name && (
+                              <p className="text-[10px] text-muted-foreground">
+                                Email: {touch.email_name}
+                              </p>
+                            )}
+                            {touch.ad_creative && (
+                              <p className="text-[10px] text-muted-foreground">
+                                Ad: {touch.ad_creative}
+                              </p>
+                            )}
+                            {touch.event_name && (
+                              <p className="text-[10px] text-muted-foreground">
+                                Event: {touch.event_name}
+                              </p>
+                            )}
+                            {touch.bdr_sequence && (
+                              <p className="text-[10px] text-muted-foreground">
+                                Sequence: {touch.bdr_sequence}
+                                {touch.bdr_outcome && ` (${touch.bdr_outcome})`}
+                              </p>
+                            )}
                           </TooltipContent>
                         </UITooltip>
                       );

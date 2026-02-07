@@ -12,6 +12,7 @@ import {
   Route,
   TrendingUp,
   Sparkles,
+  Search,
 } from "lucide-react";
 
 interface NavItem {
@@ -68,6 +69,16 @@ const NAV_SECTIONS: NavSection[] = [
         label: "Pipeline",
         href: "/pipeline",
         icon: <TrendingUp className="h-4 w-4" />,
+      },
+    ],
+  },
+  {
+    title: "Explorer",
+    items: [
+      {
+        label: "Attribution Explorer",
+        href: "/explorer",
+        icon: <Search className="h-4 w-4" />,
       },
     ],
   },
