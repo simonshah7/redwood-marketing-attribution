@@ -29,24 +29,56 @@ const NAV_SECTIONS: NavSection[] = [
   {
     title: "Attribution",
     items: [
-      { label: "Overview", href: "/", icon: <BarChart3 className="h-4 w-4" /> },
-      { label: "First Touch", href: "/first-touch", icon: <MousePointerClick className="h-4 w-4" /> },
-      { label: "Last Touch", href: "/last-touch", icon: <Target className="h-4 w-4" /> },
-      { label: "Multi-Touch", href: "/multi-touch", icon: <Layers className="h-4 w-4" /> },
+      {
+        label: "Overview",
+        href: "/",
+        icon: <BarChart3 className="h-4 w-4" />,
+      },
+      {
+        label: "First Touch",
+        href: "/first-touch",
+        icon: <MousePointerClick className="h-4 w-4" />,
+      },
+      {
+        label: "Last Touch",
+        href: "/last-touch",
+        icon: <Target className="h-4 w-4" />,
+      },
+      {
+        label: "Multi-Touch",
+        href: "/multi-touch",
+        icon: <Layers className="h-4 w-4" />,
+      },
     ],
   },
   {
     title: "Deep Dives",
     items: [
-      { label: "Channels", href: "/channels", icon: <Radio className="h-4 w-4" /> },
-      { label: "Journeys", href: "/journeys", icon: <Route className="h-4 w-4" /> },
-      { label: "Pipeline", href: "/pipeline", icon: <TrendingUp className="h-4 w-4" /> },
+      {
+        label: "Channels",
+        href: "/channels",
+        icon: <Radio className="h-4 w-4" />,
+      },
+      {
+        label: "Journeys",
+        href: "/journeys",
+        icon: <Route className="h-4 w-4" />,
+      },
+      {
+        label: "Pipeline",
+        href: "/pipeline",
+        icon: <TrendingUp className="h-4 w-4" />,
+      },
     ],
   },
   {
     title: "Intelligence",
     items: [
-      { label: "AI Insights", href: "/ai-insights", icon: <Sparkles className="h-4 w-4" /> },
+      {
+        label: "AI Insights",
+        href: "/ai-insights",
+        icon: <Sparkles className="h-4 w-4" />,
+      },
     ],
   },
 ];
@@ -62,8 +94,12 @@ export function SidebarContent() {
           <BarChart3 className="h-4 w-4 text-primary-foreground" />
         </div>
         <div className="flex flex-col">
-          <span className="text-sm font-semibold text-foreground">RunMyJobs</span>
-          <span className="text-[10px] text-muted-foreground">Marketing Attribution</span>
+          <span className="text-sm font-semibold text-foreground">
+            RunMyJobs
+          </span>
+          <span className="text-[10px] text-muted-foreground">
+            Marketing Attribution
+          </span>
         </div>
       </div>
 
@@ -71,10 +107,10 @@ export function SidebarContent() {
       <nav className="flex-1 space-y-6 px-3 py-4">
         {NAV_SECTIONS.map((section) => (
           <div key={section.title}>
-            <p className="mb-2 px-3 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+            <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
               {section.title}
             </p>
-            <div className="space-y-1">
+            <div className="space-y-0.5">
               {section.items.map((item) => {
                 const isActive = pathname === item.href;
                 return (
@@ -102,11 +138,11 @@ export function SidebarContent() {
       <div className="border-t border-border px-6 py-4">
         <div className="flex items-center gap-2">
           <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary/60 opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
           </span>
           <span className="text-xs text-muted-foreground">
-            Mock data · Feb 2024 – Jan 2025
+            Mock data &middot; Feb 2024 - Jan 2025
           </span>
         </div>
       </div>

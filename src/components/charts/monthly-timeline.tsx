@@ -26,7 +26,7 @@ function buildMonthlyData() {
 
   DATA.forEach((acc) => {
     acc.touches.forEach((t) => {
-      const mk = t.date.slice(0, 7); // "2024-02"
+      const mk = t.date.slice(0, 7);
       if (monthly[mk]) {
         monthly[mk][t.channel] += 1;
       }
@@ -88,7 +88,7 @@ export function MonthlyTimeline() {
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-base font-semibold">
+        <CardTitle className="text-sm font-semibold uppercase tracking-wide">
           Monthly Touch Volume
         </CardTitle>
         <p className="text-xs text-muted-foreground">
@@ -100,19 +100,19 @@ export function MonthlyTimeline() {
           <BarChart data={data} barCategoryGap="15%">
             <XAxis
               dataKey="name"
-              tick={{ fill: "hsl(220, 10%, 55%)", fontSize: 11 }}
+              tick={{ fill: "hsl(var(--chart-axis))", fontSize: 11 }}
               axisLine={false}
               tickLine={false}
             />
             <YAxis
-              tick={{ fill: "hsl(220, 10%, 55%)", fontSize: 11 }}
+              tick={{ fill: "hsl(var(--chart-axis))", fontSize: 11 }}
               axisLine={false}
               tickLine={false}
               width={30}
             />
             <Tooltip
               content={<CustomTooltip />}
-              cursor={{ fill: "hsl(222, 14%, 14%)" }}
+              cursor={{ fill: "hsl(var(--chart-cursor))" }}
             />
             {CHANNEL_KEYS.map((ch) => (
               <Bar

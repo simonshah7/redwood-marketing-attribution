@@ -10,18 +10,15 @@ interface KpiCardProps {
   value: string;
   delta: string;
   trend: "positive" | "negative" | "neutral";
-  accentColor: string;
 }
 
-export function KpiCard({ title, value, delta, trend, accentColor }: KpiCardProps) {
+export function KpiCard({ title, value, delta, trend }: KpiCardProps) {
   return (
-    <Card className="relative overflow-hidden transition-transform hover:scale-[1.02]">
-      <div
-        className="absolute left-0 right-0 top-0 h-[3px]"
-        style={{ backgroundColor: accentColor }}
-      />
+    <Card className="transition-colors hover:border-primary/20">
       <CardContent className="p-5">
-        <p className="text-xs font-medium text-muted-foreground">{title}</p>
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          {title}
+        </p>
         <p className="mt-2 font-mono text-2xl font-bold tracking-tight text-foreground">
           {value}
         </p>
@@ -29,9 +26,10 @@ export function KpiCard({ title, value, delta, trend, accentColor }: KpiCardProp
           variant="secondary"
           className={cn(
             "mt-2 gap-1 text-[11px] font-medium",
-            trend === "positive" && "bg-emerald-500/10 text-emerald-400",
-            trend === "negative" && "bg-red-500/10 text-red-400",
-            trend === "neutral" && "bg-amber-500/10 text-amber-400"
+            trend === "positive" && "bg-primary/10 text-primary",
+            trend === "negative" &&
+              "bg-destructive/10 text-destructive",
+            trend === "neutral" && "text-muted-foreground"
           )}
         >
           {trend === "positive" && <TrendingUp className="h-3 w-3" />}
