@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DATA, STAGES } from "@/lib/data";
-import { fmt } from "@/lib/utils";
+import { cn, fmt } from "@/lib/utils";
 
 function buildFunnelData() {
   const stageCounts: Record<string, { count: number; value: number }> = {};
@@ -10,13 +10,10 @@ function buildFunnelData() {
     stageCounts[s.key] = { count: 0, value: 0 };
   });
 
-  // Count accounts at each stage or that passed through it
-  // For funnel, accounts at later stages have passed through earlier stages
   const stageOrder = STAGES.map((s) => s.key);
 
   DATA.forEach((acc) => {
     const accStageIdx = stageOrder.indexOf(acc.stage);
-    // This account is at or has passed through all stages up to its current stage
     for (let i = 0; i <= accStageIdx; i++) {
       stageCounts[stageOrder[i]].count += 1;
       stageCounts[stageOrder[i]].value += acc.deal;
@@ -51,7 +48,7 @@ export function PipelineFunnel() {
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-base font-semibold">
+        <CardTitle className="text-sm font-semibold uppercase tracking-wide">
           Pipeline Funnel
         </CardTitle>
         <p className="text-xs text-muted-foreground">
@@ -59,13 +56,13 @@ export function PipelineFunnel() {
         </p>
       </CardHeader>
       <CardContent className="space-y-2">
-        {data.map((stage, idx) => (
+        {data.map((stage) => (
           <div key={stage.key}>
             {/* Drop annotation */}
             {stage.dropPct && Number(stage.dropPct) > 0 && (
               <div className="mb-1 flex items-center justify-center">
-                <span className="text-[10px] font-medium text-red-400">
-                  ↓ {stage.dropPct}% drop
+                <span className="text-[10px] font-medium text-muted-foreground">
+                  {stage.dropPct}% drop
                 </span>
               </div>
             )}
@@ -76,9 +73,13 @@ export function PipelineFunnel() {
                 </p>
               </div>
               <div className="flex-1">
-                <div className="relative h-8 w-full overflow-hidden rounded-md bg-secondary">
+                <div className="relative h-7 w-full overflow-hidden rounded-md bg-secondary">
                   <div
-                    className="flex h-full items-center rounded-md px-3 transition-all duration-700"
+                    className={cn(
+                      "flex h-full items-center rounded-md px-3 transition-all duration-700",
+                      stage.key === "closed_won" &&
+                        "ring-1 ring-primary/30"
+                    )}
                     style={{
                       width: `${Math.max(stage.widthPct, 8)}%`,
                       backgroundColor: stage.color,

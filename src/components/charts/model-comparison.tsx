@@ -95,7 +95,7 @@ export function ModelComparison() {
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-base font-semibold">
+        <CardTitle className="text-sm font-semibold uppercase tracking-wide">
           Attribution Model Comparison
         </CardTitle>
         <p className="text-xs text-muted-foreground">
@@ -110,13 +110,16 @@ export function ModelComparison() {
               type="category"
               dataKey="name"
               width={90}
-              tick={{ fill: "hsl(220, 15%, 90%)", fontSize: 12 }}
+              tick={{
+                fill: "hsl(var(--chart-axis))",
+                fontSize: 12,
+              }}
               axisLine={false}
               tickLine={false}
             />
             <Tooltip
               content={<CustomTooltip />}
-              cursor={{ fill: "hsl(222, 14%, 14%)" }}
+              cursor={{ fill: "hsl(var(--chart-cursor))" }}
             />
             {CHANNEL_KEYS.map((ch) => (
               <Bar
