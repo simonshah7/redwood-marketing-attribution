@@ -12,10 +12,10 @@ export interface ChannelInfo {
 }
 
 export const CHANNELS: Record<Channel, ChannelInfo> = {
-  linkedin: { name: 'LinkedIn Ads', color: '#0A66C2', shortName: 'LinkedIn', icon: 'linkedin' },
-  email: { name: 'Marketo Email', color: '#8B5CF6', shortName: 'Email', icon: 'mail' },
-  form: { name: 'Form Submissions', color: '#10B981', shortName: 'Web Forms', icon: 'file-text' },
-  events: { name: 'Events & Webinars', color: '#F59E0B', shortName: 'Events', icon: 'calendar' },
+  linkedin: { name: 'LinkedIn Ads', color: 'hsl(200, 65%, 50%)', shortName: 'LinkedIn', icon: 'linkedin' },
+  email: { name: 'Marketo Email', color: 'hsl(220, 50%, 58%)', shortName: 'Email', icon: 'mail' },
+  form: { name: 'Form Submissions', color: 'hsl(168, 55%, 45%)', shortName: 'Web Forms', icon: 'file-text' },
+  events: { name: 'Events & Webinars', color: 'hsl(38, 55%, 55%)', shortName: 'Events', icon: 'calendar' },
 };
 
 export const CHANNEL_KEYS: Channel[] = ['linkedin', 'email', 'form', 'events'];
@@ -27,13 +27,13 @@ export interface Stage {
 }
 
 export const STAGES: Stage[] = [
-  { key: 'disco_set', name: 'Discos Set', color: '#3B82F6' },
-  { key: 'disco_completed', name: 'Discos Completed', color: '#06B6D4' },
-  { key: 'solution_accepted', name: 'Solution Accepted', color: '#8B5CF6' },
-  { key: 'eval_planning', name: 'Evaluation Planning', color: '#F59E0B' },
-  { key: 'negotiation', name: 'Negotiation', color: '#F97316' },
-  { key: 'closed_won', name: 'Closed Won', color: '#10B981' },
-  { key: 'closed_lost', name: 'Closed Lost', color: '#EF4444' },
+  { key: 'disco_set', name: 'Discos Set', color: 'hsl(168, 55%, 42%)' },
+  { key: 'disco_completed', name: 'Discos Completed', color: 'hsl(168, 50%, 48%)' },
+  { key: 'solution_accepted', name: 'Solution Accepted', color: 'hsl(168, 45%, 54%)' },
+  { key: 'eval_planning', name: 'Evaluation Planning', color: 'hsl(170, 40%, 60%)' },
+  { key: 'negotiation', name: 'Negotiation', color: 'hsl(172, 35%, 66%)' },
+  { key: 'closed_won', name: 'Closed Won', color: 'hsl(168, 55%, 42%)' },
+  { key: 'closed_lost', name: 'Closed Lost', color: 'hsl(220, 10%, 50%)' },
 ];
 
 export const CAMPAIGNS: Record<Channel, string[]> = {
