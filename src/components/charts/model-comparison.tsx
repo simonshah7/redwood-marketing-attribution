@@ -7,7 +7,6 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
-  Cell,
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -128,11 +127,7 @@ export function ModelComparison() {
                 stackId="a"
                 fill={CHANNELS[ch].color}
                 radius={0}
-              >
-                {data.map((_, index) => (
-                  <Cell key={`cell-${index}`} />
-                ))}
-              </Bar>
+              />
             ))}
           </BarChart>
         </ResponsiveContainer>
