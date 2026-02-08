@@ -126,6 +126,26 @@ export const HELP_TEXT = {
   explorer_sequences:
     "Identifies the multi-step marketing combinations that lead to the highest win rates. For example, 'LinkedIn Ad then Event then Form' might convert better than 'Email only'.",
 
+  // New scenario help text (Q7-Q15)
+  explorer_pre_meeting:
+    "Shows all touchpoints occurring within 14 days before a meeting is booked (opportunity creation), ranked by how frequently they appear and their impact on pipeline conversion.",
+  explorer_abm_outbound:
+    "Reveals which ABM ad impressions and marketing engagements typically precede successful outbound meetings. Helps identify the 'air cover' that makes outbound more effective.",
+  explorer_velocity:
+    "Compares journey paths for fast-moving deals vs slow-moving deals. Highlights the touchpoints that differentiate high-velocity deals from ones that stall.",
+  explorer_creative:
+    "Ranks paid social ads, organic social posts, and digital creative variants by their frequency in journeys that lead to meeting creation. Shows which creative resonates.",
+  explorer_first_touch_product:
+    "Shows the most common first touchpoint that starts journeys converting to pipeline, ranked by frequency rather than just pipeline value. Broken down by product line.",
+  explorer_bdr_product:
+    "Measures BDR sequence effectiveness broken down by product line. Shows which sequences generate the most pipeline and have the best reply/meeting rates for each product.",
+  explorer_paid_media:
+    "Measures paid media profitability by ad account. Shows spend, pipeline influenced, ROAS, and cost efficiency metrics to identify which ad accounts deliver the best return.",
+  explorer_conversion_effort:
+    "Analyzes how many touches — and which types — are typically required to convert an account. Breaks down by product, region, industry, and segment to reveal where more or fewer touches are needed.",
+  explorer_xdr_combos:
+    "Identifies the most common combinations of marketing and xDR (BDR/SDR) interactions in converting journeys. Shows which marketing + outbound pairings have the highest conversion probability.",
+
   // Alert section
   attribution_alerts:
     "Automated insights flagged by comparing different attribution models. Red alerts highlight concerning gaps, amber alerts are things to watch, and blue alerts are informational findings.",

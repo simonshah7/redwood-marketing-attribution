@@ -289,10 +289,10 @@ interface UnifiedTouchpoint {
   // === Touchpoint Core ===
   date: string;                       // ISO date
   source_system: 'salesforce' | 'marketo' | 'linkedin' | 'outreach';
-  channel: 'linkedin_ads' | 'email_nurture' | 'email_newsletter' | 'web_visit' | 'form_submission' | 'event' | 'webinar' | 'bdr_email' | 'bdr_call' | 'bdr_linkedin' | 'content_download';
+  channel: 'linkedin_ads' | 'organic_social' | 'email_nurture' | 'email_newsletter' | 'web_visit' | 'form_submission' | 'event' | 'webinar' | 'bdr_email' | 'bdr_call' | 'bdr_linkedin' | 'content_download';
   
   // === Activity Detail ===
-  activity_type: string;              // email_open, email_click, page_visit, form_fill, ad_click, ad_impression, call_connected, call_voicemail, event_attended, webinar_registered, webinar_attended, content_downloaded
+  activity_type: string;              // email_open, email_click, page_visit, form_fill, ad_click, ad_impression, social_engagement, call_connected, call_voicemail, event_attended, webinar_registered, webinar_attended, content_downloaded
   interaction_detail: string;         // Most granular action description
   
   // === Channel-Specific Fields (nullable) ===
@@ -310,11 +310,17 @@ interface UnifiedTouchpoint {
   email_name?: string;                // Specific email
   link_clicked?: string;              // CTA URL
   
-  // LinkedIn
+  // LinkedIn / Paid Social
   campaign_name?: string;             // LinkedIn campaign
   ad_creative?: string;               // Specific ad
   ad_format?: string;
   spend?: number;
+  ad_account_id?: string;             // LinkedIn Ad Account ID (for Q13: Paid Media ROI)
+  ad_account_name?: string;           // LinkedIn Ad Account display name
+
+  // Organic Social (for Q8, Q10)
+  social_platform?: string;           // 'linkedin', 'twitter'
+  social_post_type?: string;          // 'thought_leadership', 'customer_story', etc.
   
   // Events
   event_name?: string;
@@ -412,6 +418,15 @@ Display the 6 questions as a horizontal tab strip (desktop) or vertical accordio
 | 4 | First Touch Origins | What are the actual door-openers? |
 | 5 | BDR Effectiveness | Which outbound sequences generate pipeline? |
 | 6 | Winning Sequences | Which multi-step combinations convert best? |
+| 7 | Pre-Meeting Influence | Touchpoints in the 14 days before a meeting is booked |
+| 8 | ABM → Outbound | Which ABM engagements precede successful outbound? |
+| 9 | Deal Velocity Paths | Fast vs slow deal journeys and differentiating touchpoints |
+| 10 | Creative Performance | Which social/creative variants lead to meetings? |
+| 11 | First Touch × Product | Most common first touchpoints converting to pipeline |
+| 12 | BDR × Product | Most effective BDR sequences by product |
+| 13 | Paid Media ROI | Profitability of paid media by ad account |
+| 14 | Conversion Effort | How many touches to convert, by product/region/industry? |
+| 15 | Marketing + xDR Combos | Marketing & xDR interactions with highest conversion |
 
 ---
 
@@ -654,6 +669,178 @@ function findWinningSequences(accounts: EnrichedAccount[]): WinningSequence[] {
 - **Sequence cards**: Top 5 winning sequences shown as horizontal step flows (like a progress bar with icons for each step)
 - **Comparison table**: Sequence pattern, occurrences, pipeline, win rate, avg duration
 - **Insight card**: "The most effective sequence is [pattern] with a [win_rate]% close rate across [N] deals worth [pipeline]. Deals following this pattern close [X] days faster than average."
+
+---
+
+# SECTION C-EXT: Additional Analysis Scenarios (Q7–Q15)
+
+## C7. Question 7: Pre-Meeting Influence (14-day window)
+
+**Business Question**: "Show me all touchpoints that occur within the 14 days before a meeting is booked (opp creation), ranked by frequency and impact on conversion."
+
+### Data Requirements
+- Opportunity Created Date (already in Export 1A)
+- All touchpoint dates (already captured)
+- No additional data needed — uses existing touchpoint data with a 14-day window filter
+
+### Analysis Logic
+- For each opportunity, filter touchpoints to those occurring within 14 days before the created_date
+- Group by touchpoint descriptor (ad creative, event, content asset, page, BDR step, email)
+- Rank by frequency × pipeline influenced
+
+---
+
+## C8. Question 8: ABM-to-Outbound Pipeline
+
+**Business Question**: "Show me which ABM ad impressions or other engagements (email, etc.) typically precede successful outbound meetings or opportunities."
+
+### Data Requirements
+- LinkedIn Ad impression/click data with campaign names (Export 3A)
+- **NEW**: Organic social engagement data (Export 6A — see below)
+- Outreach/Salesloft BDR sequence activity with outcomes (Export 5A)
+
+### Analysis Logic
+- Identify ABM touchpoints (linkedin_ads, organic_social channels)
+- For each ABM touchpoint, look for a subsequent outbound touch (bdr_email, bdr_call, bdr_linkedin)
+- Calculate outbound success rate when preceded by each type of ABM engagement
+- Rank by pipeline generated from successful ABM → outbound handoffs
+
+---
+
+## C9. Question 9: Deal Velocity Paths
+
+**Business Question**: "Show me the top journey paths for high velocity deals compared to slow moving deals, and the touchpoints that differentiate the two."
+
+### Data Requirements
+- Stage History with dates (Export 1B) — needed for velocity calculation
+- All touchpoints (already captured)
+
+### Analysis Logic
+- Calculate deal velocity (days from first touch to current/final stage)
+- Split deals into fast (below median) and slow (above median) segments
+- Find common journey patterns in each segment using subsequence mining
+- Compare touchpoint prevalence between fast and slow segments to identify differentiators
+
+---
+
+## C10. Question 10: Creative Performance
+
+**Business Question**: "Show me which paid social, organic social, or digital creative variants are most common in journeys that lead to meeting creation."
+
+### Data Requirements
+- LinkedIn Ad Creative names and formats (Export 3A)
+- **NEW**: Organic social post data with post types (Export 6A)
+- Requires distinguishing paid_social, organic_social, and digital_creative (video ads)
+
+### NEW Channel: `organic_social`
+The channel taxonomy now includes `organic_social` alongside the existing `linkedin_ads` (paid social). This requires:
+- LinkedIn Page Analytics or social platform export with post engagement data
+- Company-level matching for organic engagement
+
+---
+
+## C11. Question 11: First Touch by Product (Frequency-ranked)
+
+**Business Question**: "Show me the most common first touchpoint that appears in user journeys that convert to pipeline — by product."
+
+### Data Requirements
+- Same as Q4 (First Touch Origins) — no additional data needed
+- Product Line field on opportunities (already in Export 1A)
+
+### Analysis Logic
+- Same as Q4 but ranked by frequency rather than pipeline value
+- Grouped by product line
+
+---
+
+## C12. Question 12: BDR Effectiveness by Product
+
+**Business Question**: "What are our most effective BDR sequences — by product?"
+
+### Data Requirements
+- Same as Q5 (BDR Effectiveness) — no additional data needed
+- Product Line field on opportunities (already in Export 1A)
+
+### Analysis Logic
+- Same as Q5 but grouped by product line for cross-product comparison
+
+---
+
+## C13. Question 13: Paid Media ROI by Ad Account
+
+**Business Question**: "How does the tool measure profitability of paid media efforts — by ad account?"
+
+### Data Requirements
+- **NEW fields required in LinkedIn export (Export 3A)**:
+  - **Ad Account ID** — unique identifier for each ad account
+  - **Ad Account Name** — display name (e.g., "RMJ Enterprise — NA", "RMJ ABM Tier 1")
+  - **Spend** — cost per interaction (already partially captured, must be complete)
+
+### NEW Fields on UnifiedTouchpoint
+```typescript
+ad_account_id?: string;    // LinkedIn Ad Account ID
+ad_account_name?: string;  // LinkedIn Ad Account display name
+```
+
+### Analysis Logic
+- Group all paid touchpoints (linkedin_ads channel) by ad_account_id
+- Sum spend per account
+- Calculate pipeline influenced, revenue generated, ROAS, cost per opp, cost per pipeline dollar
+- Rank by pipeline influenced
+
+---
+
+## C14. Question 14: Conversion Effort
+
+**Business Question**: "How many touches — and which types — are typically required to convert an account, and how does this vary by product, region, industry, or persona?"
+
+### Data Requirements
+- All touchpoints (already captured)
+- Account dimensions: product_line, region, industry, segment (already in Export 1A)
+
+### Analysis Logic
+- Filter to converted accounts (solution_accepted stage and beyond)
+- Calculate average and median touch counts per account
+- Break down by touch type (channel)
+- Segment by region, industry, and segment for comparison
+
+---
+
+## C15. Question 15: Marketing + xDR Interaction Combos
+
+**Business Question**: "Show me the most common combinations of marketing and xDR interactions that appear together in journeys that convert to pipeline, including sequences such as ad impression + content view + outbound call, and identify which combinations have the highest conversion probability."
+
+### Data Requirements
+- All marketing touchpoints (already captured)
+- All BDR/xDR touchpoints (already captured via Export 5A)
+
+### Analysis Logic
+- For each account journey, extract unique marketing and xDR channel types
+- Generate combinations of 1-2 marketing channels + 1 xDR channel
+- Count occurrences, calculate conversion probability
+- Rank by occurrence × conversion probability × pipeline value
+
+---
+
+## NEW Export Required: Export 6A — Organic Social Engagement
+
+**Report name**: `RMJ Attribution — Organic Social Engagement`
+**Method**: LinkedIn Page Analytics CSV export, or social management platform (Hootsuite, Sprout Social)
+**Filters**: Posts related to RunMyJobs or Workload Automation
+
+| Field | Type | Example | Notes |
+|-------|------|---------|-------|
+| Post Date | Date | `2025-06-15` | |
+| Post Type | Text | `thought_leadership` | customer_story, thought_leadership, product_update, event_promo, employee_advocacy, infographic |
+| Platform | Text | `linkedin` | linkedin, twitter |
+| Engagement Type | Text | `click` | like, comment, share, click |
+| Engager Company Name | Text | `Siemens AG` | For account-level matching |
+
+### NEW Fields on UnifiedTouchpoint (for organic social)
+```typescript
+social_platform?: string;    // 'linkedin', 'twitter'
+social_post_type?: string;   // 'thought_leadership', 'customer_story', etc.
+```
 
 ---
 

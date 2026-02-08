@@ -10,6 +10,7 @@ export type SourceSystem = 'salesforce' | 'marketo' | 'linkedin' | 'outreach';
 
 export type EnrichedChannel =
   | 'linkedin_ads'
+  | 'organic_social'
   | 'email_nurture'
   | 'email_newsletter'
   | 'web_visit'
@@ -28,6 +29,7 @@ export type ActivityType =
   | 'form_fill'
   | 'ad_click'
   | 'ad_impression'
+  | 'social_engagement'
   | 'call_connected'
   | 'call_voicemail'
   | 'event_attended'
@@ -88,11 +90,17 @@ export interface UnifiedTouchpoint {
   email_name?: string;
   link_clicked?: string;
 
-  // LinkedIn
+  // LinkedIn / Paid Social
   campaign_name?: string;
   ad_creative?: string;
   ad_format?: string;
   spend?: number;
+  ad_account_id?: string;
+  ad_account_name?: string;
+
+  // Organic Social
+  social_platform?: string;
+  social_post_type?: string;
 
   // Events
   event_name?: string;
@@ -154,6 +162,7 @@ export interface EnrichedChannelInfo {
 
 export const ENRICHED_CHANNELS: Record<EnrichedChannel, EnrichedChannelInfo> = {
   linkedin_ads:      { name: 'LinkedIn Ads',       color: 'hsl(200, 65%, 50%)', shortName: 'LinkedIn',  icon: 'linkedin' },
+  organic_social:    { name: 'Organic Social',     color: 'hsl(195, 55%, 45%)', shortName: 'Organic',   icon: 'share2' },
   email_nurture:     { name: 'Email Nurture',      color: 'hsl(220, 50%, 58%)', shortName: 'Nurture',   icon: 'mail' },
   email_newsletter:  { name: 'Email Newsletter',   color: 'hsl(230, 45%, 62%)', shortName: 'Newsletter',icon: 'newspaper' },
   web_visit:         { name: 'Website Visit',       color: 'hsl(280, 45%, 55%)', shortName: 'Web',       icon: 'globe' },

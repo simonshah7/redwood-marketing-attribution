@@ -130,6 +130,23 @@ const EVENTS: { name: string; type: 'conference' | 'webinar' | 'workshop' | 'cus
   { name: 'Automation Workshop: Hands-On RunMyJobs', type: 'workshop' },
 ];
 
+const AD_ACCOUNTS: { id: string; name: string }[] = [
+  { id: 'act_001', name: 'RMJ Enterprise — NA' },
+  { id: 'act_002', name: 'RMJ Enterprise — EMEA' },
+  { id: 'act_003', name: 'RMJ ABM Tier 1' },
+  { id: 'act_004', name: 'RMJ Mid-Market — Global' },
+  { id: 'act_005', name: 'RMJ Competitive Conquest' },
+];
+
+const ORGANIC_SOCIAL_POSTS: { detail: string; postType: string }[] = [
+  { detail: 'LinkedIn organic: RunMyJobs customer success story', postType: 'customer_story' },
+  { detail: 'LinkedIn organic: SAP S/4HANA migration tips', postType: 'thought_leadership' },
+  { detail: 'LinkedIn organic: Redwood employee advocacy share', postType: 'employee_advocacy' },
+  { detail: 'LinkedIn organic: WLA trends infographic', postType: 'infographic' },
+  { detail: 'LinkedIn organic: Webinar promotion post', postType: 'event_promo' },
+  { detail: 'LinkedIn organic: Product update announcement', postType: 'product_update' },
+];
+
 const OWNERS = ['Jane Smith', 'Michael Chen', 'Sarah Johnson', 'David Park', 'Lisa Mueller', 'Robert Taylor'];
 const BDRS = ['Tom Wilson', 'Amy Rodriguez', 'Chris Lee', 'Katie Brown', 'James Kim', 'Nicole Davis'];
 const LEAD_SOURCES = ['Marketing', 'Outbound BDR', 'Event', 'Partner', 'Inbound Web', 'Referral'];
@@ -257,12 +274,14 @@ function generateWonDealTouchpoints(
     // Pattern A: LinkedIn Ad → SAP Sapphire → Nurture click → BDR call → Demo form
     const liCamp = pick(LINKEDIN_CAMPAIGNS);
     const liAd = pick(AD_CREATIVES);
+    const adAcct = pick(AD_ACCOUNTS);
     touches.push({
       ...common, touchpoint_id: `${oppId}-tp-${tpIdx++}`, date: makeDate(0),
       source_system: 'linkedin', channel: 'linkedin_ads', activity_type: 'ad_click',
       interaction_detail: `Clicked ad: ${liAd}`,
       campaign_name: liCamp, ad_creative: liAd, ad_format: 'Single Image',
       spend: 15 + Math.floor(seededRandom() * 40),
+      ad_account_id: adAcct.id, ad_account_name: adAcct.name,
       utm_source: 'linkedin', utm_medium: 'paid-social', utm_campaign: 'rmj-sap-migration-it-leaders',
     });
     // Web visit from LinkedIn
@@ -476,12 +495,14 @@ function generateLostDealTouchpoints(
     // Pattern: LinkedIn Ad → Form fill only (missing middle)
     const liCamp = pick(LINKEDIN_CAMPAIGNS);
     const liAd = pick(AD_CREATIVES);
+    const adAcct = pick(AD_ACCOUNTS);
     touches.push({
       ...common, touchpoint_id: `${oppId}-tp-${tpIdx++}`, date: makeDate(0),
       source_system: 'linkedin', channel: 'linkedin_ads', activity_type: 'ad_click',
       interaction_detail: `Clicked ad: ${liAd}`,
       campaign_name: liCamp, ad_creative: liAd, ad_format: 'Single Image',
       spend: 20 + Math.floor(seededRandom() * 30),
+      ad_account_id: adAcct.id, ad_account_name: adAcct.name,
       utm_source: 'linkedin', utm_medium: 'paid-social', utm_campaign: 'rmj-generic',
     });
     touches.push({
@@ -557,16 +578,16 @@ function generateRandomTouchpoint(
   // For won-leaning accounts, bias toward high-value activities
   const channelWeights: [EnrichedChannel, number][] = isWon
     ? [
-        ['linkedin_ads', 0.12], ['email_nurture', 0.15], ['email_newsletter', 0.05],
-        ['web_visit', 0.20], ['form_submission', 0.08], ['event', 0.10],
+        ['linkedin_ads', 0.11], ['organic_social', 0.04], ['email_nurture', 0.14], ['email_newsletter', 0.05],
+        ['web_visit', 0.19], ['form_submission', 0.08], ['event', 0.09],
         ['webinar', 0.08], ['bdr_email', 0.06], ['bdr_call', 0.06],
         ['bdr_linkedin', 0.02], ['content_download', 0.08],
       ]
     : [
-        ['linkedin_ads', 0.10], ['email_nurture', 0.08], ['email_newsletter', 0.20],
-        ['web_visit', 0.18], ['form_submission', 0.05], ['event', 0.04],
-        ['webinar', 0.04], ['bdr_email', 0.10], ['bdr_call', 0.08],
-        ['bdr_linkedin', 0.05], ['content_download', 0.08],
+        ['linkedin_ads', 0.09], ['organic_social', 0.06], ['email_nurture', 0.08], ['email_newsletter', 0.19],
+        ['web_visit', 0.17], ['form_submission', 0.05], ['event', 0.04],
+        ['webinar', 0.04], ['bdr_email', 0.09], ['bdr_call', 0.07],
+        ['bdr_linkedin', 0.05], ['content_download', 0.07],
       ];
 
   const channel = weightedPick(
@@ -580,12 +601,23 @@ function generateRandomTouchpoint(
     case 'linkedin_ads': {
       const camp = pick(LINKEDIN_CAMPAIGNS);
       const ad = pick(AD_CREATIVES);
+      const adAcct = pick(AD_ACCOUNTS);
       return {
-        ...base, source_system: 'linkedin', channel, activity_type: 'ad_click',
-        interaction_detail: `Clicked ad: ${ad}`,
+        ...base, source_system: 'linkedin', channel,
+        activity_type: seededRandom() > 0.3 ? 'ad_click' : 'ad_impression',
+        interaction_detail: `${seededRandom() > 0.3 ? 'Clicked' : 'Saw'} ad: ${ad}`,
         campaign_name: camp, ad_creative: ad, ad_format: pick(['Single Image', 'Video', 'Carousel']),
         spend: 10 + Math.floor(seededRandom() * 50),
+        ad_account_id: adAcct.id, ad_account_name: adAcct.name,
         utm_source: 'linkedin', utm_medium: 'paid-social', utm_campaign: camp.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+      };
+    }
+    case 'organic_social': {
+      const post = pick(ORGANIC_SOCIAL_POSTS);
+      return {
+        ...base, source_system: 'linkedin', channel, activity_type: 'social_engagement',
+        interaction_detail: post.detail,
+        social_platform: 'linkedin', social_post_type: post.postType,
       };
     }
     case 'email_nurture': {
