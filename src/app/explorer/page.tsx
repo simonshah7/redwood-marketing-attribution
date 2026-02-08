@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -102,6 +102,14 @@ const item = {
 };
 
 export default function ExplorerPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center py-12 text-muted-foreground">Loading explorer…</div>}>
+      <ExplorerContent />
+    </Suspense>
+  );
+}
+
+function ExplorerContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const viewRef = useRef<HTMLDivElement>(null);
