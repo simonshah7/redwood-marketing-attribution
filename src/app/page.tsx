@@ -15,10 +15,12 @@ import { HelpTip, HELP_TEXT } from "@/components/shared/help-tip";
 import { DATA, CHANNEL_KEYS, CHANNELS } from "@/lib/data";
 import {
   type AttributionModel,
+  ATTRIBUTION_MODELS,
   runAttribution,
   firstTouchAttribution,
   lastTouchAttribution,
 } from "@/lib/attribution";
+import { Card, CardContent } from "@/components/ui/card";
 import { fmtCurrency, fmtPct } from "@/lib/format";
 import { exportViewAsPdf } from "@/lib/export-pdf";
 
@@ -243,13 +245,58 @@ export default function OverviewPage() {
           </motion.div>
         )}
 
+        {/* Channel Attribution by Selected Model */}
+        <motion.div variants={stagger}>
+          <motion.div variants={fadeUp}>
+            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+              Channel Attribution
+              <span className="ml-2 normal-case tracking-normal font-normal text-xs">
+                — {ATTRIBUTION_MODELS.find((m) => m.id === model)?.label ?? model}
+              </span>
+            </h2>
+          </motion.div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {CHANNEL_KEYS.map((ch) => {
+              const totalPipeline = CHANNEL_KEYS.reduce((s, c) => s + attribution[c].pipeline, 0);
+              const share = totalPipeline > 0 ? attribution[ch].pipeline / totalPipeline : 0;
+              return (
+                <motion.div key={ch} variants={fadeUp}>
+                  <Card className="overflow-hidden">
+                    <div
+                      className="h-1"
+                      style={{ backgroundColor: CHANNELS[ch].color }}
+                    />
+                    <CardContent className="p-5">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="inline-block h-2.5 w-2.5 rounded-full"
+                          style={{ backgroundColor: CHANNELS[ch].color }}
+                        />
+                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                          {CHANNELS[ch].name}
+                        </p>
+                      </div>
+                      <p className="mt-2 font-mono text-2xl font-bold tracking-tight text-foreground">
+                        {fmtCurrency(attribution[ch].pipeline)}
+                      </p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {fmtPct(share)} of pipeline &middot; {attribution[ch].opps.toFixed(1)} opps
+                      </p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              );
+            })}
+          </div>
+        </motion.div>
+
         {/* Model Comparison + Pipeline Funnel */}
         <motion.div
           variants={stagger}
           className="grid grid-cols-1 gap-4 lg:grid-cols-2"
         >
           <motion.div variants={fadeUp}>
-            <ModelComparison />
+            <ModelComparison model={model} />
           </motion.div>
           <motion.div variants={fadeUp}>
             <PipelineFunnel />

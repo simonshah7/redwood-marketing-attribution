@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Select,
   SelectContent,
@@ -35,6 +35,13 @@ export function OverviewModelSwitcher({ value, onChange }: OverviewModelSwitcher
   const [multiModel, setMultiModel] = useState<AttributionModel>(
     topLevel === "multi_touch" ? value : "linear"
   );
+
+  // Keep multiModel in sync when value prop changes externally
+  useEffect(() => {
+    if (topLevel === "multi_touch" && value !== multiModel) {
+      setMultiModel(value);
+    }
+  }, [value, topLevel]);
 
   function handleTopLevelChange(v: string) {
     if (v === "first_touch") {
