@@ -38,7 +38,7 @@ export default function RootLayout({
     >
       <body className="font-sans antialiased">
         <ThemeProvider>
-          <TooltipProvider>
+          <TooltipProvider delayDuration={0}>
             <div className="flex min-h-screen">
               {/* Desktop sidebar */}
               <aside className="hidden w-[260px] shrink-0 border-r border-border bg-card lg:block">
