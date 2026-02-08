@@ -17,22 +17,34 @@ import {
   type Channel,
 } from "@/lib/data";
 import {
+  type AttributionModel,
+  ATTRIBUTION_MODELS,
   firstTouchAttribution,
   lastTouchAttribution,
-  multiTouchAttribution,
+  runAttribution,
 } from "@/lib/attribution";
 import { fmt } from "@/lib/utils";
 import { HelpTip, HELP_TEXT } from "@/components/shared/help-tip";
 
-function buildModelData() {
+interface ModelComparisonProps {
+  model?: AttributionModel;
+}
+
+function getMultiTouchLabel(model: AttributionModel): string {
+  const info = ATTRIBUTION_MODELS.find((m) => m.id === model);
+  if (info) return info.label;
+  return "Multi-Touch (Linear)";
+}
+
+function buildModelData(selectedModel: AttributionModel = "linear") {
   const ft = firstTouchAttribution(DATA);
   const lt = lastTouchAttribution(DATA);
-  const mt = multiTouchAttribution(DATA);
+  const mt = runAttribution(selectedModel, DATA);
 
   const models = [
     { name: "First Touch", data: ft },
     { name: "Last Touch", data: lt },
-    { name: "Multi-Touch", data: mt },
+    { name: getMultiTouchLabel(selectedModel), data: mt },
   ];
 
   return models.map((model) => {
@@ -90,8 +102,8 @@ function CustomTooltip({
   );
 }
 
-export function ModelComparison() {
-  const data = buildModelData();
+export function ModelComparison({ model = "linear" }: ModelComparisonProps) {
+  const data = buildModelData(model);
 
   return (
     <Card>
@@ -111,7 +123,7 @@ export function ModelComparison() {
             <YAxis
               type="category"
               dataKey="name"
-              width={90}
+              width={160}
               tick={{
                 fill: "hsl(var(--chart-axis))",
                 fontSize: 12,
