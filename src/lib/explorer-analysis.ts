@@ -554,3 +554,115 @@ export function findWinningSequences(accounts: EnrichedAccount[]): WinningSequen
     })
     .slice(0, 15);
 }
+
+// ---- A2: Velocity Impact ----
+
+export interface VelocityImpact {
+  touchpoint: string;
+  avg_days_with: number;
+  avg_days_without: number;
+  velocity_delta_days: number;
+  velocity_delta_pct: number;
+  sufficient_data: boolean;
+}
+
+export function calculateVelocityImpact(
+  touchpoints: UnifiedTouchpoint[],
+  accounts: EnrichedAccount[],
+  descriptorFn: (t: UnifiedTouchpoint) => string | null,
+): VelocityImpact[] {
+  // Collect unique touchpoint descriptors
+  const descriptorAccounts = new Map<string, Set<string>>();
+
+  for (const t of touchpoints) {
+    const desc = descriptorFn(t);
+    if (!desc) continue;
+    if (!descriptorAccounts.has(desc)) descriptorAccounts.set(desc, new Set());
+    descriptorAccounts.get(desc)!.add(t.opportunity_id);
+  }
+
+  function avgDaysToCurrentStage(accs: EnrichedAccount[]): number {
+    if (accs.length === 0) return 0;
+    const days = accs.map((a) => {
+      const created = new Date(a.created_date).getTime();
+      const lastStage = a.stage_history[a.stage_history.length - 1];
+      const stageDate = new Date(lastStage.entered_date).getTime();
+      return Math.max(0, (stageDate - created) / 86400000);
+    });
+    return days.reduce((s, d) => s + d, 0) / days.length;
+  }
+
+  const allOppIds = new Set(accounts.map((a) => a.opportunity_id));
+  const results: VelocityImpact[] = [];
+
+  for (const [desc, oppIds] of descriptorAccounts) {
+    const withAccounts = accounts.filter((a) => oppIds.has(a.opportunity_id));
+    const withoutAccounts = accounts.filter((a) => !oppIds.has(a.opportunity_id));
+
+    const sufficient = withAccounts.length >= 3 && withoutAccounts.length >= 3;
+    const avgWith = avgDaysToCurrentStage(withAccounts);
+    const avgWithout = avgDaysToCurrentStage(withoutAccounts);
+    const deltaDays = avgWithout - avgWith;
+    const deltaPct = avgWithout > 0 ? (deltaDays / avgWithout) * 100 : 0;
+
+    results.push({
+      touchpoint: desc,
+      avg_days_with: avgWith,
+      avg_days_without: avgWithout,
+      velocity_delta_days: deltaDays,
+      velocity_delta_pct: deltaPct,
+      sufficient_data: sufficient,
+    });
+  }
+
+  return results;
+}
+
+// ---- A3: Stage Transition Filter ----
+
+export function filterTouchpointsByStageTransition(
+  account: EnrichedAccount,
+  targetStage: string,
+  windowDays: number = 30,
+): UnifiedTouchpoint[] {
+  // Find when the account entered the target stage
+  const stageEntry = account.stage_history.find((s) => s.stage === targetStage);
+  if (!stageEntry) return [];
+
+  const enteredDate = new Date(stageEntry.entered_date).getTime();
+  const windowStart = enteredDate - windowDays * 86400000;
+
+  return account.touchpoints.filter((t) => {
+    const tDate = new Date(t.date).getTime();
+    return tDate >= windowStart && tDate <= enteredDate;
+  });
+}
+
+export function applyStageTransitionFilter(
+  accounts: EnrichedAccount[],
+  targetStage: string,
+  windowDays: number = 30,
+): { accounts: EnrichedAccount[]; touchpoints: UnifiedTouchpoint[] } {
+  if (targetStage === 'all') {
+    return {
+      accounts,
+      touchpoints: accounts.flatMap((a) => a.touchpoints),
+    };
+  }
+
+  const filteredAccounts: EnrichedAccount[] = [];
+  const filteredTouchpoints: UnifiedTouchpoint[] = [];
+
+  for (const acc of accounts) {
+    const reached = acc.stage_history.some((s) => s.stage === targetStage);
+    if (!reached) continue;
+
+    const windowTouchpoints = filterTouchpointsByStageTransition(acc, targetStage, windowDays);
+    if (windowTouchpoints.length > 0) {
+      filteredAccounts.push({ ...acc, touchpoints: windowTouchpoints });
+      filteredTouchpoints.push(...windowTouchpoints);
+    }
+  }
+
+  return { accounts: filteredAccounts, touchpoints: filteredTouchpoints };
+}

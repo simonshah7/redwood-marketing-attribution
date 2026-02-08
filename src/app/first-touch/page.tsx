@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,8 +15,9 @@ import {
   Cell,
 } from "recharts";
 import { DATA, CHANNELS, CHANNEL_KEYS, type Channel } from "@/lib/data";
-import { firstTouchAttribution } from "@/lib/attribution";
-import { fmt, pct } from "@/lib/utils";
+import { type AttributionModel, runAttribution } from "@/lib/attribution";
+import { ModelSwitcher } from "@/components/controls/model-switcher";
+import { fmtCurrency, fmtPct } from "@/lib/format";
 
 const stagger = {
   hidden: { opacity: 0 },
@@ -57,7 +59,8 @@ function getStageName(stage: string) {
 }
 
 export default function FirstTouchPage() {
-  const ft = firstTouchAttribution(DATA);
+  const [model, setModel] = useState<AttributionModel>("first_touch");
+  const ft = useMemo(() => runAttribution(model, DATA), [model]);
   const totalPipeline = CHANNEL_KEYS.reduce((s, ch) => s + ft[ch].pipeline, 0);
 
   const barData = CHANNEL_KEYS
@@ -82,15 +85,18 @@ export default function FirstTouchPage() {
       className="space-y-8"
     >
       {/* Page header */}
-      <motion.div variants={fadeUp}>
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          First-Touch Attribution
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Full credit to the first marketing interaction. This model highlights
-          which channels are most effective at generating initial awareness and
-          bringing new prospects into the pipeline.
-        </p>
+      <motion.div variants={fadeUp} className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-xl font-semibold tracking-tight text-foreground">
+            First-Touch Attribution
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Full credit to the first marketing interaction. This model highlights
+            which channels are most effective at generating initial awareness and
+            bringing new prospects into the pipeline.
+          </p>
+        </div>
+        <ModelSwitcher value={model} onChange={setModel} />
       </motion.div>
 
       {/* Channel Cards */}
@@ -118,14 +124,14 @@ export default function FirstTouchPage() {
                     </p>
                   </div>
                   <p className="mt-2 font-mono text-2xl font-bold tracking-tight text-foreground">
-                    {fmt(ft[ch].pipeline)}
+                    {fmtCurrency(ft[ch].pipeline)}
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {pct(share)} of pipeline
+                    {fmtPct(share)} of pipeline
                   </p>
                   <div className="mt-3 flex items-center gap-3 text-xs">
                     <span className="text-emerald-400">
-                      Revenue: {fmt(ft[ch].revenue)}
+                      Revenue: {fmtCurrency(ft[ch].revenue)}
                     </span>
                     <span className="text-muted-foreground">
                       {Math.round(ft[ch].opps)} opps
@@ -171,7 +177,7 @@ export default function FirstTouchPage() {
                           {d.name}
                         </p>
                         <p className="font-mono text-xs text-muted-foreground">
-                          {fmt(d.pipeline)}
+                          {fmtCurrency(d.pipeline)}
                         </p>
                       </div>
                     );
@@ -234,7 +240,7 @@ export default function FirstTouchPage() {
                         </Badge>
                       </td>
                       <td className="py-3 pr-4 text-right font-mono text-foreground">
-                        {fmt(acc.deal)}
+                        {fmtCurrency(acc.deal)}
                       </td>
                       <td className="py-3">
                         {acc.firstTouch && (

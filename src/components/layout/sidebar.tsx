@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { FreshnessIndicator } from "@/components/shared/freshness";
 import {
   BarChart3,
   MousePointerClick,
@@ -145,17 +146,9 @@ export function SidebarContent() {
         ))}
       </nav>
 
-      {/* Footer */}
+      {/* Footer — Data Freshness Indicator (C4) */}
       <div className="border-t border-border px-6 py-4">
-        <div className="flex items-center gap-2">
-          <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary/60 opacity-75" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
-          </span>
-          <span className="text-xs text-muted-foreground">
-            Mock data &middot; Feb 2024 - Jan 2025
-          </span>
-        </div>
+        <FreshnessIndicator />
       </div>
     </div>
   );
