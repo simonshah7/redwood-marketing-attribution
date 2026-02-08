@@ -33,6 +33,7 @@ import type { EnrichedAccount } from "@/lib/enriched-data";
 import { ENRICHED_CHANNELS } from "@/lib/enriched-data";
 import { fmt, pct } from "@/lib/utils";
 import { Lightbulb } from "lucide-react";
+import { HelpTip, HELP_TEXT } from "@/components/shared/help-tip";
 
 interface Props {
   accounts: EnrichedAccount[];
@@ -94,6 +95,7 @@ export function FirstTouchPanel({ accounts }: Props) {
           <CardHeader>
             <CardTitle className="text-sm font-semibold">
               First Touchpoints by Pipeline Generated
+              <HelpTip text={HELP_TEXT.explorer_first_touch} />
             </CardTitle>
           </CardHeader>
           <CardContent>

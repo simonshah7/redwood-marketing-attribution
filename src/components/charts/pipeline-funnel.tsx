@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DATA, STAGES } from "@/lib/data";
 import { cn, fmt } from "@/lib/utils";
+import { HelpTip, HELP_TEXT } from "@/components/shared/help-tip";
 
 function buildFunnelData() {
   const stageCounts: Record<string, { count: number; value: number }> = {};
@@ -50,6 +51,7 @@ export function PipelineFunnel() {
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-semibold uppercase tracking-wide">
           Pipeline Funnel
+          <HelpTip text={HELP_TEXT.pipeline_funnel} />
         </CardTitle>
         <p className="text-xs text-muted-foreground">
           Deal progression through pipeline stages

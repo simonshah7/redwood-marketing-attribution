@@ -9,6 +9,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { HelpTip, HELP_TEXT } from "@/components/shared/help-tip";
 import {
   DATA,
   CHANNELS,
@@ -90,6 +91,7 @@ export function MonthlyTimeline() {
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-semibold uppercase tracking-wide">
           Monthly Touch Volume
+          <HelpTip text={HELP_TEXT.monthly_timeline} />
         </CardTitle>
         <p className="text-xs text-muted-foreground">
           Marketing touches by channel over 12 months

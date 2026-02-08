@@ -30,6 +30,7 @@ import { calculateBDREffectiveness } from "@/lib/explorer-analysis";
 import type { UnifiedTouchpoint, EnrichedAccount } from "@/lib/enriched-data";
 import { fmt, pct } from "@/lib/utils";
 import { Lightbulb, TrendingUp, TrendingDown } from "lucide-react";
+import { HelpTip, HELP_TEXT } from "@/components/shared/help-tip";
 
 interface Props {
   touchpoints: UnifiedTouchpoint[];
@@ -89,6 +90,7 @@ export function BDREffectivenessPanel({ touchpoints, accounts }: Props) {
                 {i === 0 && <TrendingUp className="h-4 w-4 text-green-600" />}
                 <CardTitle className="text-xs font-semibold">
                   #{i + 1} {d.sequence_name}
+                  <HelpTip text={HELP_TEXT.explorer_bdr} />
                 </CardTitle>
               </div>
             </CardHeader>

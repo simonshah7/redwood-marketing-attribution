@@ -9,8 +9,9 @@ import { InsightCard } from "@/components/cards/insight-card";
 import { ModelComparison } from "@/components/charts/model-comparison";
 import { PipelineFunnel } from "@/components/charts/pipeline-funnel";
 import { MonthlyTimeline } from "@/components/charts/monthly-timeline";
-import { ModelSwitcher } from "@/components/controls/model-switcher";
+import { OverviewModelSwitcher } from "@/components/controls/overview-model-switcher";
 import { BudgetModal, BudgetTrigger, loadBudgets, type ChannelBudgets } from "@/components/controls/budget-modal";
+import { HelpTip, HELP_TEXT } from "@/components/shared/help-tip";
 import { DATA, CHANNEL_KEYS, CHANNELS } from "@/lib/data";
 import {
   type AttributionModel,
@@ -141,12 +142,12 @@ export default function OverviewPage() {
               Attribution Overview
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              RunMyJobs pipeline attribution across all channels &middot; Feb 2024
-              - Jan 2025
+              RunMyJobs pipeline attribution across all channels &middot; Feb 2025
+              - Jan 2026
             </p>
           </div>
           <div className="flex items-center gap-3 flex-wrap">
-            <ModelSwitcher value={model} onChange={setModel} />
+            <OverviewModelSwitcher value={model} onChange={setModel} />
             <BudgetTrigger onClick={() => setBudgetOpen(true)} hasBudgets={budgets !== null} />
             <button
               onClick={async () => {
@@ -174,6 +175,7 @@ export default function OverviewPage() {
               value={fmtCurrency(kpis.totalPipeline)}
               delta="8.3% vs prior"
               trend="negative"
+              helpText={HELP_TEXT.total_pipeline}
             />
           </motion.div>
           <motion.div variants={fadeUp}>
@@ -182,6 +184,7 @@ export default function OverviewPage() {
               value={fmtCurrency(kpis.closedWon)}
               delta="12.1% vs prior"
               trend="negative"
+              helpText={HELP_TEXT.closed_won}
             />
           </motion.div>
           <motion.div variants={fadeUp}>
@@ -190,6 +193,7 @@ export default function OverviewPage() {
               value={fmtPct(kpis.winRate)}
               delta="3.2pp vs prior"
               trend="negative"
+              helpText={HELP_TEXT.win_rate}
             />
           </motion.div>
           <motion.div variants={fadeUp}>
@@ -198,6 +202,7 @@ export default function OverviewPage() {
               value={String(kpis.opps)}
               delta="Flat vs prior"
               trend="neutral"
+              helpText={HELP_TEXT.opportunities}
             />
           </motion.div>
           <motion.div variants={fadeUp}>
@@ -206,6 +211,7 @@ export default function OverviewPage() {
               value={kpis.avgTouches.toFixed(1)}
               delta="+1.4 vs prior"
               trend="positive"
+              helpText={HELP_TEXT.avg_touches}
             />
           </motion.div>
         </motion.div>
@@ -229,6 +235,7 @@ export default function OverviewPage() {
                     value={costPer > 0 ? `$${costPer.toFixed(2)}` : "—"}
                     delta={roi > 0 ? `${roi.toFixed(1)}x ROI` : "No spend"}
                     trend={roi > 5 ? "positive" : roi > 0 ? "neutral" : "neutral"}
+                    helpText={HELP_TEXT.cost_per_pipeline_card}
                   />
                 </motion.div>
               );
@@ -253,6 +260,7 @@ export default function OverviewPage() {
         <motion.div variants={fadeUp}>
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             Attribution Alerts
+            <HelpTip text={HELP_TEXT.attribution_alerts} />
           </h2>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <InsightCard

@@ -18,6 +18,7 @@ import { DATA, CHANNELS, CHANNEL_KEYS, type Channel } from "@/lib/data";
 import { type AttributionModel, runAttribution } from "@/lib/attribution";
 import { ModelSwitcher } from "@/components/controls/model-switcher";
 import { fmtCurrency, fmtPct } from "@/lib/format";
+import { HelpTip, HELP_TEXT } from "@/components/shared/help-tip";
 
 const stagger = {
   hidden: { opacity: 0 },
@@ -124,6 +125,7 @@ export default function LastTouchPage() {
                     />
                     <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                       {CHANNELS[ch].name}
+                      <HelpTip text={HELP_TEXT.channel_pipeline} />
                     </p>
                   </div>
                   <p className="mt-2 font-mono text-2xl font-bold tracking-tight text-foreground">
@@ -153,6 +155,7 @@ export default function LastTouchPage() {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold uppercase tracking-wide">
               Pipeline by Channel (Last Touch)
+              <HelpTip text={HELP_TEXT.last_touch} />
             </CardTitle>
             <p className="text-xs text-muted-foreground">
               Channels ranked by attributed pipeline value

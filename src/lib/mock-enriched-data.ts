@@ -50,7 +50,7 @@ const PAGE_URLS: { url: string; title: string }[] = [
   { url: '/roi-calculator/', title: 'ROI Calculator' },
   { url: '/platform/', title: 'RunMyJobs Platform Overview' },
   { url: '/solutions/finance-automation/', title: 'Finance Automation' },
-  { url: '/blog/workload-automation-trends/', title: 'Blog: WLA Trends 2024' },
+  { url: '/blog/workload-automation-trends/', title: 'Blog: WLA Trends 2025' },
   { url: '/case-study/siemens/', title: 'Case Study: Siemens' },
   { url: '/resources/datasheet/runmyjobs/', title: 'RunMyJobs Datasheet' },
   { url: '/about/', title: 'About Redwood Software' },
@@ -99,8 +99,8 @@ const AD_CREATIVES = [
 const EMAIL_PROGRAMS = [
   'RMJ Nurture — SAP Modernization Sequence',
   'RMJ Nurture — Competitive Displacement',
-  'RMJ Newsletter — Jan 2025',
-  'RMJ Newsletter — Dec 2024',
+  'RMJ Newsletter — Jan 2026',
+  'RMJ Newsletter — Dec 2025',
   'RMJ Event Follow-Up — Gartner IOCS',
   'RMJ Demo Request Follow-Up',
   'RMJ Webinar Invite — RISE with SAP',
@@ -120,13 +120,13 @@ const EMAIL_NAMES = [
 ];
 
 const EVENTS: { name: string; type: 'conference' | 'webinar' | 'workshop' | 'customer_summit' }[] = [
-  { name: 'SAP Sapphire Orlando 2024', type: 'conference' },
-  { name: 'Gartner IOCS Las Vegas 2024', type: 'conference' },
+  { name: 'SAP Sapphire Orlando 2025', type: 'conference' },
+  { name: 'Gartner IOCS Las Vegas 2025', type: 'conference' },
   { name: 'ASUG Annual Conference', type: 'conference' },
   { name: 'Redwood Webinar: Migrate from Ctrl-M', type: 'webinar' },
   { name: 'Redwood Webinar: S/4HANA Job Scheduling', type: 'webinar' },
-  { name: 'SAPPHIRE Barcelona 2024', type: 'conference' },
-  { name: 'Redwood Customer Summit 2024', type: 'customer_summit' },
+  { name: 'SAPPHIRE Barcelona 2025', type: 'conference' },
+  { name: 'Redwood Customer Summit 2025', type: 'customer_summit' },
   { name: 'Automation Workshop: Hands-On RunMyJobs', type: 'workshop' },
 ];
 
@@ -277,8 +277,8 @@ function generateWonDealTouchpoints(
     touches.push({
       ...common, touchpoint_id: `${oppId}-tp-${tpIdx++}`, date: makeDate(14 + Math.floor(seededRandom() * 20)),
       source_system: 'salesforce', channel: 'event', activity_type: 'event_attended',
-      interaction_detail: 'Attended SAP Sapphire Orlando 2024',
-      event_name: 'SAP Sapphire Orlando 2024', event_type: 'conference',
+      interaction_detail: 'Attended SAP Sapphire Orlando 2025',
+      event_name: 'SAP Sapphire Orlando 2025', event_type: 'conference',
     });
     // Pricing page visit (key win signal)
     touches.push({
@@ -735,7 +735,7 @@ function generateEnrichedData(): EnrichedAccount[] {
     const accountId = `001Dn${String(idx).padStart(6, '0')}`;
     const oppId = `006Dn${String(idx).padStart(6, '0')}`;
     const contactId = `003Dn${String(idx).padStart(6, '0')}`;
-    const months = ['2024-02', '2024-03', '2024-04', '2024-05', '2024-06', '2024-07'];
+    const months = ['2025-02', '2025-03', '2025-04', '2025-05', '2025-06', '2025-07'];
     const createdMonth = pick(months);
     const day = String(1 + Math.floor(seededRandom() * 28)).padStart(2, '0');
     const createdDate = `${createdMonth}-${day}`;

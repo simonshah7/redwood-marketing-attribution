@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 
 // The date of the current data snapshot
-export const DATA_SNAPSHOT_DATE = "2025-01-31";
+export const DATA_SNAPSHOT_DATE = "2026-01-31";
 
 function getDaysSince(dateStr: string): number {
   const snapshot = new Date(dateStr);

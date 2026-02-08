@@ -30,6 +30,7 @@ import { findWinningSequences } from "@/lib/explorer-analysis";
 import type { EnrichedAccount } from "@/lib/enriched-data";
 import { fmt, pct } from "@/lib/utils";
 import { Lightbulb, ArrowRight } from "lucide-react";
+import { HelpTip, HELP_TEXT } from "@/components/shared/help-tip";
 
 interface Props {
   accounts: EnrichedAccount[];
@@ -165,6 +166,7 @@ export function WinningSequencesPanel({ accounts }: Props) {
         <CardHeader>
           <CardTitle className="text-sm font-semibold">
             Sequence Comparison: Pipeline & Win Rate
+            <HelpTip text={HELP_TEXT.explorer_sequences} />
           </CardTitle>
         </CardHeader>
         <CardContent>

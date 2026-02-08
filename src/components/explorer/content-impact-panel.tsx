@@ -31,6 +31,7 @@ import { calculateContentImpact } from "@/lib/explorer-analysis";
 import type { UnifiedTouchpoint, EnrichedAccount } from "@/lib/enriched-data";
 import { fmt, pct } from "@/lib/utils";
 import { Lightbulb } from "lucide-react";
+import { HelpTip, HELP_TEXT } from "@/components/shared/help-tip";
 
 const ASSET_TYPE_COLORS: Record<string, string> = {
   whitepaper: "hsl(200, 65%, 50%)",
@@ -99,6 +100,7 @@ export function ContentImpactPanel({ touchpoints, accounts }: Props) {
         <CardHeader>
           <CardTitle className="text-sm font-semibold">
             Content Impact: Opps vs Pipeline (Bubble = Influence Score)
+            <HelpTip text={HELP_TEXT.explorer_content_impact} />
           </CardTitle>
         </CardHeader>
         <CardContent>

@@ -24,6 +24,7 @@ import {
 } from "@/lib/attribution";
 import { ModelSwitcher } from "@/components/controls/model-switcher";
 import { fmtCurrency, fmtPct } from "@/lib/format";
+import { HelpTip, HELP_TEXT } from "@/components/shared/help-tip";
 
 const stagger = {
   hidden: { opacity: 0 },
@@ -144,6 +145,7 @@ export default function MultiTouchPage() {
                     />
                     <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                       {CHANNELS[ch].name}
+                      <HelpTip text={HELP_TEXT.channel_pipeline} />
                     </p>
                   </div>
                   <p className="mt-2 font-mono text-2xl font-bold tracking-tight text-foreground">
@@ -189,6 +191,7 @@ export default function MultiTouchPage() {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold uppercase tracking-wide">
               Model Comparison
+              <HelpTip text={HELP_TEXT.model_comparison_table} />
             </CardTitle>
             <p className="text-xs text-muted-foreground">
               How multi-touch attribution differs from single-touch models
@@ -276,6 +279,7 @@ export default function MultiTouchPage() {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold uppercase tracking-wide">
               Won vs Lost: Average Touches by Channel
+              <HelpTip text={HELP_TEXT.won_vs_lost} />
             </CardTitle>
             <p className="text-xs text-muted-foreground">
               How channel engagement differs between won and lost deals

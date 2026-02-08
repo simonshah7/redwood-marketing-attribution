@@ -48,20 +48,20 @@ export const CAMPAIGNS: Record<Channel, string[]> = {
   email: [
     'RMJ Nurture — SAP Modernization Sequence',
     'RMJ Nurture — Competitive Displacement',
-    'RMJ Newsletter — Jan 2025',
-    'RMJ Newsletter — Dec 2024',
+    'RMJ Newsletter — Jan 2026',
+    'RMJ Newsletter — Dec 2025',
     'RMJ Event Follow-Up — Gartner IOCS',
     'RMJ Demo Request Follow-Up',
     'RMJ Webinar Invite — RISE with SAP',
   ],
   events: [
-    'SAP Sapphire Orlando 2024',
-    'Gartner IOCS Las Vegas 2024',
+    'SAP Sapphire Orlando 2025',
+    'Gartner IOCS Las Vegas 2025',
     'ASUG Annual Conference',
     'Redwood Webinar: Migrate from Ctrl-M',
     'Redwood Webinar: S/4HANA Job Scheduling',
-    'SAPPHIRE Barcelona 2024',
-    'Redwood Customer Summit 2024',
+    'SAPPHIRE Barcelona 2025',
+    'Redwood Customer Summit 2025',
   ],
   form: [
     'redwood.com/demo/quick — Demo Request',
@@ -127,7 +127,7 @@ function seededRandom() {
 
 function generateTouchpoints(_account: typeof ACCOUNTS_BASE[0]): Touchpoint[] {
   const touches: Touchpoint[] = [];
-  const months = ['2024-02','2024-03','2024-04','2024-05','2024-06','2024-07','2024-08','2024-09','2024-10','2024-11','2024-12','2025-01'];
+  const months = ['2025-02','2025-03','2025-04','2025-05','2025-06','2025-07','2025-08','2025-09','2025-10','2025-11','2025-12','2026-01'];
   const numTouches = 3 + Math.floor(seededRandom() * 12);
 
   // SKEW: LinkedIn heavy first-touch, Events heavy mid-funnel, Forms heavy last-touch
@@ -173,4 +173,4 @@ export const DATA: Account[] = ACCOUNTS_BASE.map(acc => ({
 }));
 
 export const MONTH_LABELS = ['Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan'];
-export const MONTH_KEYS = ['2024-02','2024-03','2024-04','2024-05','2024-06','2024-07','2024-08','2024-09','2024-10','2024-11','2024-12','2025-01'];
+export const MONTH_KEYS = ['2025-02','2025-03','2025-04','2025-05','2025-06','2025-07','2025-08','2025-09','2025-10','2025-11','2025-12','2026-01'];

@@ -31,6 +31,7 @@ import { calculateWinLossSignals } from "@/lib/explorer-analysis";
 import type { EnrichedAccount } from "@/lib/enriched-data";
 import { pct } from "@/lib/utils";
 import { Lightbulb, TrendingUp, TrendingDown } from "lucide-react";
+import { HelpTip, HELP_TEXT } from "@/components/shared/help-tip";
 
 interface Props {
   accounts: EnrichedAccount[];
@@ -98,6 +99,7 @@ export function WinLossPanel({ accounts }: Props) {
             <CardTitle className="flex items-center gap-2 text-sm font-semibold text-green-600">
               <TrendingUp className="h-4 w-4" />
               Top Win Signals
+              <HelpTip text={HELP_TEXT.explorer_win_loss} />
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">

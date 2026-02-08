@@ -24,8 +24,8 @@ export const DEFAULT_FILTERS: ExplorerFilters = {
   dealType: "New Logo",
   segment: "Enterprise",
   productLine: "RunMyJobs",
-  dateStart: "2024-02-01",
-  dateEnd: "2025-01-31",
+  dateStart: "2025-02-01",
+  dateEnd: "2026-01-31",
   stages: [],
 };
 
