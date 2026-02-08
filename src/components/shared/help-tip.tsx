@@ -15,7 +15,13 @@ export function HelpTip({ text }: HelpTipProps) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <HelpCircle className="w-3.5 h-3.5 text-muted-foreground/50 hover:text-muted-foreground cursor-help inline ml-1" />
+        <button
+          type="button"
+          className="inline-flex items-center align-middle ml-1 rounded-full focus:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          onClick={(e) => e.preventDefault()}
+        >
+          <HelpCircle className="w-3.5 h-3.5 text-muted-foreground/50 hover:text-muted-foreground cursor-help" />
+        </button>
       </TooltipTrigger>
       <TooltipContent className="text-xs text-muted-foreground leading-relaxed max-w-xs">
         {text}
