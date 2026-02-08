@@ -14,6 +14,7 @@ import { ENRICHED_DATA } from "@/lib/mock-enriched-data";
 import { ENRICHED_CHANNELS, type EnrichedChannel } from "@/lib/enriched-data";
 import { fmt } from "@/lib/utils";
 import { Phone, Mail, MessageSquare } from "lucide-react";
+import { HelpTip, HELP_TEXT } from "@/components/shared/help-tip";
 
 const stagger = {
   hidden: { opacity: 0 },
@@ -59,18 +60,18 @@ function isBDRChannel(channel: string) {
 }
 
 // Timeline date range
-const DATE_MIN = new Date("2024-02-01").getTime();
-const DATE_MAX = new Date("2025-01-31").getTime();
+const DATE_MIN = new Date("2025-02-01").getTime();
+const DATE_MAX = new Date("2026-01-31").getTime();
 const DATE_RANGE = DATE_MAX - DATE_MIN;
 
 const TIMELINE_LABELS = [
-  "Feb '24",
-  "Apr '24",
-  "Jun '24",
-  "Aug '24",
-  "Oct '24",
-  "Dec '24",
-  "Jan '25",
+  "Feb '25",
+  "Apr '25",
+  "Jun '25",
+  "Aug '25",
+  "Oct '25",
+  "Dec '25",
+  "Jan '26",
 ];
 
 export default function JourneysPage() {
@@ -109,9 +110,10 @@ export default function JourneysPage() {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold uppercase tracking-wide">
               Top 10 Accounts by Deal Size
+              <HelpTip text={HELP_TEXT.journey_timeline} />
             </CardTitle>
             <p className="text-xs text-muted-foreground">
-              Marketing touchpoint timeline from Feb 2024 to Jan 2025 — hover for detail
+              Marketing touchpoint timeline from Feb 2025 to Jan 2026 — hover for detail
             </p>
           </CardHeader>
           <CardContent>
@@ -262,6 +264,7 @@ export default function JourneysPage() {
       <motion.div variants={fadeUp}>
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
           Journey Patterns
+          <HelpTip text={HELP_TEXT.journey_patterns} />
         </h2>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <InsightCard

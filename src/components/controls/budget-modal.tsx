@@ -140,7 +140,7 @@ export function BudgetTrigger({ onClick, hasBudgets }: BudgetTriggerProps) {
       <Pencil className="h-3.5 w-3.5" />
       {hasBudgets ? (
         <Badge variant="secondary" className="text-[10px]">
-          Budgets: Q4 2024
+          Budgets: Q4 2025
         </Badge>
       ) : (
         <span>Add budgets</span>

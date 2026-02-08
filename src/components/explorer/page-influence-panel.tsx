@@ -30,6 +30,7 @@ import { calculatePageInfluence } from "@/lib/explorer-analysis";
 import type { UnifiedTouchpoint, EnrichedAccount } from "@/lib/enriched-data";
 import { fmt, pct } from "@/lib/utils";
 import { Lightbulb } from "lucide-react";
+import { HelpTip, HELP_TEXT } from "@/components/shared/help-tip";
 
 interface Props {
   touchpoints: UnifiedTouchpoint[];
@@ -72,6 +73,7 @@ export function PageInfluencePanel({ touchpoints, accounts }: Props) {
         <CardHeader>
           <CardTitle className="text-sm font-semibold">
             Pages Ranked by Influence Score
+            <HelpTip text={HELP_TEXT.explorer_page_influence} />
           </CardTitle>
         </CardHeader>
         <CardContent>

@@ -12,6 +12,7 @@ import {
 } from "recharts";
 import { DATA, CHANNELS, CHANNEL_KEYS, STAGES, type Channel } from "@/lib/data";
 import { fmt } from "@/lib/utils";
+import { HelpTip, HELP_TEXT } from "@/components/shared/help-tip";
 
 const stagger = {
   hidden: { opacity: 0 },
@@ -131,6 +132,7 @@ export default function PipelinePage() {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold uppercase tracking-wide">
               Channel Mix by Pipeline Stage
+              <HelpTip text={HELP_TEXT.stage_channel_mix} />
             </CardTitle>
             <p className="text-xs text-muted-foreground">
               How channel influence shifts across deal stages (% of touches)
@@ -222,6 +224,7 @@ export default function PipelinePage() {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold uppercase tracking-wide">
               Pipeline by Region
+              <HelpTip text={HELP_TEXT.pipeline_by_region} />
             </CardTitle>
             <p className="text-xs text-muted-foreground">
               Regional pipeline distribution and channel mix
@@ -294,6 +297,7 @@ export default function PipelinePage() {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold uppercase tracking-wide">
               Industry Breakdown
+              <HelpTip text={HELP_TEXT.industry_breakdown} />
             </CardTitle>
             <p className="text-xs text-muted-foreground">
               Pipeline distribution across target industries

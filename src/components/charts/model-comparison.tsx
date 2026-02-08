@@ -22,6 +22,7 @@ import {
   multiTouchAttribution,
 } from "@/lib/attribution";
 import { fmt } from "@/lib/utils";
+import { HelpTip, HELP_TEXT } from "@/components/shared/help-tip";
 
 function buildModelData() {
   const ft = firstTouchAttribution(DATA);
@@ -97,6 +98,7 @@ export function ModelComparison() {
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-semibold uppercase tracking-wide">
           Attribution Model Comparison
+          <HelpTip text={HELP_TEXT.model_comparison} />
         </CardTitle>
         <p className="text-xs text-muted-foreground">
           Pipeline % split by channel across three attribution models

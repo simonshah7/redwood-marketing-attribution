@@ -19,6 +19,7 @@ import {
   MONTH_LABELS,
   type Channel,
 } from "@/lib/data";
+import { HelpTip, HELP_TEXT } from "@/components/shared/help-tip";
 
 const stagger = {
   hidden: { opacity: 0 },
@@ -102,6 +103,7 @@ export default function ChannelsPage() {
                       />
                       <h3 className="text-base font-semibold text-foreground">
                         {CHANNELS[ch].name}
+                        <HelpTip text={HELP_TEXT.channel_card} />
                       </h3>
                     </div>
                     <Badge variant="secondary" className="font-mono text-xs">
@@ -113,6 +115,7 @@ export default function ChannelsPage() {
                   <div className="mt-4">
                     <p className="mb-2 text-xs text-muted-foreground">
                       Monthly volume
+                      <HelpTip text={HELP_TEXT.channel_sparkline} />
                     </p>
                     <ResponsiveContainer width="100%" height={60}>
                       <BarChart data={stats.monthly} barCategoryGap="15%">
@@ -145,6 +148,7 @@ export default function ChannelsPage() {
                   <div>
                     <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                       Top Campaigns
+                      <HelpTip text={HELP_TEXT.top_campaigns} />
                     </p>
                     <div className="space-y-2.5">
                       {stats.topCampaigns.map(([campaign, count]) => (

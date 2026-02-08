@@ -4,20 +4,23 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { HelpTip } from "@/components/shared/help-tip";
 
 interface KpiCardProps {
   title: string;
   value: string;
   delta: string;
   trend: "positive" | "negative" | "neutral";
+  helpText?: string;
 }
 
-export function KpiCard({ title, value, delta, trend }: KpiCardProps) {
+export function KpiCard({ title, value, delta, trend, helpText }: KpiCardProps) {
   return (
     <Card className="transition-colors hover:border-primary/20">
       <CardContent className="p-5">
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           {title}
+          {helpText && <HelpTip text={helpText} />}
         </p>
         <p className="mt-2 font-mono text-2xl font-bold tracking-tight text-foreground">
           {value}
