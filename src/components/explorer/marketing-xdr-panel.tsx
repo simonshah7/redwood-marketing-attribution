@@ -9,7 +9,6 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Legend,
 } from "recharts";
 import {
   Card,
@@ -26,87 +25,64 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { findWinningSequences } from "@/lib/explorer-analysis";
+import { calculateMarketingXDRCombos } from "@/lib/explorer-analysis";
+import type { MarketingXDRCombo } from "@/lib/explorer-analysis";
 import type { EnrichedAccount } from "@/lib/enriched-data";
 import { fmt, pct } from "@/lib/utils";
-import { Lightbulb, ArrowRight } from "lucide-react";
+import { Lightbulb, ArrowRight, Plus } from "lucide-react";
 import { HelpTip, HELP_TEXT } from "@/components/shared/help-tip";
 
 interface Props {
   accounts: EnrichedAccount[];
 }
 
-const STEP_COLORS: Record<string, string> = {
-  "LinkedIn Ad": "hsl(200, 65%, 50%)",
-  "Organic Social": "hsl(195, 55%, 45%)",
-  "Email Nurture": "hsl(220, 50%, 58%)",
-  Newsletter: "hsl(230, 45%, 62%)",
-  "Web Visit": "hsl(280, 45%, 55%)",
-  "Form Fill": "hsl(168, 55%, 45%)",
-  Event: "hsl(38, 55%, 55%)",
-  Webinar: "hsl(45, 60%, 50%)",
-  "BDR Email": "hsl(340, 50%, 55%)",
-  "BDR Call": "hsl(350, 55%, 50%)",
-  "BDR LinkedIn": "hsl(0, 50%, 55%)",
-  "Content DL": "hsl(140, 45%, 48%)",
-};
+const MARKETING_COLOR = "hsl(200, 65%, 50%)";
+const XDR_COLOR = "hsl(350, 55%, 50%)";
 
-export function WinningSequencesPanel({ accounts }: Props) {
-  const data = useMemo(() => findWinningSequences(accounts), [accounts]);
+export function MarketingXDRPanel({ accounts }: Props) {
+  const data = useMemo(
+    () => calculateMarketingXDRCombos(accounts),
+    [accounts],
+  );
 
-  const topSeq = data[0];
-
-  // Average journey for comparison
-  const allDurations = accounts
-    .filter((a) => a.touchpoints.length >= 2)
-    .map((a) => {
-      const first = new Date(a.touchpoints[0].date).getTime();
-      const last = new Date(a.touchpoints[a.touchpoints.length - 1].date).getTime();
-      return (last - first) / 86400000;
-    });
-  const avgDuration =
-    allDurations.length > 0
-      ? allDurations.reduce((a, b) => a + b, 0) / allDurations.length
-      : 0;
+  const best = data[0];
 
   const barData = data.slice(0, 10).map((d) => ({
     name:
-      d.pattern_label.length > 40
-        ? d.pattern_label.slice(0, 37) + "..."
-        : d.pattern_label,
+      d.combo_label.length > 40
+        ? d.combo_label.slice(0, 37) + "..."
+        : d.combo_label,
     pipeline: d.pipeline_value,
-    winRate: Math.round(d.win_rate * 100),
+    convProb: Math.round(d.conversion_probability * 100),
     count: d.occurrence_count,
   }));
 
   return (
     <div className="space-y-6">
       {/* Insight Card */}
-      {topSeq && (
+      {best && (
         <Card className="border-primary/20 bg-primary/5">
           <CardContent className="flex items-start gap-3 pt-4">
             <Lightbulb className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
             <p className="text-sm text-foreground">
-              The most effective sequence is{" "}
+              The highest-converting combo is{" "}
+              <span className="font-semibold">{best.combo_label}</span> with a{" "}
               <span className="font-semibold">
-                {topSeq.pattern_label}
+                {pct(best.conversion_probability)}
               </span>{" "}
-              with a{" "}
-              <span className="font-semibold">{pct(topSeq.win_rate)}</span>{" "}
-              close rate across {topSeq.occurrence_count} deals worth{" "}
-              <span className="font-semibold">{fmt(topSeq.pipeline_value)}</span>.
-              {topSeq.avg_journey_duration_days < avgDuration &&
-                ` Deals following this pattern close ${Math.round(avgDuration - topSeq.avg_journey_duration_days)} days faster than average.`}
+              conversion probability across {best.occurrence_count} deals worth{" "}
+              <span className="font-semibold">{fmt(best.pipeline_value)}</span>{" "}
+              in pipeline.
             </p>
           </CardContent>
         </Card>
       )}
 
-      {/* Top 5 Sequence Cards (flow visualization) */}
+      {/* Top 5 Combo Cards */}
       <div className="space-y-3">
-        <h3 className="text-sm font-semibold">Top Winning Sequences</h3>
-        {data.slice(0, 5).map((seq, i) => (
-          <Card key={seq.pattern_label}>
+        <h3 className="text-sm font-semibold">Top Marketing + xDR Combos</h3>
+        {data.slice(0, 5).map((combo, i) => (
+          <Card key={combo.combo_label}>
             <CardContent className="pt-4">
               <div className="mb-3 flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -117,43 +93,50 @@ export function WinningSequencesPanel({ accounts }: Props) {
                     #{i + 1}
                   </Badge>
                   <span className="text-xs text-muted-foreground">
-                    {seq.occurrence_count} deals · {fmt(seq.pipeline_value)}{" "}
+                    {combo.occurrence_count} deals · {fmt(combo.pipeline_value)}{" "}
                     pipeline
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Badge
-                    variant={seq.win_rate > 0.5 ? "default" : "outline"}
+                    variant={combo.conversion_probability > 0.5 ? "default" : "outline"}
                     className={
-                      seq.win_rate > 0.5
+                      combo.conversion_probability > 0.5
                         ? "bg-green-600 text-[10px]"
                         : "text-[10px]"
                     }
                   >
-                    {pct(seq.win_rate)} win rate
+                    {pct(combo.conversion_probability)} conv
                   </Badge>
                   <span className="text-xs text-muted-foreground">
-                    ~{Math.round(seq.avg_journey_duration_days)}d
+                    ~{Math.round(combo.avg_days_to_convert)}d
                   </span>
                 </div>
               </div>
 
-              {/* Sequence flow visualization */}
+              {/* Combo flow visualization */}
               <div className="flex flex-wrap items-center gap-1">
-                {seq.sequence_pattern.map((step, j) => (
-                  <div key={j} className="flex items-center gap-1">
+                {combo.marketing_steps.map((step, j) => (
+                  <div key={`m-${j}`} className="flex items-center gap-1">
+                    {j > 0 && <Plus className="h-3 w-3 text-muted-foreground" />}
                     <div
                       className="rounded-md px-2.5 py-1 text-xs font-medium text-white"
-                      style={{
-                        backgroundColor:
-                          STEP_COLORS[step] || "hsl(220, 10%, 50%)",
-                      }}
+                      style={{ backgroundColor: MARKETING_COLOR }}
                     >
                       {step}
                     </div>
-                    {j < seq.sequence_pattern.length - 1 && (
-                      <ArrowRight className="h-3 w-3 text-muted-foreground" />
-                    )}
+                  </div>
+                ))}
+                <ArrowRight className="h-3 w-3 text-muted-foreground" />
+                {combo.xdr_steps.map((step, j) => (
+                  <div key={`x-${j}`} className="flex items-center gap-1">
+                    {j > 0 && <Plus className="h-3 w-3 text-muted-foreground" />}
+                    <div
+                      className="rounded-md px-2.5 py-1 text-xs font-medium text-white"
+                      style={{ backgroundColor: XDR_COLOR }}
+                    >
+                      {step}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -166,8 +149,8 @@ export function WinningSequencesPanel({ accounts }: Props) {
       <Card>
         <CardHeader>
           <CardTitle className="text-sm font-semibold">
-            Sequence Comparison: Pipeline & Win Rate
-            <HelpTip text={HELP_TEXT.explorer_sequences} />
+            Combo Comparison: Pipeline & Conversion
+            <HelpTip text={HELP_TEXT.explorer_xdr_combos} />
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -194,17 +177,16 @@ export function WinningSequencesPanel({ accounts }: Props) {
                       <div className="rounded-md border bg-card p-2 text-xs shadow-md">
                         <p className="font-semibold">{d.name}</p>
                         <p>Pipeline: {fmt(d.pipeline)}</p>
-                        <p>Win Rate: {d.winRate}%</p>
+                        <p>Conversion: {d.convProb}%</p>
                         <p>Deals: {d.count}</p>
                       </div>
                     );
                   }}
                 />
-                <Legend />
                 <Bar
                   dataKey="pipeline"
-                  name="pipeline"
-                  fill="hsl(200, 65%, 50%)"
+                  name="Pipeline"
+                  fill={MARKETING_COLOR}
                   radius={[0, 4, 4, 0]}
                 />
               </BarChart>
@@ -217,7 +199,7 @@ export function WinningSequencesPanel({ accounts }: Props) {
       <Card>
         <CardHeader>
           <CardTitle className="text-sm font-semibold">
-            Sequence Pattern Detail
+            Combo Detail
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -225,21 +207,19 @@ export function WinningSequencesPanel({ accounts }: Props) {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Sequence Pattern</TableHead>
+                  <TableHead>Combo</TableHead>
                   <TableHead className="text-right">Deals</TableHead>
                   <TableHead className="text-right">Pipeline</TableHead>
                   <TableHead className="text-right">Won</TableHead>
-                  <TableHead className="text-right">Lost</TableHead>
-                  <TableHead className="text-right">Win Rate</TableHead>
-                  <TableHead className="text-right">Avg Duration</TableHead>
-                  <TableHead className="text-right">Avg Touches</TableHead>
+                  <TableHead className="text-right">Conv Probability</TableHead>
+                  <TableHead className="text-right">Avg Days</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {data.map((d) => (
-                  <TableRow key={d.pattern_label}>
+                  <TableRow key={d.combo_label}>
                     <TableCell className="max-w-[300px] text-xs font-medium">
-                      {d.pattern_label}
+                      {d.combo_label}
                     </TableCell>
                     <TableCell className="text-right">
                       {d.occurrence_count}
@@ -250,26 +230,20 @@ export function WinningSequencesPanel({ accounts }: Props) {
                     <TableCell className="text-right text-green-600">
                       {d.won_count}
                     </TableCell>
-                    <TableCell className="text-right text-red-500">
-                      {d.lost_count}
-                    </TableCell>
                     <TableCell className="text-right">
                       <Badge
-                        variant={d.win_rate > 0.5 ? "default" : "outline"}
+                        variant={d.conversion_probability > 0.5 ? "default" : "outline"}
                         className={
-                          d.win_rate > 0.5
+                          d.conversion_probability > 0.5
                             ? "bg-green-600 text-[10px]"
                             : "text-[10px]"
                         }
                       >
-                        {pct(d.win_rate)}
+                        {pct(d.conversion_probability)}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      {Math.round(d.avg_journey_duration_days)}d
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {d.avg_touchpoints_total.toFixed(1)}
+                      {Math.round(d.avg_days_to_convert)}d
                     </TableCell>
                   </TableRow>
                 ))}

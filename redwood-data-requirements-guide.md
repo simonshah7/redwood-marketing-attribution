@@ -7,9 +7,9 @@
 
 ## What We're Building
 
-An attribution dashboard that answers 6 critical questions about how marketing and BDR activity drives RunMyJobs Enterprise New Logo pipeline. The dashboard needs data from 5 systems, joined together via Salesforce Account/Contact IDs.
+An attribution dashboard that answers 15 critical questions about how marketing and BDR activity drives RunMyJobs Enterprise New Logo pipeline. The dashboard needs data from 6 systems, joined together via Salesforce Account/Contact IDs.
 
-**The 6 questions we're answering:**
+**The 15 questions we're answering:**
 
 1. Which website pages appear most frequently in journeys that convert to pipeline?
 2. Which content assets (whitepapers, datasheets, webinars) move deals forward?
@@ -17,6 +17,15 @@ An attribution dashboard that answers 6 critical questions about how marketing a
 4. What are the actual first touchpoints that open doors (at the ad/page/asset level)?
 5. Which BDR sequences generate the most/least pipeline?
 6. Which multi-step marketing + BDR combinations have the highest conversion probability?
+7. What touchpoints occur within 14 days before a meeting is booked, ranked by frequency and impact on conversion?
+8. Which ABM ad impressions or engagements typically precede successful outbound meetings or opportunities?
+9. What are the top journey paths for high-velocity deals vs slow-moving deals, and which touchpoints differentiate the two?
+10. Which paid social, organic social, or digital creative variants are most common in journeys that lead to meeting creation?
+11. What is the most common first touchpoint that appears in user journeys that convert to pipeline?
+12. What are our most effective BDR sequences — by product?
+13. How do we measure profitability of paid media efforts — by ad account?
+14. How many touches — and which types — are typically required to convert an account, and how does this vary by product, region, industry, or persona?
+15. What are the most common combinations of marketing and xDR interactions that convert to pipeline, and which have the highest conversion probability?
 
 ---
 
@@ -138,12 +147,14 @@ The Marketo lead must have a synced SFDC Contact ID. If the sync is broken or a 
 |-------------|----------------|
 | Campaign Name | Which campaign drove engagement |
 | Campaign Group | Grouping for analysis |
-| Ad Creative Name | **Specific ad variant** — answers Q4 at the ad level |
+| Ad Account ID | **Required for Q13** — groups spend by ad account |
+| Ad Account Name | Display name for the ad account (e.g., "RMJ Enterprise — NA") |
+| Ad Creative Name | **Specific ad variant** — answers Q4 and Q10 at the ad level |
 | Ad Format | Single Image, Video, Carousel |
 | Company Name | Account-level matching (ABM only) |
 | Interaction Type | Impression, Click, Video View, Lead Gen Form |
 | Date | When the interaction occurred |
-| Spend | For ROI calculations |
+| Spend | **Required for Q13** — For ROI and profitability calculations |
 
 ### ⚠️ Critical Dependency: UTM Parameters
 
@@ -214,15 +225,51 @@ Outreach/Salesloft prospects must be linked to Salesforce Contacts. If the BDR c
 
 ---
 
+## System 6: Organic Social (LinkedIn Company Page Analytics)
+
+### Export 6A: Organic Social Engagement Report
+
+**Who owns this**: Social Media / Content Marketing team
+**Method**: LinkedIn Page Analytics CSV export, or social management platform (Hootsuite, Sprout Social, etc.)
+**Filters**: Posts related to RunMyJobs or Workload Automation content
+
+| Field Needed | Why We Need It |
+|-------------|----------------|
+| Post Date | When the organic post was published |
+| Post Type | `thought_leadership`, `customer_story`, `product_update`, `event_promo`, `employee_advocacy`, `infographic` |
+| Post Content/Title | Specific post identification |
+| Platform | LinkedIn, Twitter, etc. |
+| Engagement Type | Like, Comment, Share, Click |
+| Engager Company Name | **Account-level matching** (available on LinkedIn page analytics) |
+| Engager Email (if available) | Direct contact matching |
+
+### Why Organic Social Matters (Q8, Q10)
+
+The dashboard now distinguishes **paid social** (LinkedIn Ads with spend) from **organic social** (LinkedIn company page posts, employee advocacy, etc.). This is critical for:
+- **Q8 (ABM → Outbound)**: Understanding which organic engagements soften accounts before outbound
+- **Q10 (Creative Performance)**: Comparing paid vs organic social effectiveness
+
+### ⚠️ Critical Dependency: Company-Level Matching
+
+LinkedIn Page Analytics provides company-level engagement data for some interactions. Matching organic social engagement to Salesforce accounts requires either:
+- **Company name matching** — LinkedIn reports which companies engaged with your organic posts
+- **Social management platform integration** — Tools like Hootsuite/Sprout may provide richer engagement data
+- **Marketo Social Module** — If Marketo social forms or tracking are used on organic post links
+
+**Action required**: Determine which organic social data is available and whether company-level matching is feasible. Even partial organic social data significantly improves Q10 analysis.
+
+---
+
 ## Summary: What's Needed From Each Team
 
 | Team | System | Export | Frequency | Priority |
 |------|--------|--------|-----------|----------|
 | **RevOps** | Salesforce | Opportunity Pipeline + Stage History | Weekly | 🔴 Critical |
 | **Marketing Ops** | Marketo | Activity Log (all types) | Weekly | 🔴 Critical |
-| **Demand Gen** | LinkedIn | Campaign Performance | Weekly | 🟡 High |
+| **Demand Gen** | LinkedIn | Campaign Performance (incl. Ad Account ID & Spend) | Weekly | 🔴 Critical |
 | **Marketing Ops** | WordPress/Marketo | Verify forms are Marketo forms | One-time audit | 🟡 High |
 | **BDR Ops** | Outreach/Salesloft | Sequence Activity | Weekly | 🟡 High |
+| **Social/Content** | LinkedIn Page / Social Platform | Organic Social Engagement | Weekly | 🟡 High |
 
 ## Data Hygiene Checklist (Pre-Launch)
 
@@ -238,6 +285,8 @@ Before the dashboard can produce meaningful results, these items must be verifie
 - [ ] **Outreach/Salesloft is synced to Salesforce**
 - [ ] **BDR sequences use "RMJ" naming prefix** for filtering
 - [ ] **Campaign naming conventions** are consistent across all systems
+- [ ] **LinkedIn Ad Account IDs and Spend data** are included in Campaign Manager exports (required for Q13: Paid Media ROI)
+- [ ] **Organic social engagement data** is being captured from LinkedIn Page Analytics or social platform (required for Q8, Q10)
 
 ---
 

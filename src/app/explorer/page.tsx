@@ -14,6 +14,15 @@ import { WinLossPanel } from "@/components/explorer/win-loss-panel";
 import { FirstTouchPanel } from "@/components/explorer/first-touch-panel";
 import { BDREffectivenessPanel } from "@/components/explorer/bdr-effectiveness-panel";
 import { WinningSequencesPanel } from "@/components/explorer/winning-sequences-panel";
+import { PreMeetingPanel } from "@/components/explorer/pre-meeting-panel";
+import { ABMOutboundPanel } from "@/components/explorer/abm-outbound-panel";
+import { DealVelocityPanel } from "@/components/explorer/deal-velocity-panel";
+import { CreativePerformancePanel } from "@/components/explorer/creative-performance-panel";
+import { FirstTouchProductPanel } from "@/components/explorer/first-touch-product-panel";
+import { BDRProductPanel } from "@/components/explorer/bdr-product-panel";
+import { PaidMediaROIPanel } from "@/components/explorer/paid-media-roi-panel";
+import { ConversionEffortPanel } from "@/components/explorer/conversion-effort-panel";
+import { MarketingXDRPanel } from "@/components/explorer/marketing-xdr-panel";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ENRICHED_DATA, ALL_TOUCHPOINTS } from "@/lib/mock-enriched-data";
 import { applyStageTransitionFilter } from "@/lib/explorer-analysis";
@@ -34,6 +43,15 @@ import {
   MousePointerClick,
   Phone,
   Workflow,
+  Clock,
+  Target,
+  Gauge,
+  Palette,
+  Fingerprint,
+  UserCheck,
+  DollarSign,
+  Hash,
+  Combine,
 } from "lucide-react";
 
 const QUESTIONS = [
@@ -78,6 +96,69 @@ const QUESTIONS = [
     shortTitle: "Winning Sequences",
     description: "Which multi-step combinations convert best?",
     icon: Workflow,
+  },
+  {
+    id: "pre-meeting",
+    number: 7,
+    shortTitle: "Pre-Meeting Influence",
+    description: "Touchpoints in the 14 days before a meeting is booked.",
+    icon: Clock,
+  },
+  {
+    id: "abm-outbound",
+    number: 8,
+    shortTitle: "ABM → Outbound",
+    description: "Which ABM engagements precede successful outbound?",
+    icon: Target,
+  },
+  {
+    id: "deal-velocity",
+    number: 9,
+    shortTitle: "Deal Velocity Paths",
+    description: "Fast vs slow deal journeys and differentiating touchpoints.",
+    icon: Gauge,
+  },
+  {
+    id: "creative-performance",
+    number: 10,
+    shortTitle: "Creative Performance",
+    description: "Which social/creative variants lead to meetings?",
+    icon: Palette,
+  },
+  {
+    id: "first-touch-product",
+    number: 11,
+    shortTitle: "First Touch × Product",
+    description: "Most common first touchpoints converting to pipeline.",
+    icon: Fingerprint,
+  },
+  {
+    id: "bdr-product",
+    number: 12,
+    shortTitle: "BDR × Product",
+    description: "Most effective BDR sequences by product.",
+    icon: UserCheck,
+  },
+  {
+    id: "paid-media-roi",
+    number: 13,
+    shortTitle: "Paid Media ROI",
+    description: "Profitability of paid media by ad account.",
+    icon: DollarSign,
+  },
+  {
+    id: "conversion-effort",
+    number: 14,
+    shortTitle: "Conversion Effort",
+    description: "How many touches to convert, by product/region/industry?",
+    icon: Hash,
+  },
+  {
+    id: "marketing-xdr",
+    number: 15,
+    shortTitle: "Marketing + xDR Combos",
+    description: "Marketing & xDR interactions with highest conversion.",
+    icon: Combine,
   },
 ] as const;
 
@@ -130,7 +211,7 @@ function ExplorerContent() {
   const [activeQuestion, setActiveQuestion] = useState<QuestionId>(() => {
     const q = searchParams.get("q");
     const idx = q ? parseInt(q) : 0;
-    return idx >= 1 && idx <= 6 ? QUESTIONS[idx - 1].id : "page-influence";
+    return idx >= 1 && idx <= QUESTIONS.length ? QUESTIONS[idx - 1].id : "page-influence";
   });
 
   const [stageTransition, setStageTransition] = useState(() => {
@@ -215,7 +296,7 @@ function ExplorerContent() {
         <div>
           <h1 className="text-2xl font-bold">Attribution Explorer</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Direct answers to the 6 key business questions about marketing attribution.
+            Direct answers to 15 key business questions about marketing attribution.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -292,7 +373,7 @@ function ExplorerContent() {
       {/* Question Selector */}
       <motion.div variants={item}>
         {/* Desktop: grid cards */}
-        <div className="hidden sm:grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+        <div className="hidden sm:grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
           {QUESTIONS.map((q) => {
             const Icon = q.icon;
             const isActive = activeQuestion === q.id;
@@ -406,6 +487,42 @@ function ExplorerContent() {
             )}
             {activeQuestion === "winning-sequences" && (
               <WinningSequencesPanel accounts={stageFilteredAccounts} />
+            )}
+            {activeQuestion === "pre-meeting" && (
+              <PreMeetingPanel accounts={stageFilteredAccounts} />
+            )}
+            {activeQuestion === "abm-outbound" && (
+              <ABMOutboundPanel accounts={stageFilteredAccounts} />
+            )}
+            {activeQuestion === "deal-velocity" && (
+              <DealVelocityPanel accounts={stageFilteredAccounts} />
+            )}
+            {activeQuestion === "creative-performance" && (
+              <CreativePerformancePanel
+                touchpoints={stageFilteredTouchpoints}
+                accounts={stageFilteredAccounts}
+              />
+            )}
+            {activeQuestion === "first-touch-product" && (
+              <FirstTouchProductPanel accounts={stageFilteredAccounts} />
+            )}
+            {activeQuestion === "bdr-product" && (
+              <BDRProductPanel
+                touchpoints={stageFilteredTouchpoints}
+                accounts={stageFilteredAccounts}
+              />
+            )}
+            {activeQuestion === "paid-media-roi" && (
+              <PaidMediaROIPanel
+                touchpoints={stageFilteredTouchpoints}
+                accounts={stageFilteredAccounts}
+              />
+            )}
+            {activeQuestion === "conversion-effort" && (
+              <ConversionEffortPanel accounts={stageFilteredAccounts} />
+            )}
+            {activeQuestion === "marketing-xdr" && (
+              <MarketingXDRPanel accounts={stageFilteredAccounts} />
             )}
           </>
         )}
