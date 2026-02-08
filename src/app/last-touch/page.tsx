@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,8 +15,9 @@ import {
   Cell,
 } from "recharts";
 import { DATA, CHANNELS, CHANNEL_KEYS, type Channel } from "@/lib/data";
-import { lastTouchAttribution } from "@/lib/attribution";
-import { fmt, pct } from "@/lib/utils";
+import { type AttributionModel, runAttribution } from "@/lib/attribution";
+import { ModelSwitcher } from "@/components/controls/model-switcher";
+import { fmtCurrency, fmtPct } from "@/lib/format";
 
 const stagger = {
   hidden: { opacity: 0 },
@@ -57,7 +59,8 @@ function getStageName(stage: string) {
 }
 
 export default function LastTouchPage() {
-  const lt = lastTouchAttribution(DATA);
+  const [model, setModel] = useState<AttributionModel>("last_touch");
+  const lt = useMemo(() => runAttribution(model, DATA), [model]);
   const totalPipeline = CHANNEL_KEYS.reduce((s, ch) => s + lt[ch].pipeline, 0);
 
   const barData = CHANNEL_KEYS
@@ -85,15 +88,18 @@ export default function LastTouchPage() {
       className="space-y-8"
     >
       {/* Page header */}
-      <motion.div variants={fadeUp}>
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          Last-Touch Attribution
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Full credit to the final marketing interaction before conversion. This
-          model reveals which channels are most effective at closing deals and
-          driving the final conversion action.
-        </p>
+      <motion.div variants={fadeUp} className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-xl font-semibold tracking-tight text-foreground">
+            Last-Touch Attribution
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Full credit to the final marketing interaction before conversion. This
+            model reveals which channels are most effective at closing deals and
+            driving the final conversion action.
+          </p>
+        </div>
+        <ModelSwitcher value={model} onChange={setModel} />
       </motion.div>
 
       {/* Channel Cards */}
@@ -121,14 +127,14 @@ export default function LastTouchPage() {
                     </p>
                   </div>
                   <p className="mt-2 font-mono text-2xl font-bold tracking-tight text-foreground">
-                    {fmt(lt[ch].pipeline)}
+                    {fmtCurrency(lt[ch].pipeline)}
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {pct(share)} of pipeline
+                    {fmtPct(share)} of pipeline
                   </p>
                   <div className="mt-3 flex items-center gap-3 text-xs">
                     <span className="text-emerald-400">
-                      Revenue: {fmt(lt[ch].revenue)}
+                      Revenue: {fmtCurrency(lt[ch].revenue)}
                     </span>
                     <span className="text-muted-foreground">
                       {Math.round(lt[ch].opps)} opps
@@ -174,7 +180,7 @@ export default function LastTouchPage() {
                           {d.name}
                         </p>
                         <p className="font-mono text-xs text-muted-foreground">
-                          {fmt(d.pipeline)}
+                          {fmtCurrency(d.pipeline)}
                         </p>
                       </div>
                     );
@@ -237,7 +243,7 @@ export default function LastTouchPage() {
                         </Badge>
                       </td>
                       <td className="py-3 pr-4 text-right font-mono text-foreground">
-                        {fmt(acc.deal)}
+                        {fmtCurrency(acc.deal)}
                       </td>
                       <td className="py-3">
                         {acc.lastTouch && (

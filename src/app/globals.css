@@ -98,3 +98,45 @@
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--muted-foreground) / 0.4);
 }
+
+/* ── Print stylesheet — SPEC3 D7 ─────────────────────── */
+@media print {
+  /* Hide navigation */
+  aside, .sidebar-mobile-trigger, header { display: none !important; }
+
+  /* Full width content */
+  main { margin-left: 0 !important; padding: 0 !important; }
+
+  /* Switch to light theme for printing */
+  body {
+    background: white !important;
+    color: #1a1a1a !important;
+    font-size: 11pt !important;
+  }
+
+  /* Cards: remove dark background */
+  [class*="bg-card"] {
+    background: white !important;
+    border: 1px solid #e5e5e5 !important;
+  }
+
+  /* Ensure charts print */
+  canvas, svg { max-width: 100% !important; }
+
+  /* Add print header */
+  body::before {
+    content: "RunMyJobs Marketing Attribution — Data as of Jan 31, 2025";
+    display: block;
+    font-size: 14pt;
+    font-weight: bold;
+    margin-bottom: 12pt;
+    padding-bottom: 6pt;
+    border-bottom: 2pt solid #E3342F;
+  }
+
+  /* Page breaks */
+  .print-break-before { page-break-before: always; }
+
+  /* Hide export buttons, tooltips, interactive elements */
+  button, [role="tooltip"] { display: none !important; }
+}

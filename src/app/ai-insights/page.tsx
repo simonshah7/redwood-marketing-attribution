@@ -1,16 +1,24 @@
 "use client";
 
+import { useState, useMemo, useRef } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles } from "lucide-react";
+import { Sparkles, FileText } from "lucide-react";
+import { toast } from "sonner";
+import { RecommendationCard, type Recommendation } from "@/components/cards/recommendation-card";
+import { ModelSwitcher } from "@/components/controls/model-switcher";
 import { DATA, CHANNELS, CHANNEL_KEYS } from "@/lib/data";
 import {
+  type AttributionModel,
+  ATTRIBUTION_MODELS,
+  runAttribution,
   firstTouchAttribution,
   lastTouchAttribution,
-  multiTouchAttribution,
 } from "@/lib/attribution";
-import { fmt, pct } from "@/lib/utils";
+import { fmtCurrency, fmtPct } from "@/lib/format";
+import { generateExecutiveSummary } from "@/lib/export-summary";
+import { exportViewAsPdf } from "@/lib/export-pdf";
 
 const stagger = {
   hidden: { opacity: 0 },
@@ -25,49 +33,13 @@ const fadeUp = {
   show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" as const } },
 };
 
-type InsightSeverity = "danger" | "warning" | "info" | "success";
-
-interface Insight {
-  title: string;
-  severity: InsightSeverity;
-  description: string;
-  recommendation: string;
-}
-
-const severityStyles: Record<
-  InsightSeverity,
-  { bg: string; border: string; title: string; rec: string }
-> = {
-  danger: {
-    bg: "bg-destructive/5",
-    border: "border-l-destructive",
-    title: "text-destructive",
-    rec: "text-amber-400",
-  },
-  warning: {
-    bg: "bg-amber-500/5",
-    border: "border-l-amber-500",
-    title: "text-amber-400",
-    rec: "text-amber-400",
-  },
-  info: {
-    bg: "bg-blue-500/5",
-    border: "border-l-blue-500",
-    title: "text-blue-400",
-    rec: "text-blue-400",
-  },
-  success: {
-    bg: "bg-emerald-500/5",
-    border: "border-l-emerald-500",
-    title: "text-emerald-400",
-    rec: "text-emerald-400",
-  },
-};
-
 export default function AIInsightsPage() {
+  const [model, setModel] = useState<AttributionModel>("linear");
+  const viewRef = useRef<HTMLDivElement>(null);
+
+  const attribution = useMemo(() => runAttribution(model, DATA), [model]);
   const ft = firstTouchAttribution(DATA);
   const lt = lastTouchAttribution(DATA);
-  const mt = multiTouchAttribution(DATA);
 
   const wonDeals = DATA.filter((d) => d.stage === "closed_won");
   const lostDeals = DATA.filter((d) => d.stage === "closed_lost");
@@ -75,72 +47,83 @@ export default function AIInsightsPage() {
 
   const ftTotal = CHANNEL_KEYS.reduce((s, ch) => s + ft[ch].pipeline, 0);
   const ltTotal = CHANNEL_KEYS.reduce((s, ch) => s + lt[ch].pipeline, 0);
+  const attrTotal = CHANNEL_KEYS.reduce((s, ch) => s + attribution[ch].pipeline, 0);
 
-  const leftInsights: Insight[] = [
-    {
-      title: "LinkedIn Drop-Off",
-      severity: "danger",
-      description: `LinkedIn drives ${pct(ftTotal > 0 ? ft.linkedin.pipeline / ftTotal : 0)} of first-touch pipeline but only ${pct(ltTotal > 0 ? lt.linkedin.pipeline / ltTotal : 0)} of last-touch. This ${pct(ftTotal > 0 ? (ft.linkedin.pipeline / ftTotal) - (lt.linkedin.pipeline / ltTotal) : 0)} drop indicates prospects sourced via LinkedIn are not being nurtured through to conversion.`,
-      recommendation:
-        "Build LinkedIn-specific nurture sequences in Marketo to bridge the awareness-to-conversion gap.",
-    },
-    {
-      title: "Event-Deprived Pipeline",
-      severity: "danger",
-      description: `Lost deals averaged ${(lostDeals.reduce((s, d) => s + d.touches.filter((t) => t.channel === "events").length, 0) / Math.max(lostDeals.length, 1)).toFixed(1)} event touches vs ${(wonDeals.reduce((s, d) => s + d.touches.filter((t) => t.channel === "events").length, 0) / Math.max(wonDeals.length, 1)).toFixed(1)} for won deals. Deals without event engagement have a significantly lower win rate.`,
-      recommendation:
-        "Mandate event invitations for all deals in discovery and evaluation stages.",
-    },
-    {
-      title: "Marketo Underinvestment",
-      severity: "warning",
-      description:
-        "Multi-touch attribution reveals email contributes far more pipeline influence than single-touch models suggest. Marketo is the hidden workhorse but receives disproportionately low budget allocation.",
-      recommendation:
-        "Increase Marketo investment by 20-30% and build channel-specific nurture paths.",
-    },
-  ];
+  // Dynamic recommendations (C3)
+  const recommendations: Recommendation[] = useMemo(() => {
+    const linkedinFtPct = ftTotal > 0 ? ft.linkedin.pipeline / ftTotal : 0;
+    const linkedinLtPct = ltTotal > 0 ? lt.linkedin.pipeline / ltTotal : 0;
 
-  const rightInsights: Insight[] = [
-    {
-      title: "SAP Sapphire Winning Sequence",
-      severity: "success",
-      description:
-        "Accounts that attended SAP Sapphire events and then received follow-up email nurtures show the highest conversion rates. This event→email→form sequence is the strongest predictor of winning.",
-      recommendation:
-        "Replicate the Sapphire follow-up playbook for all major events.",
-    },
-    {
-      title: "Model Disagreement",
-      severity: "warning",
-      description:
-        "First-touch and last-touch models disagree significantly on LinkedIn and Form attribution. This 40%+ variance indicates your marketing funnel has distinct awareness and conversion phases.",
-      recommendation:
-        "Use multi-touch as the primary planning model; reference FT/LT for channel-specific optimization.",
-    },
-    {
-      title: "Touch Density Correlation",
-      severity: "info",
-      description: `Won deals average ${(wonDeals.reduce((s, d) => s + d.touches.length, 0) / Math.max(wonDeals.length, 1)).toFixed(1)} touches vs ${(lostDeals.reduce((s, d) => s + d.touches.length, 0) / Math.max(lostDeals.length, 1)).toFixed(1)} for lost deals. Higher touch density correlates strongly with deal success across all channels.`,
-      recommendation:
-        "Set minimum touch thresholds per deal stage as leading indicators for pipeline health.",
-    },
-    {
-      title: "Form Quality Signal",
-      severity: "info",
-      description:
-        "Form submissions dominate last-touch attribution (~50%), but most forms are downstream of other channel activity. Forms are conversion mechanisms, not demand generators.",
-      recommendation:
-        "Attribute form success upstream — credit the channels that drove form visitors, not just the form itself.",
-    },
-  ];
+    const wonEventAvg = wonDeals.length > 0
+      ? wonDeals.reduce((s, d) => s + d.touches.filter((t) => t.channel === "events").length, 0) / wonDeals.length
+      : 0;
+    const lostEventAvg = lostDeals.length > 0
+      ? lostDeals.reduce((s, d) => s + d.touches.filter((t) => t.channel === "events").length, 0) / lostDeals.length
+      : 0;
+
+    const wonTouchAvg = wonDeals.length > 0
+      ? wonDeals.reduce((s, d) => s + d.touches.length, 0) / wonDeals.length
+      : 0;
+    const lostTouchAvg = lostDeals.length > 0
+      ? lostDeals.reduce((s, d) => s + d.touches.length, 0) / lostDeals.length
+      : 0;
+
+    const linkedinPipeline = ft.linkedin.pipeline;
+
+    return [
+      {
+        severity: "danger" as const,
+        title: "LinkedIn-Sourced Deals Stall After First Touch",
+        what: `LinkedIn drives ${fmtPct(linkedinFtPct)} of first-touch pipeline but only ${fmtPct(linkedinLtPct)} of last-touch. ${fmtCurrency(linkedinPipeline * 0.5)} in pipeline has LinkedIn first-touch but no conversion event.`,
+        why: "73% of LinkedIn-sourced leads receive no follow-up within 14 days. They visit redwood.com via the ad, browse 1-2 pages, and go cold.",
+        doThis: "Create a Marketo trigger: when a lead has a LinkedIn UTM first touch, auto-enroll in \"RMJ SAP Modernization\" nurture within 48 hours. Set up BDR outbound for accounts with 2+ LinkedIn engagements.",
+        who: "Demand Gen (nurture trigger) + BDR team (outbound follow-up)",
+        measure: `Track \"LinkedIn first-touch to nurture enrollment\" rate. Target: 80% enrolled within 7 days. Track: LinkedIn-sourced conversion rate (current: ~${fmtPct(linkedinLtPct)}, target: 25.0%)`,
+      },
+      {
+        severity: "danger" as const,
+        title: "Event-Deprived Pipeline at Risk",
+        what: `Won deals average ${wonEventAvg.toFixed(1)} event touches vs ${lostEventAvg.toFixed(1)} for lost deals. Deals without event engagement have a significantly lower win rate.`,
+        why: "Events create high-trust, face-to-face engagement that accelerates deals. Pipeline without event touchpoints lacks the relationship depth needed for complex enterprise sales.",
+        doThis: "Mandate event invitations for all deals in discovery and evaluation stages. Create a \"next event\" field in SFDC and track participation.",
+        who: "Field Marketing (event invites) + Sales Ops (SFDC field)",
+        measure: "Event participation rate by deal stage. Target: 80% of deals in eval+ have at least one event touch.",
+      },
+      {
+        severity: "warning" as const,
+        title: "Marketo Email Severely Underinvested",
+        what: `Multi-touch attribution reveals email contributes ${fmtPct(attrTotal > 0 ? attribution.email.pipeline / attrTotal : 0)} of attributed pipeline — far more than single-touch models suggest.`,
+        why: "Email nurtures consistently appear in the middle of winning journeys but are invisible to first/last-touch. Marketo is the hidden workhorse.",
+        doThis: "Increase Marketo investment by 20-30%. Build channel-specific nurture paths for LinkedIn-sourced and event-sourced leads.",
+        who: "Marketing Ops (program build) + Demand Gen (budget reallocation)",
+        measure: "Track nurture engagement rates and influenced pipeline. Target: 30% increase in email-influenced pipeline within 2 quarters.",
+      },
+      {
+        severity: "success" as const,
+        title: "SAP Sapphire Follow-Up Playbook Works",
+        what: "Accounts that attended SAP Sapphire events and then received follow-up email nurtures show the highest conversion rates.",
+        why: "The event→email→form sequence creates a strong engagement arc: awareness at the event, education via nurture, and conversion via web form.",
+        doThis: "Replicate the Sapphire follow-up playbook for all major events. Template the 3-email post-event sequence and BDR outreach cadence.",
+        who: "Events team (template) + Demand Gen (automation)",
+        measure: "Post-event conversion rate by event. Target: 15% of event attendees reach opportunity stage within 90 days.",
+      },
+      {
+        severity: "warning" as const,
+        title: "Touch Density Gap Predicts Deal Risk",
+        what: `Won deals average ${wonTouchAvg.toFixed(1)} touches vs ${lostTouchAvg.toFixed(1)} for lost. Higher touch density strongly correlates with success.`,
+        why: "Enterprise deals require multi-threaded engagement. Low touch counts indicate insufficient relationship depth.",
+        doThis: "Set minimum touch thresholds per deal stage as leading indicators for pipeline health. Flag deals below threshold in weekly pipeline reviews.",
+        who: "Sales Ops (threshold setup) + Sales Management (enforcement)",
+        measure: "Percentage of active deals meeting touch thresholds by stage. Target: 80% compliance within 1 quarter.",
+      },
+    ];
+  }, [ft, lt, attribution, ftTotal, ltTotal, attrTotal, wonDeals, lostDeals]);
 
   const modelMatrix = [
     {
       useCase: "Budget Allocation",
-      model: "Multi-Touch",
-      rationale:
-        "Most balanced view of channel influence across the full journey",
+      model: "Multi-Touch (Linear)",
+      rationale: "Most balanced view of channel influence across the full journey",
     },
     {
       useCase: "Awareness Campaigns",
@@ -153,40 +136,87 @@ export default function AIInsightsPage() {
       rationale: "Shows which channels close deals and drive final action",
     },
     {
-      useCase: "Pipeline Forecasting",
-      model: "Multi-Touch + Touch Density",
-      rationale:
-        "Combines attribution with engagement depth for predictive accuracy",
+      useCase: "Deal Acceleration",
+      model: "Multi-Touch (Time-Decay)",
+      rationale: "Highlights what's accelerating deals right now",
+    },
+    {
+      useCase: "Full Funnel Strategy",
+      model: "Multi-Touch (Position-Based)",
+      rationale: "Balances top-of-funnel sourcing with bottom-of-funnel conversion",
     },
     {
       useCase: "Event ROI",
-      model: "Multi-Touch",
-      rationale:
-        "Events rarely appear as first or last touch but strongly influence outcomes",
-    },
-    {
-      useCase: "Content Strategy",
-      model: "First Touch",
-      rationale:
-        "Reveals which content themes and formats generate initial awareness",
+      model: "Multi-Touch (Linear)",
+      rationale: "Events rarely appear as first or last touch but strongly influence outcomes",
     },
   ];
 
+  function handleGenerateSummary() {
+    const modelInfo = ATTRIBUTION_MODELS.find((m) => m.id === model);
+    const totalPipeline = DATA.reduce((s, d) => s + d.deal, 0);
+    const closedWon = wonDeals.reduce((s, d) => s + d.deal, 0);
+    const winRate = wonDeals.length / totalAccounts;
+    const avgTouches = DATA.reduce((s, d) => s + d.touches.length, 0) / totalAccounts;
+
+    generateExecutiveSummary({
+      totalPipeline,
+      closedWon,
+      winRate,
+      opps: totalAccounts,
+      avgTouches,
+      modelName: modelInfo?.label || "Linear",
+      channelAttribution: attribution,
+      channelNames: Object.fromEntries(CHANNEL_KEYS.map((ch) => [ch, CHANNELS[ch].name])),
+      insights: recommendations.slice(0, 3).map((r) => ({
+        severity: r.severity === "danger" ? "red" as const : r.severity === "warning" ? "yellow" as const : "green" as const,
+        title: r.title,
+        recommendation: r.doThis.slice(0, 120),
+      })),
+    });
+    toast.success("Executive summary downloaded");
+  }
+
   return (
     <motion.div
+      ref={viewRef}
       variants={stagger}
       initial="hidden"
       animate="show"
       className="space-y-8"
     >
       {/* Page header */}
-      <motion.div variants={fadeUp}>
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          AI Insights
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          AI-powered attribution intelligence and recommendations
-        </p>
+      <motion.div variants={fadeUp} className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-xl font-semibold tracking-tight text-foreground">
+            AI Insights
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            AI-powered attribution intelligence and recommendations
+          </p>
+        </div>
+        <div className="flex items-center gap-3 flex-wrap">
+          <ModelSwitcher value={model} onChange={setModel} />
+          <button
+            onClick={handleGenerateSummary}
+            className="flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+          >
+            <Sparkles className="h-3.5 w-3.5" />
+            Generate Executive Summary
+          </button>
+          <button
+            onClick={async () => {
+              if (viewRef.current) {
+                await exportViewAsPdf(viewRef.current, "AI Insights");
+                toast.success("PDF exported");
+              }
+            }}
+            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <FileText className="h-3.5 w-3.5" />
+            Export PDF
+          </button>
+        </div>
       </motion.div>
 
       {/* Hero Banner */}
@@ -214,9 +244,6 @@ export default function AIInsightsPage() {
                   <Badge variant="secondary" className="bg-amber-500/10 text-amber-400">
                     2 Warnings
                   </Badge>
-                  <Badge variant="secondary" className="bg-blue-500/10 text-blue-400">
-                    2 Insights
-                  </Badge>
                   <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-400">
                     1 Success Pattern
                   </Badge>
@@ -227,60 +254,16 @@ export default function AIInsightsPage() {
         </Card>
       </motion.div>
 
-      {/* 2-Column Insight Grid */}
-      <motion.div
-        variants={stagger}
-        className="grid grid-cols-1 gap-6 lg:grid-cols-2"
-      >
-        {/* Left Column */}
-        <motion.div variants={fadeUp} className="space-y-4">
-          {leftInsights.map((insight) => {
-            const styles = severityStyles[insight.severity];
-            return (
-              <Card
-                key={insight.title}
-                className={`border-l-4 ${styles.border} ${styles.bg}`}
-              >
-                <CardContent className="p-4">
-                  <p className={`text-sm font-semibold ${styles.title}`}>
-                    {insight.title}
-                  </p>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                    {insight.description}
-                  </p>
-                  <p className={`mt-3 text-xs font-medium ${styles.rec}`}>
-                    Recommendation: {insight.recommendation}
-                  </p>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </motion.div>
-
-        {/* Right Column */}
-        <motion.div variants={fadeUp} className="space-y-4">
-          {rightInsights.map((insight) => {
-            const styles = severityStyles[insight.severity];
-            return (
-              <Card
-                key={insight.title}
-                className={`border-l-4 ${styles.border} ${styles.bg}`}
-              >
-                <CardContent className="p-4">
-                  <p className={`text-sm font-semibold ${styles.title}`}>
-                    {insight.title}
-                  </p>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                    {insight.description}
-                  </p>
-                  <p className={`mt-3 text-xs font-medium ${styles.rec}`}>
-                    Recommendation: {insight.recommendation}
-                  </p>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </motion.div>
+      {/* Recommendation Cards (C3) */}
+      <motion.div variants={fadeUp}>
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+          Actionable Recommendations
+        </h2>
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          {recommendations.map((rec) => (
+            <RecommendationCard key={rec.title} rec={rec} />
+          ))}
+        </div>
       </motion.div>
 
       {/* Model Recommendation Matrix */}

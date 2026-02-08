@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -15,11 +16,14 @@ import {
 } from "recharts";
 import { DATA, CHANNELS, CHANNEL_KEYS, type Channel } from "@/lib/data";
 import {
+  type AttributionModel,
+  runAttribution,
   firstTouchAttribution,
   lastTouchAttribution,
   multiTouchAttribution,
 } from "@/lib/attribution";
-import { fmt, pct } from "@/lib/utils";
+import { ModelSwitcher } from "@/components/controls/model-switcher";
+import { fmtCurrency, fmtPct } from "@/lib/format";
 
 const stagger = {
   hidden: { opacity: 0 },
@@ -87,7 +91,8 @@ function computeWonVsLost() {
 }
 
 export default function MultiTouchPage() {
-  const mt = multiTouchAttribution(DATA);
+  const [model, setModel] = useState<AttributionModel>("linear");
+  const mt = useMemo(() => runAttribution(model, DATA), [model]);
   const ft = firstTouchAttribution(DATA);
   const lt = lastTouchAttribution(DATA);
   const totalPipeline = CHANNEL_KEYS.reduce((s, ch) => s + mt[ch].pipeline, 0);
@@ -102,15 +107,18 @@ export default function MultiTouchPage() {
       className="space-y-8"
     >
       {/* Page header */}
-      <motion.div variants={fadeUp}>
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          Multi-Touch Attribution
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Credit distributed across all touchpoints by engagement weight. This
-          model provides the most balanced view of channel influence across the
-          entire buyer journey.
-        </p>
+      <motion.div variants={fadeUp} className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-xl font-semibold tracking-tight text-foreground">
+            Multi-Touch Attribution
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Credit distributed across all touchpoints by engagement weight. This
+            model provides the most balanced view of channel influence across the
+            entire buyer journey.
+          </p>
+        </div>
+        <ModelSwitcher value={model} onChange={setModel} />
       </motion.div>
 
       {/* Channel Cards with deltas */}
@@ -139,10 +147,10 @@ export default function MultiTouchPage() {
                     </p>
                   </div>
                   <p className="mt-2 font-mono text-2xl font-bold tracking-tight text-foreground">
-                    {fmt(mt[ch].pipeline)}
+                    {fmtCurrency(mt[ch].pipeline)}
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {pct(share)} of pipeline
+                    {fmtPct(share)} of pipeline
                   </p>
                   <div className="mt-3 flex flex-wrap items-center gap-2">
                     <Badge
@@ -219,13 +227,13 @@ export default function MultiTouchPage() {
                         </div>
                       </td>
                       <td className="py-3 pr-4 text-right font-mono text-foreground">
-                        {fmt(d.ft)}
+                        {fmtCurrency(d.ft)}
                       </td>
                       <td className="py-3 pr-4 text-right font-mono text-foreground">
-                        {fmt(d.lt)}
+                        {fmtCurrency(d.lt)}
                       </td>
                       <td className="py-3 pr-4 text-right font-mono font-semibold text-foreground">
-                        {fmt(d.mt)}
+                        {fmtCurrency(d.mt)}
                       </td>
                       <td className="py-3 pr-4 text-right">
                         <Badge

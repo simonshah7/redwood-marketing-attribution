@@ -5,6 +5,7 @@ import { useTheme } from "next-themes";
 import { Menu, Moon, Sun } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { FreshnessIndicator } from "@/components/shared/freshness";
 import { SidebarContent } from "./sidebar";
 
 const PAGE_TITLES: Record<string, string> = {
@@ -15,6 +16,7 @@ const PAGE_TITLES: Record<string, string> = {
   "/channels": "Channel Performance",
   "/journeys": "Account Journeys",
   "/pipeline": "Pipeline Influence",
+  "/explorer": "Attribution Explorer",
   "/ai-insights": "AI Insights",
 };
 
@@ -48,6 +50,11 @@ export function Header() {
         <span className="font-medium text-foreground sm:hidden">
           {pageTitle}
         </span>
+      </div>
+
+      {/* Data freshness in header */}
+      <div className="hidden md:block">
+        <FreshnessIndicator />
       </div>
 
       {/* Date badge */}
