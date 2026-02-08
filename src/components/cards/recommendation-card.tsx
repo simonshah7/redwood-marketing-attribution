@@ -73,14 +73,14 @@ export function RecommendationCard({ rec }: { rec: Recommendation }) {
             </p>
           </div>
 
-          <div className="flex gap-6">
+          <div className="grid grid-cols-2 gap-6">
             <div>
               <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                 Who
               </span>
               <p className="text-xs text-muted-foreground mt-0.5">{rec.who}</p>
             </div>
-            <div className="flex-1">
+            <div>
               <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                 Measure
               </span>
