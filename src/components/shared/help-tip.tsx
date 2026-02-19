@@ -17,13 +17,13 @@ export function HelpTip({ text }: HelpTipProps) {
       <TooltipTrigger asChild>
         <button
           type="button"
-          className="inline-flex items-center align-middle ml-1 rounded-full focus:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          className="inline-flex items-center align-middle ml-1.5 rounded-full transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           onClick={(e) => e.preventDefault()}
         >
-          <HelpCircle className="w-3.5 h-3.5 text-muted-foreground/50 hover:text-muted-foreground cursor-help" />
+          <HelpCircle className="w-3.5 h-3.5 text-muted-foreground/40 hover:text-primary/60 cursor-help transition-colors" />
         </button>
       </TooltipTrigger>
-      <TooltipContent className="text-xs text-muted-foreground leading-relaxed max-w-xs">
+      <TooltipContent className="text-xs leading-relaxed max-w-xs bg-popover text-popover-foreground shadow-lg border border-border">
         {text}
       </TooltipContent>
     </Tooltip>

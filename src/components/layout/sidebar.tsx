@@ -242,14 +242,28 @@ export function SidebarContent() {
                       key={item.href}
                       href={item.href}
                       className={cn(
-                        "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                        "group relative flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-all duration-200",
                         isActive
                           ? "bg-primary/10 text-primary"
-                          : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                          : "text-muted-foreground hover:bg-accent/70 hover:text-foreground"
                       )}
                     >
-                      {item.icon}
-                      {item.label}
+                      {/* Active indicator bar */}
+                      {isActive && (
+                        <span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-full bg-primary" />
+                      )}
+                      <span className={cn(
+                        "transition-transform duration-200",
+                        !isActive && "group-hover:translate-x-0.5"
+                      )}>
+                        {item.icon}
+                      </span>
+                      <span className={cn(
+                        "transition-transform duration-200",
+                        !isActive && "group-hover:translate-x-0.5"
+                      )}>
+                        {item.label}
+                      </span>
                     </Link>
                   );
                 })}
@@ -259,9 +273,15 @@ export function SidebarContent() {
         })}
       </nav>
 
-      {/* Footer — Data Freshness Indicator (C4) */}
-      <div className="border-t border-border px-6 py-4">
+      {/* Footer */}
+      <div className="space-y-3 border-t border-border px-6 py-4">
         <FreshnessIndicator />
+        <div className="flex items-center gap-2 text-[10px] text-muted-foreground/60">
+          <kbd className="rounded border border-border bg-muted/50 px-1.5 py-0.5 font-mono text-[9px]">
+            ⌘K
+          </kbd>
+          <span>Quick navigation</span>
+        </div>
       </div>
     </div>
   );

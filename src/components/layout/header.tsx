@@ -2,34 +2,41 @@
 
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
-import { Menu, Moon, Sun } from "lucide-react";
+import { Menu, Moon, Sun, ChevronRight } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { FreshnessIndicator } from "@/components/shared/freshness";
 import { PeriodSelector } from "@/components/controls/period-selector";
+import { CommandPaletteTrigger } from "@/components/command-palette";
 import { SidebarContent } from "./sidebar";
 
-const PAGE_TITLES: Record<string, string> = {
-  "/": "Overview",
-  "/first-touch": "First-Touch Attribution",
-  "/last-touch": "Last-Touch Attribution",
-  "/multi-touch": "Multi-Touch Attribution",
-  "/channels": "Channel Performance",
-  "/journeys": "Account Journeys",
-  "/pipeline": "Pipeline Influence",
-  "/explorer": "Attribution Explorer",
-  "/ai-insights": "AI Insights",
-  "/deal-scoring": "Predictive Deal Scoring",
-  "/revenue-forecast": "Revenue Forecast",
-  "/abm": "ABM Command Centre",
-  "/next-best-action": "Next Best Action",
-  "/spend-optimizer": "Spend Optimizer",
-  "/content-intelligence": "Content Intelligence",
-  "/cross-sell": "Cross-Sell Attribution",
+interface PageMeta {
+  title: string;
+  section: string;
+}
+
+const PAGE_META: Record<string, PageMeta> = {
+  "/": { title: "Overview", section: "Attribution" },
+  "/first-touch": { title: "First-Touch Attribution", section: "Attribution" },
+  "/last-touch": { title: "Last-Touch Attribution", section: "Attribution" },
+  "/multi-touch": { title: "Multi-Touch Attribution", section: "Attribution" },
+  "/attribution-trends": { title: "Attribution Trends", section: "Attribution" },
+  "/channels": { title: "Channel Performance", section: "Deep Dives" },
+  "/journeys": { title: "Account Journeys", section: "Deep Dives" },
+  "/pipeline": { title: "Pipeline Influence", section: "Deep Dives" },
+  "/explorer": { title: "Attribution Explorer", section: "Explore" },
+  "/ai-insights": { title: "AI Insights", section: "Explore" },
+  "/deal-scoring": { title: "Predictive Deal Scoring", section: "Predictive" },
+  "/revenue-forecast": { title: "Revenue Forecast", section: "Predictive" },
+  "/abm": { title: "ABM Command Centre", section: "Predictive" },
+  "/next-best-action": { title: "Next Best Action", section: "Actions" },
+  "/spend-optimizer": { title: "Spend Optimizer", section: "Actions" },
+  "/content-intelligence": { title: "Content Intelligence", section: "Actions" },
+  "/cross-sell": { title: "Cross-Sell Attribution", section: "Actions" },
 };
 
 export function Header() {
   const pathname = usePathname();
-  const pageTitle = PAGE_TITLES[pathname] || "Dashboard";
+  const meta = PAGE_META[pathname] || { title: "Dashboard", section: "Attribution" };
   const { theme, setTheme } = useTheme();
 
   return (
@@ -48,19 +55,24 @@ export function Header() {
       </Sheet>
 
       {/* Breadcrumb */}
-      <div className="flex flex-1 items-center gap-2">
-        <div className="hidden items-center gap-2 text-sm sm:flex">
+      <div className="flex flex-1 items-center gap-2 min-w-0">
+        <nav className="hidden items-center gap-1.5 text-sm sm:flex" aria-label="Breadcrumb">
           <span className="text-muted-foreground">Redwood</span>
-          <span className="text-muted-foreground/50">/</span>
-          <span className="font-medium text-foreground">{pageTitle}</span>
-        </div>
-        <span className="font-medium text-foreground sm:hidden">
-          {pageTitle}
+          <ChevronRight className="h-3 w-3 text-muted-foreground/40" />
+          <span className="text-muted-foreground">{meta.section}</span>
+          <ChevronRight className="h-3 w-3 text-muted-foreground/40" />
+          <span className="font-medium text-foreground truncate">{meta.title}</span>
+        </nav>
+        <span className="font-medium text-foreground sm:hidden truncate">
+          {meta.title}
         </span>
       </div>
 
+      {/* Command palette trigger */}
+      <CommandPaletteTrigger />
+
       {/* Data freshness in header */}
-      <div className="hidden md:block">
+      <div className="hidden lg:block">
         <FreshnessIndicator />
       </div>
 
