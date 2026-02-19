@@ -25,6 +25,7 @@ import {
 import { ModelSwitcher } from "@/components/controls/model-switcher";
 import { fmtCurrency, fmtPct } from "@/lib/format";
 import { HelpTip, HELP_TEXT } from "@/components/shared/help-tip";
+import { usePeriod } from "@/lib/period-context";
 
 const stagger = {
   hidden: { opacity: 0 },
@@ -92,6 +93,7 @@ function computeWonVsLost() {
 }
 
 export default function MultiTouchPage() {
+  const { periodLabel } = usePeriod();
   const [model, setModel] = useState<AttributionModel>("linear");
   const mt = useMemo(() => runAttribution(model, DATA), [model]);
   const ft = firstTouchAttribution(DATA);
@@ -114,9 +116,7 @@ export default function MultiTouchPage() {
             Multi-Touch Attribution
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Credit distributed across all touchpoints by engagement weight. This
-            model provides the most balanced view of channel influence across the
-            entire buyer journey.
+            Credit distributed across all touchpoints by engagement weight &middot; {periodLabel}
           </p>
         </div>
         <ModelSwitcher value={model} onChange={setModel} />

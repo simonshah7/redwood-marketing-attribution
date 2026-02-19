@@ -20,6 +20,7 @@ import {
   type Channel,
 } from "@/lib/data";
 import { HelpTip, HELP_TEXT } from "@/components/shared/help-tip";
+import { usePeriod } from "@/lib/period-context";
 
 const stagger = {
   hidden: { opacity: 0 },
@@ -61,6 +62,8 @@ function getChannelStats(ch: Channel) {
 }
 
 export default function ChannelsPage() {
+  const { periodLabel } = usePeriod();
+
   return (
     <motion.div
       variants={stagger}
@@ -74,8 +77,7 @@ export default function ChannelsPage() {
           Channel Performance
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Deep dive into individual channel metrics and campaign performance
-          across the 12-month analysis period.
+          Deep dive into individual channel metrics and campaign performance &middot; {periodLabel}
         </p>
       </motion.div>
 

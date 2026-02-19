@@ -9,6 +9,7 @@ import { InsightCard } from "@/components/cards/insight-card";
 import { ModelComparison } from "@/components/charts/model-comparison";
 import { PipelineFunnel } from "@/components/charts/pipeline-funnel";
 import { MonthlyTimeline } from "@/components/charts/monthly-timeline";
+import { TrendSparkline } from "@/components/charts/trend-sparkline";
 import { OverviewModelSwitcher } from "@/components/controls/overview-model-switcher";
 import { BudgetModal, BudgetTrigger, loadBudgets, type ChannelBudgets } from "@/components/controls/budget-modal";
 import { HelpTip, HELP_TEXT } from "@/components/shared/help-tip";
@@ -23,6 +24,8 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { fmtCurrency, fmtPct } from "@/lib/format";
 import { exportViewAsPdf } from "@/lib/export-pdf";
+import { usePeriod } from "@/lib/period-context";
+import { getMoMDelta, computeTrends } from "@/lib/mock-multi-period";
 
 function computeKpis() {
   const totalPipeline = DATA.reduce((s, d) => s + d.deal, 0);
@@ -110,6 +113,11 @@ export default function OverviewPage() {
   const [budgetOpen, setBudgetOpen] = useState(false);
   const [budgets, setBudgets] = useState<ChannelBudgets | null>(null);
   const viewRef = useRef<HTMLDivElement>(null);
+  const { period, periodLabel } = usePeriod();
+
+  // Period-aware MoM data
+  const momData = useMemo(() => getMoMDelta(period), [period]);
+  const trends = useMemo(() => computeTrends(), []);
 
   // Compute attribution using selected model
   const attribution = useMemo(() => runAttribution(model, DATA), [model]);
@@ -144,8 +152,7 @@ export default function OverviewPage() {
               Attribution Overview
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              RunMyJobs pipeline attribution across all channels &middot; Feb 2025
-              - Jan 2026
+              RunMyJobs pipeline attribution across all channels &middot; {periodLabel}
             </p>
           </div>
           <div className="flex items-center gap-3 flex-wrap">
@@ -174,46 +181,50 @@ export default function OverviewPage() {
           <motion.div variants={fadeUp}>
             <KpiCard
               title="Total Pipeline"
-              value={fmtCurrency(kpis.totalPipeline)}
-              delta="8.3% vs prior"
-              trend="negative"
+              value={fmtCurrency(momData.kpis.totalPipeline)}
+              delta={momData.deltas.pipeline !== null ? `${momData.deltas.pipeline > 0 ? "+" : ""}${momData.deltas.pipeline.toFixed(1)}% MoM` : "—"}
+              trend={momData.deltas.pipeline !== null ? (momData.deltas.pipeline > 0 ? "positive" : momData.deltas.pipeline < 0 ? "negative" : "neutral") : "neutral"}
               helpText={HELP_TEXT.total_pipeline}
+              sparkline={<TrendSparkline data={trends.pipeline} format="currency" />}
             />
           </motion.div>
           <motion.div variants={fadeUp}>
             <KpiCard
               title="Closed Won"
-              value={fmtCurrency(kpis.closedWon)}
-              delta="12.1% vs prior"
-              trend="negative"
+              value={fmtCurrency(momData.kpis.closedWonRevenue)}
+              delta={momData.deltas.closedWon !== null ? `${momData.deltas.closedWon > 0 ? "+" : ""}${momData.deltas.closedWon.toFixed(1)}% MoM` : "—"}
+              trend={momData.deltas.closedWon !== null ? (momData.deltas.closedWon > 0 ? "positive" : momData.deltas.closedWon < 0 ? "negative" : "neutral") : "neutral"}
               helpText={HELP_TEXT.closed_won}
+              sparkline={<TrendSparkline data={trends.closedWon} format="currency" />}
             />
           </motion.div>
           <motion.div variants={fadeUp}>
             <KpiCard
               title="Win Rate"
-              value={fmtPct(kpis.winRate)}
-              delta="3.2pp vs prior"
-              trend="negative"
+              value={fmtPct(momData.kpis.winRate)}
+              delta={momData.deltas.winRate !== null ? `${momData.deltas.winRate > 0 ? "+" : ""}${(momData.deltas.winRate * 100).toFixed(1)}pp MoM` : "—"}
+              trend={momData.deltas.winRate !== null ? (momData.deltas.winRate > 0 ? "positive" : momData.deltas.winRate < 0 ? "negative" : "neutral") : "neutral"}
               helpText={HELP_TEXT.win_rate}
+              sparkline={<TrendSparkline data={trends.winRate} format="pct" />}
             />
           </motion.div>
           <motion.div variants={fadeUp}>
             <KpiCard
-              title="Opportunities"
-              value={String(kpis.opps)}
-              delta="Flat vs prior"
-              trend="neutral"
+              title="Open Deals"
+              value={String(momData.kpis.openDeals)}
+              delta={momData.deltas.openDeals !== null ? `${momData.deltas.openDeals > 0 ? "+" : ""}${momData.deltas.openDeals} MoM` : "—"}
+              trend={momData.deltas.openDeals !== null ? (momData.deltas.openDeals > 0 ? "positive" : momData.deltas.openDeals < 0 ? "negative" : "neutral") : "neutral"}
               helpText={HELP_TEXT.opportunities}
             />
           </motion.div>
           <motion.div variants={fadeUp}>
             <KpiCard
               title="Avg Touches"
-              value={kpis.avgTouches.toFixed(1)}
-              delta="+1.4 vs prior"
-              trend="positive"
+              value={momData.kpis.avgTouchesPerDeal.toFixed(1)}
+              delta={momData.deltas.avgTouches !== null ? `${momData.deltas.avgTouches > 0 ? "+" : ""}${momData.deltas.avgTouches.toFixed(1)} MoM` : "—"}
+              trend={momData.deltas.avgTouches !== null ? (momData.deltas.avgTouches > 0 ? "positive" : momData.deltas.avgTouches < 0 ? "negative" : "neutral") : "neutral"}
               helpText={HELP_TEXT.avg_touches}
+              sparkline={<TrendSparkline data={trends.avgTouches} />}
             />
           </motion.div>
         </motion.div>

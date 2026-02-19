@@ -19,6 +19,7 @@ import { type AttributionModel, runAttribution } from "@/lib/attribution";
 import { ModelSwitcher } from "@/components/controls/model-switcher";
 import { fmtCurrency, fmtPct } from "@/lib/format";
 import { HelpTip, HELP_TEXT } from "@/components/shared/help-tip";
+import { usePeriod } from "@/lib/period-context";
 
 const stagger = {
   hidden: { opacity: 0 },
@@ -60,6 +61,7 @@ function getStageName(stage: string) {
 }
 
 export default function LastTouchPage() {
+  const { periodLabel } = usePeriod();
   const [model, setModel] = useState<AttributionModel>("last_touch");
   const lt = useMemo(() => runAttribution(model, DATA), [model]);
   const totalPipeline = CHANNEL_KEYS.reduce((s, ch) => s + lt[ch].pipeline, 0);
@@ -95,9 +97,7 @@ export default function LastTouchPage() {
             Last-Touch Attribution
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Full credit to the final marketing interaction before conversion. This
-            model reveals which channels are most effective at closing deals and
-            driving the final conversion action.
+            Full credit to the final marketing interaction before conversion &middot; {periodLabel}
           </p>
         </div>
         <ModelSwitcher value={model} onChange={setModel} />

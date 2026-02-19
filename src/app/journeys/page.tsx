@@ -15,6 +15,7 @@ import { ENRICHED_CHANNELS, type EnrichedChannel } from "@/lib/enriched-data";
 import { fmt } from "@/lib/utils";
 import { Phone, Mail, MessageSquare } from "lucide-react";
 import { HelpTip, HELP_TEXT } from "@/components/shared/help-tip";
+import { usePeriod } from "@/lib/period-context";
 
 const stagger = {
   hidden: { opacity: 0 },
@@ -75,6 +76,8 @@ const TIMELINE_LABELS = [
 ];
 
 export default function JourneysPage() {
+  const { periodLabel } = usePeriod();
+
   // Top 10 accounts by deal size
   const top10 = [...ENRICHED_DATA]
     .sort((a, b) => b.deal_amount - a.deal_amount)
@@ -93,9 +96,7 @@ export default function JourneysPage() {
           Account Journeys
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Visualize the complete marketing journey for key accounts. Each marker
-          represents a marketing touchpoint, colored by enriched channel. BDR touches
-          use distinct icons.
+          Complete marketing journey for key accounts &middot; {periodLabel}
         </p>
       </motion.div>
 

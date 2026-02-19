@@ -19,6 +19,7 @@ import {
 import { fmtCurrency, fmtPct } from "@/lib/format";
 import { generateExecutiveSummary } from "@/lib/export-summary";
 import { exportViewAsPdf } from "@/lib/export-pdf";
+import { usePeriod } from "@/lib/period-context";
 
 const stagger = {
   hidden: { opacity: 0 },
@@ -34,6 +35,7 @@ const fadeUp = {
 };
 
 export default function AIInsightsPage() {
+  const { periodLabel } = usePeriod();
   const [model, setModel] = useState<AttributionModel>("linear");
   const viewRef = useRef<HTMLDivElement>(null);
 
@@ -192,7 +194,7 @@ export default function AIInsightsPage() {
             AI Insights
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            AI-powered attribution intelligence and recommendations
+            AI-powered attribution intelligence and recommendations &middot; {periodLabel}
           </p>
         </div>
         <div className="flex items-center gap-3 flex-wrap">

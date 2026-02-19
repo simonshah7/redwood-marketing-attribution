@@ -15,6 +15,9 @@ import type {
   ProductLine,
   Segment,
   BDRStepType,
+  BuyingCommitteeMember,
+  ContactRole,
+  ContactSeniority,
 } from './enriched-data';
 
 // ---- Seeded random ----
@@ -195,6 +198,13 @@ const ACCOUNTS_BASE: AccountBase[] = [
   { name: 'Rio Tinto', size: 'Enterprise', industry: 'Mining', deal: 395000, stage: 'closed_won', region: 'APAC', deal_type: 'New Logo', product_line: 'RunMyJobs' },
   { name: 'Daimler Truck', size: 'Mid-Market', industry: 'Automotive', deal: 175000, stage: 'closed_lost', region: 'EMEA', deal_type: 'New Logo', product_line: 'RunMyJobs' },
   { name: 'Medtronic', size: 'Enterprise', industry: 'Medical Devices', deal: 415000, stage: 'closed_won', region: 'NA', deal_type: 'Expansion', product_line: 'RunMyJobs' },
+  // Finance Automation accounts (for cross-sell analysis)
+  { name: 'Siemens AG', size: 'Enterprise', industry: 'Manufacturing', deal: 320000, stage: 'eval_planning', region: 'EMEA', deal_type: 'Expansion', product_line: 'Finance Automation' },
+  { name: 'Deloitte LLP', size: 'Enterprise', industry: 'Professional Services', deal: 245000, stage: 'disco_completed', region: 'NA', deal_type: 'Expansion', product_line: 'Finance Automation' },
+  { name: 'Toyota Motor Corp', size: 'Enterprise', industry: 'Automotive', deal: 410000, stage: 'solution_accepted', region: 'APAC', deal_type: 'Expansion', product_line: 'Finance Automation' },
+  { name: 'BASF SE', size: 'Enterprise', industry: 'Chemicals', deal: 280000, stage: 'disco_set', region: 'EMEA', deal_type: 'Expansion', product_line: 'Finance Automation' },
+  { name: 'Pfizer Inc', size: 'Enterprise', industry: 'Pharma', deal: 195000, stage: 'negotiation', region: 'NA', deal_type: 'Expansion', product_line: 'Finance Automation' },
+  { name: 'Nestlé SA', size: 'Enterprise', industry: 'Consumer Goods', deal: 350000, stage: 'eval_planning', region: 'EMEA', deal_type: 'Expansion', product_line: 'Finance Automation' },
 ];
 
 // ---- Stage progression data ----
@@ -757,13 +767,118 @@ function generateInProgressDealTouchpoints(
   return touches.sort((a, b) => a.date.localeCompare(b.date));
 }
 
+// ---- Buying Committee Generation (for ABM) ----
+
+const COMMITTEE_NAMES: Record<ContactRole, { names: string[]; titles: string[] }> = {
+  champion: {
+    names: ['Alex Thompson', 'Maria Garcia', 'James Liu', 'Sarah Miller', 'Daniel Kim'],
+    titles: ['VP IT Operations', 'Sr Director IT', 'Head of Automation', 'VP Technology', 'Director Enterprise Apps'],
+  },
+  economic_buyer: {
+    names: ['Richard Chen', 'Katherine Hayes', 'Robert Mueller', 'Patricia Singh', 'Thomas Park'],
+    titles: ['CIO', 'CFO', 'SVP Technology', 'CTO', 'VP Finance & IT'],
+  },
+  technical_evaluator: {
+    names: ['Priya Sharma', 'Kevin Zhang', 'Lisa Andersen', 'Marcus Williams', 'Anna Kowalski'],
+    titles: ['Sr Systems Architect', 'SAP Basis Lead', 'IT Infrastructure Manager', 'DevOps Lead', 'Platform Engineer'],
+  },
+  influencer: {
+    names: ['Emily Watson', 'David Rodriguez', 'Jennifer Lee', 'Chris Brown', 'Michelle Davis'],
+    titles: ['Director of IT Strategy', 'Sr Business Analyst', 'PMO Director', 'VP Digital Transformation', 'Head of Procurement'],
+  },
+  blocker: {
+    names: ['Steven Clark', 'Andrew Hoffman', 'Laura Fischer', 'George Nelson', 'Diana Ross'],
+    titles: ['VP Legacy Systems', 'Sr Director Compliance', 'Head of Vendor Management', 'Security Architect', 'Risk Manager'],
+  },
+};
+
+const SENIORITY_BY_ROLE: Record<ContactRole, ContactSeniority[]> = {
+  champion: ['VP', 'Director'],
+  economic_buyer: ['C-Level', 'VP'],
+  technical_evaluator: ['Manager', 'Individual Contributor', 'Director'],
+  influencer: ['Director', 'VP', 'Manager'],
+  blocker: ['VP', 'Director'],
+};
+
+function generateBuyingCommittee(
+  accountName: string,
+  accountTouchpoints: UnifiedTouchpoint[],
+  contactIdBase: string,
+  stage: string,
+): BuyingCommitteeMember[] {
+  const roles: ContactRole[] = ['champion', 'economic_buyer', 'technical_evaluator', 'influencer'];
+  // More advanced deals have more committee members
+  const stageIdx = STAGE_ORDER.indexOf(stage);
+  const memberCount = Math.min(2 + Math.floor(stageIdx * 0.8), 5);
+
+  // Add blocker for some deals
+  if (seededRandom() > 0.6 && memberCount >= 3) {
+    roles.push('blocker');
+  }
+
+  const members: BuyingCommitteeMember[] = [];
+  const domain = accountName.toLowerCase().replace(/[^a-z]/g, '') + '.com';
+
+  for (let i = 0; i < Math.min(memberCount, roles.length); i++) {
+    const role = roles[i];
+    const roleData = COMMITTEE_NAMES[role];
+    const name = roleData.names[Math.floor(seededRandom() * roleData.names.length)];
+    const title = roleData.titles[Math.floor(seededRandom() * roleData.titles.length)];
+    const seniority = SENIORITY_BY_ROLE[role][Math.floor(seededRandom() * SENIORITY_BY_ROLE[role].length)];
+
+    // Distribute touchpoints across committee members
+    const memberTouchpoints = accountTouchpoints.filter(() => seededRandom() > 0.5);
+    const channels = [...new Set(memberTouchpoints.map(tp => tp.channel))];
+    const lastActivity = memberTouchpoints.length > 0
+      ? memberTouchpoints[memberTouchpoints.length - 1].date
+      : '2025-06-01';
+
+    // Champions and evaluators tend to have higher engagement
+    const baseScore = role === 'champion' ? 65 : role === 'technical_evaluator' ? 55 : role === 'economic_buyer' ? 40 : role === 'blocker' ? 15 : 35;
+    const engagementScore = Math.min(100, Math.max(0, baseScore + Math.floor(seededRandom() * 30) - 10));
+
+    members.push({
+      contact_id: `${contactIdBase}-c${i}`,
+      name,
+      title,
+      role,
+      seniority,
+      email_domain: domain,
+      engagement_score: engagementScore,
+      last_activity_date: lastActivity,
+      touchpoint_count: memberTouchpoints.length,
+      channels_engaged: channels as EnrichedChannel[],
+    });
+  }
+
+  return members;
+}
+
+// ---- Account-level engagement scoring ----
+
+function computeEngagementScore(touchpoints: UnifiedTouchpoint[], stage: string): { score: number; tier: 'hot' | 'warm' | 'cold' } {
+  const now = new Date('2026-01-31');
+  const recencyDays = touchpoints.length > 0
+    ? (now.getTime() - new Date(touchpoints[touchpoints.length - 1].date).getTime()) / 86400000
+    : 365;
+
+  const recencyScore = Math.max(0, 100 - recencyDays * 1.5);
+  const frequencyScore = Math.min(100, touchpoints.length * 8);
+  const breadthScore = Math.min(100, new Set(touchpoints.map(tp => tp.channel)).size * 18);
+
+  const score = Math.round(recencyScore * 0.35 + frequencyScore * 0.35 + breadthScore * 0.3);
+  const tier = score >= 65 ? 'hot' : score >= 35 ? 'warm' : 'cold';
+
+  return { score, tier };
+}
+
 // ============================================================
 // GENERATE ALL ENRICHED DATA
 // ============================================================
 function generateEnrichedData(): EnrichedAccount[] {
   seed = 42; // Reset seed for determinism
 
-  return ACCOUNTS_BASE.map((acc, idx) => {
+  const accounts = ACCOUNTS_BASE.map((acc, idx) => {
     const accountId = `001Dn${String(idx).padStart(6, '0')}`;
     const oppId = `006Dn${String(idx).padStart(6, '0')}`;
     const contactId = `003Dn${String(idx).padStart(6, '0')}`;
@@ -787,11 +902,15 @@ function generateEnrichedData(): EnrichedAccount[] {
       touchpoints = generateInProgressDealTouchpoints(acc, accountId, oppId, contactId, createdDate);
     }
 
+    const stageHistory = generateStageHistory(acc.stage, createdDate);
+    const { score: engScore, tier: engTier } = computeEngagementScore(touchpoints, acc.stage);
+    const buyingCommittee = generateBuyingCommittee(acc.name, touchpoints, contactId, acc.stage);
+
     return {
       account_id: accountId,
       account_name: acc.name,
       opportunity_id: oppId,
-      opportunity_name: `${acc.name} — RMJ ${acc.deal_type === 'Expansion' ? 'Expansion' : 'Enterprise'}`,
+      opportunity_name: `${acc.name} — ${acc.product_line === 'Finance Automation' ? 'FA' : 'RMJ'} ${acc.deal_type === 'Expansion' ? 'Expansion' : 'Enterprise'}`,
       deal_amount: acc.deal,
       stage: acc.stage,
       deal_type: acc.deal_type,
@@ -804,10 +923,35 @@ function generateEnrichedData(): EnrichedAccount[] {
       created_date: createdDate,
       close_date: closeDate,
       lead_source: pick(LEAD_SOURCES),
-      stage_history: generateStageHistory(acc.stage, createdDate),
+      stage_history: stageHistory,
       touchpoints,
+      buying_committee: buyingCommittee,
+      engagement_score: engScore,
+      engagement_tier: engTier,
+      cross_sell_opportunity_id: undefined as string | undefined,
     };
   });
+
+  // Link cross-sell opportunities
+  const crossSellPairs = [
+    ['Siemens AG', 'RunMyJobs', 'Finance Automation'],
+    ['Deloitte LLP', 'RunMyJobs', 'Finance Automation'],
+    ['Toyota Motor Corp', 'RunMyJobs', 'Finance Automation'],
+    ['BASF SE', 'RunMyJobs', 'Finance Automation'],
+    ['Pfizer Inc', 'RunMyJobs', 'Finance Automation'],
+    ['Nestlé SA', 'RunMyJobs', 'Finance Automation'],
+  ];
+
+  for (const [name, primary, secondary] of crossSellPairs) {
+    const primaryAcc = accounts.find(a => a.account_name === name && a.product_line === primary);
+    const secondaryAcc = accounts.find(a => a.account_name === name && a.product_line === secondary);
+    if (primaryAcc && secondaryAcc) {
+      primaryAcc.cross_sell_opportunity_id = secondaryAcc.opportunity_id;
+      secondaryAcc.cross_sell_opportunity_id = primaryAcc.opportunity_id;
+    }
+  }
+
+  return accounts;
 }
 
 export const ENRICHED_DATA: EnrichedAccount[] = generateEnrichedData();
