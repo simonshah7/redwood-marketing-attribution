@@ -17,7 +17,7 @@ interface KpiCardProps {
 
 export function KpiCard({ title, value, delta, trend, helpText, sparkline }: KpiCardProps) {
   return (
-    <Card className="transition-colors hover:border-primary/20">
+    <Card className="hover:border-primary/25">
       <CardContent className="p-5">
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           {title}
