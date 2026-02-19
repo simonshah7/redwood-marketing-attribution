@@ -27,6 +27,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { ENRICHED_DATA, ALL_TOUCHPOINTS } from "@/lib/mock-enriched-data";
 import { applyStageTransitionFilter } from "@/lib/explorer-analysis";
 import { exportViewAsPdf } from "@/lib/export-pdf";
+import { usePeriod } from "@/lib/period-context";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -194,6 +195,7 @@ function ExplorerContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const viewRef = useRef<HTMLDivElement>(null);
+  const { periodLabel } = usePeriod();
 
   // Initialize from URL params
   const [filters, setFilters] = useState<ExplorerFilters>(() => {
@@ -296,7 +298,7 @@ function ExplorerContent() {
         <div>
           <h1 className="text-2xl font-bold">Attribution Explorer</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Direct answers to 15 key business questions about marketing attribution.
+            Direct answers to 15 key business questions about marketing attribution &middot; {periodLabel}
           </p>
         </div>
         <div className="flex items-center gap-2">

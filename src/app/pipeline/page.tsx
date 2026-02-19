@@ -13,6 +13,7 @@ import {
 import { DATA, CHANNELS, CHANNEL_KEYS, STAGES, type Channel } from "@/lib/data";
 import { fmt } from "@/lib/utils";
 import { HelpTip, HELP_TEXT } from "@/components/shared/help-tip";
+import { usePeriod } from "@/lib/period-context";
 
 const stagger = {
   hidden: { opacity: 0 },
@@ -104,6 +105,7 @@ function buildIndustryData() {
 }
 
 export default function PipelinePage() {
+  const { periodLabel } = usePeriod();
   const stageData = buildStageChannelData();
   const regionData = buildRegionData();
   const industryData = buildIndustryData();
@@ -121,8 +123,7 @@ export default function PipelinePage() {
           Pipeline Influence
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Channel influence across pipeline stages, regions, and industry
-          segments.
+          Channel influence across pipeline stages, regions, and industries &middot; {periodLabel}
         </p>
       </motion.div>
 

@@ -12,9 +12,10 @@ interface KpiCardProps {
   delta: string;
   trend: "positive" | "negative" | "neutral";
   helpText?: string;
+  sparkline?: React.ReactNode;
 }
 
-export function KpiCard({ title, value, delta, trend, helpText }: KpiCardProps) {
+export function KpiCard({ title, value, delta, trend, helpText, sparkline }: KpiCardProps) {
   return (
     <Card className="transition-colors hover:border-primary/20">
       <CardContent className="p-5">
@@ -40,6 +41,7 @@ export function KpiCard({ title, value, delta, trend, helpText }: KpiCardProps) 
           {trend === "neutral" && <Minus className="h-3 w-3" />}
           {delta}
         </Badge>
+        {sparkline && <div className="mt-3">{sparkline}</div>}
       </CardContent>
     </Card>
   );

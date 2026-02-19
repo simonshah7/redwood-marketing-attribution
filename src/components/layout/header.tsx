@@ -3,9 +3,9 @@
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { Menu, Moon, Sun } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { FreshnessIndicator } from "@/components/shared/freshness";
+import { PeriodSelector } from "@/components/controls/period-selector";
 import { SidebarContent } from "./sidebar";
 
 const PAGE_TITLES: Record<string, string> = {
@@ -18,6 +18,13 @@ const PAGE_TITLES: Record<string, string> = {
   "/pipeline": "Pipeline Influence",
   "/explorer": "Attribution Explorer",
   "/ai-insights": "AI Insights",
+  "/deal-scoring": "Predictive Deal Scoring",
+  "/revenue-forecast": "Revenue Forecast",
+  "/abm": "ABM Command Centre",
+  "/next-best-action": "Next Best Action",
+  "/spend-optimizer": "Spend Optimizer",
+  "/content-intelligence": "Content Intelligence",
+  "/cross-sell": "Cross-Sell Attribution",
 };
 
 export function Header() {
@@ -43,7 +50,7 @@ export function Header() {
       {/* Breadcrumb */}
       <div className="flex flex-1 items-center gap-2">
         <div className="hidden items-center gap-2 text-sm sm:flex">
-          <span className="text-muted-foreground">RunMyJobs</span>
+          <span className="text-muted-foreground">Redwood</span>
           <span className="text-muted-foreground/50">/</span>
           <span className="font-medium text-foreground">{pageTitle}</span>
         </div>
@@ -57,10 +64,8 @@ export function Header() {
         <FreshnessIndicator />
       </div>
 
-      {/* Date badge */}
-      <Badge variant="secondary" className="hidden text-xs sm:inline-flex">
-        Pipeline Jan 31, 2025
-      </Badge>
+      {/* Period selector */}
+      <PeriodSelector />
 
       {/* Theme toggle */}
       <button

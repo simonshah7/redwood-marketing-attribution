@@ -19,6 +19,7 @@ import { type AttributionModel, runAttribution } from "@/lib/attribution";
 import { ModelSwitcher } from "@/components/controls/model-switcher";
 import { fmtCurrency, fmtPct } from "@/lib/format";
 import { HelpTip, HELP_TEXT } from "@/components/shared/help-tip";
+import { usePeriod } from "@/lib/period-context";
 
 const stagger = {
   hidden: { opacity: 0 },
@@ -60,6 +61,7 @@ function getStageName(stage: string) {
 }
 
 export default function FirstTouchPage() {
+  const { periodLabel } = usePeriod();
   const [model, setModel] = useState<AttributionModel>("first_touch");
   const ft = useMemo(() => runAttribution(model, DATA), [model]);
   const totalPipeline = CHANNEL_KEYS.reduce((s, ch) => s + ft[ch].pipeline, 0);
@@ -92,9 +94,7 @@ export default function FirstTouchPage() {
             First-Touch Attribution
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Full credit to the first marketing interaction. This model highlights
-            which channels are most effective at generating initial awareness and
-            bringing new prospects into the pipeline.
+            Full credit to the first marketing interaction &middot; {periodLabel}
           </p>
         </div>
         <ModelSwitcher value={model} onChange={setModel} />

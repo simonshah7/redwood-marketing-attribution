@@ -124,6 +124,25 @@ export interface StageHistoryEntry {
   days_in_stage: number;
 }
 
+// ============================================================
+// BUYING COMMITTEE & CONTACT ROLES (for ABM Command Centre)
+// ============================================================
+export type ContactRole = 'champion' | 'economic_buyer' | 'technical_evaluator' | 'influencer' | 'blocker';
+export type ContactSeniority = 'C-Level' | 'VP' | 'Director' | 'Manager' | 'Individual Contributor';
+
+export interface BuyingCommitteeMember {
+  contact_id: string;
+  name: string;
+  title: string;
+  role: ContactRole;
+  seniority: ContactSeniority;
+  email_domain: string;
+  engagement_score: number; // 0-100
+  last_activity_date: string;
+  touchpoint_count: number;
+  channels_engaged: EnrichedChannel[];
+}
+
 export interface EnrichedAccount {
   // Core (from Salesforce Opp)
   account_id: string;
@@ -148,6 +167,12 @@ export interface EnrichedAccount {
 
   // All touchpoints (unified)
   touchpoints: UnifiedTouchpoint[];
+
+  // ABM & Cross-sell extensions
+  buying_committee?: BuyingCommitteeMember[];
+  engagement_score?: number;
+  engagement_tier?: 'hot' | 'warm' | 'cold';
+  cross_sell_opportunity_id?: string;
 }
 
 // ============================================================
