@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -14,6 +15,8 @@ import { DATA, CHANNELS, CHANNEL_KEYS, STAGES, type Channel } from "@/lib/data";
 import { fmt } from "@/lib/utils";
 import { HelpTip, HELP_TEXT } from "@/components/shared/help-tip";
 import { usePeriod } from "@/lib/period-context";
+import { analyzeFunnel, analyzeVelocity } from "@/lib/funnel-analysis";
+import { ENRICHED_DATA } from "@/lib/mock-enriched-data";
 
 const stagger = {
   hidden: { opacity: 0 },
@@ -109,6 +112,8 @@ export default function PipelinePage() {
   const stageData = buildStageChannelData();
   const regionData = buildRegionData();
   const industryData = buildIndustryData();
+  const funnel = useMemo(() => analyzeFunnel(DATA), []);
+  const velocity = useMemo(() => analyzeVelocity(ENRICHED_DATA), []);
 
   return (
     <motion.div
@@ -218,6 +223,101 @@ export default function PipelinePage() {
           </CardContent>
         </Card>
       </motion.div>
+
+      {/* Stage-to-Stage Conversion Rates */}
+      <motion.div variants={fadeUp}>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-semibold uppercase tracking-wide">
+              Stage-to-Stage Conversion
+            </CardTitle>
+            <p className="text-xs text-muted-foreground">
+              Conversion rates between adjacent pipeline stages &middot; Overall: {(funnel.overallConversionRate * 100).toFixed(1)}% disco→close
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap items-center gap-2">
+              {funnel.stageMetrics.filter(s => s.stage !== 'closed_won' && s.stage !== 'closed_lost').map((stage, i, arr) => (
+                <div key={stage.stage} className="flex items-center gap-2">
+                  <div className="rounded-lg border border-border p-3 text-center min-w-[120px]">
+                    <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">{stage.stageName}</p>
+                    <p className="text-lg font-bold tabular-nums">{stage.accountCount}</p>
+                    <p className="text-[10px] text-muted-foreground">{fmt(stage.pipeline)}</p>
+                  </div>
+                  {i < arr.length - 1 && (
+                    <div className="flex flex-col items-center">
+                      <span className={`text-xs font-bold tabular-nums ${stage.conversionToNext >= 0.7 ? 'text-emerald-500' : stage.conversionToNext >= 0.4 ? 'text-amber-500' : 'text-red-500'}`}>
+                        {(stage.conversionToNext * 100).toFixed(0)}%
+                      </span>
+                      <span className="text-muted-foreground">→</span>
+                      <span className="text-[9px] text-muted-foreground">
+                        {(stage.dropoffRate * 100).toFixed(0)}% drop
+                      </span>
+                    </div>
+                  )}
+                </div>
+              ))}
+              <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3 text-center min-w-[120px]">
+                <p className="text-[10px] font-medium text-emerald-400 uppercase tracking-wide">Closed Won</p>
+                <p className="text-lg font-bold tabular-nums text-emerald-400">
+                  {funnel.stageMetrics.find(s => s.stage === 'closed_won')?.accountCount || 0}
+                </p>
+              </div>
+            </div>
+
+            {/* Insight */}
+            <div className="mt-4 rounded-lg border border-amber-500/20 bg-amber-500/5 p-3">
+              <p className="text-xs">
+                <span className="font-medium text-amber-400">Bottleneck: </span>
+                <span className="text-muted-foreground">
+                  Highest drop-off at <span className="font-medium text-foreground">{funnel.topDropoffStage.replace(/_/g, ' ')}</span>.
+                  Won deals average {funnel.avgTouchesWon.toFixed(1)} touches vs {funnel.avgTouchesLost.toFixed(1)} for lost.
+                </span>
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Velocity by Stage */}
+      {velocity.length > 0 && (
+        <motion.div variants={fadeUp}>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-semibold uppercase tracking-wide">
+                Stage Velocity (Avg Days)
+              </CardTitle>
+              <p className="text-xs text-muted-foreground">
+                Average time spent at each stage, segmented by deal outcome
+              </p>
+            </CardHeader>
+            <CardContent>
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    <th className="pb-3 pr-4">Stage</th>
+                    <th className="pb-3 pr-4 text-right">Won (days)</th>
+                    <th className="pb-3 pr-4 text-right">Lost (days)</th>
+                    <th className="pb-3 pr-4 text-right">Open (days)</th>
+                    <th className="pb-3 text-right">Overall</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {velocity.filter(v => v.stage !== 'closed_won' && v.stage !== 'closed_lost').map(v => (
+                    <tr key={v.stage} className="border-b border-border/50 transition-colors hover:bg-accent/50">
+                      <td className="py-3 pr-4 font-medium text-foreground">{v.stageName}</td>
+                      <td className="py-3 pr-4 text-right font-mono text-emerald-400">{v.wonAvgDays > 0 ? `${v.wonAvgDays.toFixed(0)}d` : '—'}</td>
+                      <td className="py-3 pr-4 text-right font-mono text-red-400">{v.lostAvgDays > 0 ? `${v.lostAvgDays.toFixed(0)}d` : '—'}</td>
+                      <td className="py-3 pr-4 text-right font-mono text-muted-foreground">{v.openAvgDays > 0 ? `${v.openAvgDays.toFixed(0)}d` : '—'}</td>
+                      <td className="py-3 text-right font-mono text-foreground">{v.allAvgDays > 0 ? `${v.allAvgDays.toFixed(0)}d` : '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
 
       {/* Region Breakdown */}
       <motion.div variants={fadeUp}>

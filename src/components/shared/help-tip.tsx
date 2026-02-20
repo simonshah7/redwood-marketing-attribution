@@ -43,6 +43,10 @@ export const HELP_TEXT = {
     "Gives more credit to touchpoints that happened recently, and less to older ones. Think of it like a half-life: a webinar last month matters more than a LinkedIn click 9 months ago. Use this to see which channels are actively accelerating your deals right now.",
   position_based:
     "Gives 40% credit to the very first touch (the one that started the conversation), 40% to the very last touch (the one that closed the deal), and spreads the remaining 20% evenly across everything in between. Great for understanding both what opens doors and what seals deals.",
+  markov:
+    "A data-driven model that calculates each channel's true incremental contribution by simulating what happens when you remove a channel entirely. Unlike heuristic models, this learns from your actual journey data — channels that appear in critical conversion paths get more credit.",
+  w_shaped:
+    "Credits three key milestones: 30% to the first touch (awareness), 30% to the lead-creation touch (engagement), and 30% to the opportunity-creation touch (intent). The remaining 10% is spread across middle interactions. Ideal for B2B where these conversion moments matter most.",
 
   // Overview KPIs
   total_pipeline:

@@ -88,6 +88,11 @@ const NAV_SECTIONS: NavSection[] = [
         href: "/pipeline",
         icon: <TrendingUp className="h-4 w-4" />,
       },
+      {
+        label: "Cohort Analysis",
+        href: "/cohorts",
+        icon: <Users className="h-4 w-4" />,
+      },
     ],
   },
   {

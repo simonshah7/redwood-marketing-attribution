@@ -231,3 +231,185 @@ export function generateForecast(
     weeklyProjection,
   };
 }
+
+// ---- Scenario Modeling ----
+
+export interface ForecastScenario {
+  label: string;
+  description: string;
+  adjustedTotal: number;
+  deltaFromBase: number;
+  deltaFromBasePct: number;
+  adjustedDeals: { account_name: string; originalCategory: string; newCategory: string; impact: number }[];
+}
+
+export function modelForecastScenarios(
+  forecast: RevenueForecast,
+): ForecastScenario[] {
+  const scenarios: ForecastScenario[] = [];
+  const baseTotal = forecast.marketingForecastTotal;
+
+  // Scenario 1: Accelerate top 3 pipeline deals to best_case
+  const pipelineDeals = forecast.deals
+    .filter(d => d.forecast_category === 'pipeline')
+    .slice(0, 3);
+
+  if (pipelineDeals.length > 0) {
+    const adjustedDeals = pipelineDeals.map(d => {
+      const newWeighted = Math.round(d.deal_amount * 0.65); // best_case avg ~65%
+      return {
+        account_name: d.account_name,
+        originalCategory: 'pipeline',
+        newCategory: 'best_case',
+        impact: newWeighted - d.marketing_weighted_amount,
+      };
+    });
+    const totalImpact = adjustedDeals.reduce((s, d) => s + d.impact, 0);
+    scenarios.push({
+      label: 'Accelerate Top Pipeline',
+      description: `Move top ${pipelineDeals.length} pipeline deals to best case via targeted engagement`,
+      adjustedTotal: baseTotal + totalImpact,
+      deltaFromBase: totalImpact,
+      deltaFromBasePct: baseTotal > 0 ? (totalImpact / baseTotal) * 100 : 0,
+      adjustedDeals,
+    });
+  }
+
+  // Scenario 2: Recover at-risk deals
+  const atRiskDeals = forecast.deals
+    .filter(d => d.forecast_category === 'at_risk')
+    .slice(0, 3);
+
+  if (atRiskDeals.length > 0) {
+    const adjustedDeals = atRiskDeals.map(d => {
+      const newWeighted = Math.round(d.deal_amount * 0.40); // pipeline avg ~40%
+      return {
+        account_name: d.account_name,
+        originalCategory: 'at_risk',
+        newCategory: 'pipeline',
+        impact: newWeighted - d.marketing_weighted_amount,
+      };
+    });
+    const totalImpact = adjustedDeals.reduce((s, d) => s + d.impact, 0);
+    scenarios.push({
+      label: 'Recover At-Risk',
+      description: `Re-engage top ${atRiskDeals.length} at-risk deals to move them back to pipeline`,
+      adjustedTotal: baseTotal + totalImpact,
+      deltaFromBase: totalImpact,
+      deltaFromBasePct: baseTotal > 0 ? (totalImpact / baseTotal) * 100 : 0,
+      adjustedDeals,
+    });
+  }
+
+  // Scenario 3: Lose at-risk deals (pessimistic)
+  if (atRiskDeals.length > 0) {
+    const adjustedDeals = atRiskDeals.map(d => ({
+      account_name: d.account_name,
+      originalCategory: 'at_risk',
+      newCategory: 'lost',
+      impact: -d.marketing_weighted_amount,
+    }));
+    const totalImpact = adjustedDeals.reduce((s, d) => s + d.impact, 0);
+    scenarios.push({
+      label: 'Pessimistic (Lose At-Risk)',
+      description: `At-risk deals are lost — shows downside exposure`,
+      adjustedTotal: baseTotal + totalImpact,
+      deltaFromBase: totalImpact,
+      deltaFromBasePct: baseTotal > 0 ? (totalImpact / baseTotal) * 100 : 0,
+      adjustedDeals,
+    });
+  }
+
+  // Scenario 4: Best case — accelerate everything one tier
+  const allMovable = forecast.deals.filter(d =>
+    d.forecast_category !== 'commit'
+  );
+  if (allMovable.length > 0) {
+    const categoryUpgrade: Record<string, { newCat: string; newProbMultiplier: number }> = {
+      best_case: { newCat: 'commit', newProbMultiplier: 0.85 },
+      pipeline: { newCat: 'best_case', newProbMultiplier: 0.65 },
+      at_risk: { newCat: 'pipeline', newProbMultiplier: 0.40 },
+    };
+    const adjustedDeals = allMovable.slice(0, 5).map(d => {
+      const upgrade = categoryUpgrade[d.forecast_category];
+      if (!upgrade) return { account_name: d.account_name, originalCategory: d.forecast_category, newCategory: d.forecast_category, impact: 0 };
+      const newWeighted = Math.round(d.deal_amount * upgrade.newProbMultiplier);
+      return {
+        account_name: d.account_name,
+        originalCategory: d.forecast_category,
+        newCategory: upgrade.newCat,
+        impact: newWeighted - d.marketing_weighted_amount,
+      };
+    });
+    const totalImpact = adjustedDeals.reduce((s, d) => s + d.impact, 0);
+    scenarios.push({
+      label: 'Best Case (All Accelerate)',
+      description: 'All deals move up one tier — maximum upside scenario',
+      adjustedTotal: baseTotal + totalImpact,
+      deltaFromBase: totalImpact,
+      deltaFromBasePct: baseTotal > 0 ? (totalImpact / baseTotal) * 100 : 0,
+      adjustedDeals,
+    });
+  }
+
+  return scenarios;
+}
+
+// ---- Historical Forecast Accuracy ----
+
+export interface ForecastAccuracy {
+  periodLabel: string;
+  forecastedRevenue: number;
+  actualRevenue: number;
+  accuracy: number; // 0-1 (1 = perfect)
+  overUnder: 'over' | 'under' | 'exact';
+  deltaAmount: number;
+  deltaPct: number;
+}
+
+export function computeForecastAccuracy(
+  accounts: EnrichedAccount[],
+): ForecastAccuracy[] {
+  // Simulate historical accuracy using closed deals
+  // For each quarter, compare what the stage-based forecast would have predicted vs actual
+  const wonDeals = accounts.filter(a => a.stage === 'closed_won');
+  const totalActual = wonDeals.reduce((s, a) => s + a.deal_amount, 0);
+
+  // Simulate what a stage-based forecast would have predicted
+  // (assume deals were at various earlier stages when forecast was made)
+  const stageProbabilities: Record<string, number> = {
+    disco_set: 0.10,
+    disco_completed: 0.20,
+    solution_accepted: 0.40,
+    eval_planning: 0.60,
+    negotiation: 0.80,
+    closed_won: 1.0,
+    closed_lost: 0.0,
+  };
+
+  // Generate 3 periods of simulated accuracy
+  const periods = [
+    { label: 'Q3 2025', factor: 0.85 },
+    { label: 'Q4 2025', factor: 0.92 },
+    { label: 'Q1 2026 (MTD)', factor: 1.0 },
+  ];
+
+  return periods.map(period => {
+    const forecastedRevenue = Math.round(totalActual * period.factor * 0.88); // Stage-based tends to over-predict
+    const actualRevenue = Math.round(totalActual * period.factor);
+    const delta = forecastedRevenue - actualRevenue;
+    const accuracy = actualRevenue > 0
+      ? Math.max(0, 1 - Math.abs(delta) / actualRevenue)
+      : 0;
+
+    return {
+      periodLabel: period.label,
+      forecastedRevenue,
+      actualRevenue,
+      accuracy,
+      overUnder: delta > 0 ? 'over' as const : delta < 0 ? 'under' as const : 'exact' as const,
+      deltaAmount: delta,
+      deltaPct: actualRevenue > 0 ? (delta / actualRevenue) * 100 : 0,
+    };
+  });
+}

@@ -23,6 +23,7 @@ import { ENRICHED_DATA } from "@/lib/mock-enriched-data";
 import { scoreAllOpenDeals } from "@/lib/deal-scoring";
 import {
   generateForecast,
+  modelForecastScenarios,
   type RevenueForecast,
   type ForecastDeal,
 } from "@/lib/revenue-forecast";
@@ -131,6 +132,7 @@ export default function RevenueForecastPage() {
     () => generateForecast(ENRICHED_DATA, dealScores),
     [dealScores]
   );
+  const scenarios = useMemo(() => modelForecastScenarios(forecast), [forecast]);
 
   const totalPipeline = forecast.deals.reduce((s, d) => s + d.deal_amount, 0);
   const maxBucketPipeline = Math.max(
@@ -321,6 +323,51 @@ export default function RevenueForecastPage() {
                 <div className="h-2.5 w-2.5 rounded-sm bg-muted-foreground/30" />
                 Stage-based
               </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Scenario Modeling */}
+      <motion.div variants={fadeUp}>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Scenario Modeling</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {scenarios.map(scenario => (
+                <div key={scenario.label} className="rounded-lg border border-border p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-sm font-medium">{scenario.label}</p>
+                    <span className={`text-xs font-mono font-bold ${
+                      scenario.deltaFromBase >= 0 ? 'text-emerald-500' : 'text-red-500'
+                    }`}>
+                      {scenario.deltaFromBase >= 0 ? '+' : ''}{fmtCurrency(scenario.deltaFromBase)}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground mb-3">{scenario.description}</p>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">Adjusted forecast</span>
+                    <span className="text-lg font-bold font-mono">{fmtCurrency(scenario.adjustedTotal)}</span>
+                  </div>
+                  <div className="mt-2 h-2 rounded-full bg-muted">
+                    <div
+                      className={`h-2 rounded-full ${scenario.deltaFromBase >= 0 ? 'bg-emerald-500' : 'bg-red-500'}`}
+                      style={{ width: `${Math.min(100, Math.max(5, (scenario.adjustedTotal / (forecast.marketingForecastTotal * 1.5)) * 100))}%` }}
+                    />
+                  </div>
+                  {scenario.adjustedDeals.length > 0 && (
+                    <div className="mt-2 space-y-0.5">
+                      {scenario.adjustedDeals.slice(0, 3).map((d, i) => (
+                        <p key={i} className="text-[10px] text-muted-foreground">
+                          {d.account_name}: {d.originalCategory} → {d.newCategory} ({d.impact >= 0 ? '+' : ''}{fmtCurrency(d.impact)})
+                        </p>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>

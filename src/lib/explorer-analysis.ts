@@ -168,6 +168,51 @@ export interface WinLossSignal {
   lost_pct: number;
   lift_ratio: number;
   statistical_significance: boolean;
+  confidence_level: 'high' | 'moderate' | 'low';
+}
+
+/**
+ * Chi-squared test for a 2x2 contingency table (approximation of Fisher's exact test).
+ *
+ *                | Has touchpoint | Doesn't have |
+ *   Won deals    | a              | b            |
+ *   Lost deals   | c              | d            |
+ *
+ * Returns { chi2, pValue, significant, confidenceLevel }.
+ */
+function chiSquared2x2(
+  a: number, b: number, c: number, d: number,
+): { chi2: number; pValue: number; significant: boolean; confidenceLevel: 'high' | 'moderate' | 'low' } {
+  const n = a + b + c + d;
+  const rowA = a + b;
+  const rowB = c + d;
+  const colA = a + c;
+  const colB = b + d;
+
+  // Guard against division by zero (any marginal total is 0)
+  if (n === 0 || rowA === 0 || rowB === 0 || colA === 0 || colB === 0) {
+    return { chi2: 0, pValue: 1, significant: false, confidenceLevel: 'low' };
+  }
+
+  const chi2 = (n * (a * d - b * c) ** 2) / (rowA * rowB * colA * colB);
+
+  // Approximate p-value from chi-squared with 1 degree of freedom
+  let pValue: number;
+  if (chi2 >= 6.64) {
+    pValue = 0.009; // p < 0.01
+  } else if (chi2 >= 3.84) {
+    pValue = 0.04; // p < 0.05
+  } else if (chi2 >= 2.71) {
+    pValue = 0.09; // p < 0.10
+  } else {
+    pValue = 0.5; // p >= 0.10 (not significant)
+  }
+
+  const significant = pValue < 0.1;
+  const confidenceLevel: 'high' | 'moderate' | 'low' =
+    pValue < 0.05 ? 'high' : pValue < 0.1 ? 'moderate' : 'low';
+
+  return { chi2, pValue, significant, confidenceLevel };
 }
 
 export function calculateWinLossSignals(accounts: EnrichedAccount[]): WinLossSignal[] {
@@ -221,6 +266,12 @@ export function calculateWinLossSignals(accounts: EnrichedAccount[]): WinLossSig
     const lostPct = lostWith / lostAccounts.length;
     const liftRatio = lostPct > 0 ? wonPct / lostPct : wonPct > 0 ? 10 : 1;
 
+    const a = wonWith;
+    const b = wonAccounts.length - wonWith;
+    const c = lostWith;
+    const d = lostAccounts.length - lostWith;
+    const { significant, confidenceLevel } = chiSquared2x2(a, b, c, d);
+
     results.push({
       touchpoint_descriptor: descriptor,
       touchpoint_type: type,
@@ -231,7 +282,8 @@ export function calculateWinLossSignals(accounts: EnrichedAccount[]): WinLossSig
       lost_deals_total: lostAccounts.length,
       lost_pct: lostPct,
       lift_ratio: liftRatio,
-      statistical_significance: wonWith >= 3 && lostWith >= 1,
+      statistical_significance: significant,
+      confidence_level: confidenceLevel,
     });
   }
 

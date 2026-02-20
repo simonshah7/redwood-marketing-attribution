@@ -181,7 +181,7 @@ export function computeChannelAttributionTrends(model: AttributionModel): Channe
 
 // ---- Model Divergence Analysis ----
 
-const ALL_MODELS: AttributionModel[] = ['first_touch', 'last_touch', 'linear', 'time_decay', 'position_based'];
+const ALL_MODELS: AttributionModel[] = ['first_touch', 'last_touch', 'linear', 'time_decay', 'position_based', 'markov', 'w_shaped'];
 
 const MODEL_LABELS: Record<AttributionModel, string> = {
   first_touch: 'First Touch',
@@ -189,6 +189,8 @@ const MODEL_LABELS: Record<AttributionModel, string> = {
   linear: 'Linear',
   time_decay: 'Time-Decay',
   position_based: 'Position-Based',
+  markov: 'Data-Driven (Markov)',
+  w_shaped: 'W-Shaped',
 };
 
 export function computeModelDivergence(period: ReportingPeriod): ModelDivergence[] {
