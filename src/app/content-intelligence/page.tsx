@@ -26,6 +26,8 @@ import {
   generateContentRecommendations,
 } from "@/lib/content-intelligence";
 import { fmtCurrency } from "@/lib/format";
+import { PageGuide } from "@/components/shared/page-guide";
+import { PAGE_GUIDES } from "@/lib/guide-content";
 
 const stagger = {
   hidden: { opacity: 0 },
@@ -102,6 +104,11 @@ export default function ContentIntelligencePage() {
           Which content accelerates deals, which is dead weight, and what should
           the content team create next.
         </p>
+      </motion.div>
+
+      {/* Page guide */}
+      <motion.div variants={fadeUp}>
+        <PageGuide {...PAGE_GUIDES["/content-intelligence"]} />
       </motion.div>
 
       {/* KPI Row */}

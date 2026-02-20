@@ -20,6 +20,11 @@ import { ModelSwitcher } from "@/components/controls/model-switcher";
 import { fmtCurrency, fmtPct } from "@/lib/format";
 import { HelpTip, HELP_TEXT } from "@/components/shared/help-tip";
 import { usePeriod } from "@/lib/period-context";
+import { PageGuide } from "@/components/shared/page-guide";
+import { SoWhatPanel } from "@/components/cards/so-what-panel";
+import { ActionCard } from "@/components/cards/action-card";
+import { PAGE_GUIDES } from "@/lib/guide-content";
+import { interpretSingleTouch } from "@/lib/interpretation-engine";
 
 const stagger = {
   hidden: { opacity: 0 },
@@ -75,6 +80,11 @@ export default function LastTouchPage() {
     }))
     .sort((a, b) => b.pipeline - a.pipeline);
 
+  const interpretation = useMemo(
+    () => interpretSingleTouch({ attribution: lt, channelKeys: CHANNEL_KEYS, modelName: "last-touch" }),
+    [lt]
+  );
+
   const accountData = DATA.map((acc) => ({
     ...acc,
     lastTouch:
@@ -101,6 +111,11 @@ export default function LastTouchPage() {
           </p>
         </div>
         <ModelSwitcher value={model} onChange={setModel} />
+      </motion.div>
+
+      {/* Page guide */}
+      <motion.div variants={fadeUp}>
+        <PageGuide {...PAGE_GUIDES["/last-touch"]} />
       </motion.div>
 
       {/* Channel Cards */}
@@ -200,6 +215,20 @@ export default function LastTouchPage() {
           </CardContent>
         </Card>
       </motion.div>
+
+      {/* Channel interpretation */}
+      <motion.div variants={fadeUp}>
+        <SoWhatPanel interpretations={interpretation.soWhats} />
+      </motion.div>
+
+      {/* Action Cards */}
+      {interpretation.actions.length > 0 && (
+        <motion.div variants={fadeUp} className="grid gap-4 md:grid-cols-2">
+          {interpretation.actions.map((a) => (
+            <ActionCard key={a.title} {...a} />
+          ))}
+        </motion.div>
+      )}
 
       {/* Account Table */}
       <motion.div variants={fadeUp}>

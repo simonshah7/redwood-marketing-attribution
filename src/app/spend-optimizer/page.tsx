@@ -22,6 +22,11 @@ import {
 import { optimizeSpend, compareScenarios, DEFAULT_SCENARIOS, type OptimizationResult } from "@/lib/spend-optimizer";
 import { TOTAL_QUARTERLY_BUDGET } from "@/lib/mock-channel-spend";
 import { fmtCurrency } from "@/lib/format";
+import { PageGuide } from "@/components/shared/page-guide";
+import { SoWhatPanel } from "@/components/cards/so-what-panel";
+import { ActionCard } from "@/components/cards/action-card";
+import { PAGE_GUIDES } from "@/lib/guide-content";
+import { interpretSpendOptimizer } from "@/lib/interpretation-engine";
 
 const stagger = {
   hidden: { opacity: 0 },
@@ -97,6 +102,17 @@ export default function SpendOptimizerPage() {
   const result = useMemo(() => optimizeSpend(budget), [budget]);
   const scenarios = useMemo(() => compareScenarios(budget, DEFAULT_SCENARIOS), [budget]);
 
+  const interpretation = useMemo(
+    () =>
+      interpretSpendOptimizer({
+        totalBudget: budget,
+        projectedPipelineDelta: result.pipelineDelta,
+        projectedPipelineDeltaPct: result.pipelineDeltaPct,
+        allocations: result.allocations,
+      }),
+    [budget, result]
+  );
+
   const maxBudget = Math.max(
     ...result.allocations.map((a) =>
       Math.max(a.currentBudget, a.recommendedBudget)
@@ -123,6 +139,11 @@ export default function SpendOptimizerPage() {
           Optimal budget allocation based on marginal ROI analysis across
           channels. Equalize marginal returns to maximize pipeline.
         </p>
+      </motion.div>
+
+      {/* Page guide */}
+      <motion.div variants={fadeUp}>
+        <PageGuide {...PAGE_GUIDES["/spend-optimizer"]} />
       </motion.div>
 
       {/* Budget Input + KPIs */}
@@ -258,6 +279,11 @@ export default function SpendOptimizerPage() {
         </Card>
       </motion.div>
 
+      {/* Allocation interpretation */}
+      <motion.div variants={fadeUp}>
+        <SoWhatPanel interpretations={interpretation.allocationSoWhats} />
+      </motion.div>
+
       {/* Channel Detail Table */}
       <motion.div variants={fadeUp}>
         <Card>
@@ -371,6 +397,15 @@ export default function SpendOptimizerPage() {
           </CardContent>
         </Card>
       </motion.div>
+
+      {/* Action Cards */}
+      {interpretation.actions.length > 0 && (
+        <motion.div variants={fadeUp} className="grid gap-4 md:grid-cols-2">
+          {interpretation.actions.map((a) => (
+            <ActionCard key={a.title} {...a} />
+          ))}
+        </motion.div>
+      )}
 
       {/* Methodology */}
       <motion.div variants={fadeUp}>

@@ -27,6 +27,11 @@ import {
   type IndustryCohort,
 } from "@/lib/cohort-analysis";
 import { Users, Trophy, Zap, TrendingUp } from "lucide-react";
+import { PageGuide } from "@/components/shared/page-guide";
+import { SoWhatPanel } from "@/components/cards/so-what-panel";
+import { ActionCard } from "@/components/cards/action-card";
+import { PAGE_GUIDES } from "@/lib/guide-content";
+import { interpretCohorts } from "@/lib/interpretation-engine";
 
 /* ── Animation variants ────────────────────────────────────── */
 
@@ -566,6 +571,47 @@ export default function CohortsPage() {
     allCohortRows[0],
   );
 
+  // Cohort interpretation per active tab
+  const interpretation = useMemo(() => {
+    let rows: typeof allCohortRows = [];
+    if (activeTab === "time") rows = analysis.timeCohorts;
+    else if (activeTab === "channel") rows = analysis.channelCohorts;
+    else if (activeTab === "density") rows = analysis.densityCohorts;
+    else if (activeTab === "industry") rows = analysis.industryCohorts;
+
+    if (rows.length < 2) return { soWhats: [], actions: [] };
+
+    const sorted = [...rows].sort((a, b) => b.winRate - a.winRate);
+    const top = sorted[0];
+    const bottom = sorted[sorted.length - 1];
+    const avg = rows.reduce((s, r) => s + r.winRate, 0) / rows.length;
+
+    // Density-specific params
+    let densityParams: { densityThreshold?: string; densityWinRateAbove?: number; densityWinRateBelow?: number } = {};
+    if (activeTab === "density" && analysis.densityCohorts.length >= 3) {
+      const midIdx = Math.floor(analysis.densityCohorts.length / 2);
+      const above = analysis.densityCohorts.slice(midIdx);
+      const below = analysis.densityCohorts.slice(0, midIdx);
+      const aboveAvg = above.reduce((s, c) => s + c.winRate, 0) / above.length;
+      const belowAvg = below.reduce((s, c) => s + c.winRate, 0) / below.length;
+      densityParams = {
+        densityThreshold: analysis.densityCohorts[midIdx].bucket.split("-")[0],
+        densityWinRateAbove: aboveAvg,
+        densityWinRateBelow: belowAvg,
+      };
+    }
+
+    return interpretCohorts({
+      activeTab: activeTab as "time" | "channel" | "density" | "industry",
+      topCohortLabel: top.label,
+      topCohortWinRate: top.winRate,
+      bottomCohortLabel: bottom.label,
+      bottomCohortWinRate: bottom.winRate,
+      avgWinRate: avg,
+      ...densityParams,
+    });
+  }, [activeTab, analysis]);
+
   return (
     <motion.div
       variants={stagger}
@@ -583,6 +629,11 @@ export default function CohortsPage() {
           engagement density, and industry to uncover patterns in pipeline
           performance.
         </p>
+      </motion.div>
+
+      {/* Page guide */}
+      <motion.div variants={fadeUp}>
+        <PageGuide {...PAGE_GUIDES["/cohorts"]} />
       </motion.div>
 
       {/* KPI Summary Row */}
@@ -694,6 +745,20 @@ export default function CohortsPage() {
           <IndustryTab cohorts={analysis.industryCohorts} />
         )}
       </motion.div>
+
+      {/* Cohort interpretation */}
+      <motion.div variants={fadeUp}>
+        <SoWhatPanel interpretations={interpretation.soWhats} />
+      </motion.div>
+
+      {/* Action Cards */}
+      {interpretation.actions.length > 0 && (
+        <motion.div variants={fadeUp} className="grid gap-4 md:grid-cols-2">
+          {interpretation.actions.map((a) => (
+            <ActionCard key={a.title} {...a} />
+          ))}
+        </motion.div>
+      )}
     </motion.div>
   );
 }

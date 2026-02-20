@@ -17,6 +17,8 @@ import { fmt } from "@/lib/utils";
 import { Phone, Mail, MessageSquare } from "lucide-react";
 import { HelpTip, HELP_TEXT } from "@/components/shared/help-tip";
 import { usePeriod } from "@/lib/period-context";
+import { PageGuide } from "@/components/shared/page-guide";
+import { PAGE_GUIDES } from "@/lib/guide-content";
 
 const stagger = {
   hidden: { opacity: 0 },
@@ -175,6 +177,11 @@ export default function JourneysPage() {
         <p className="mt-1 text-sm text-muted-foreground">
           Complete marketing journey for key accounts &middot; {periodLabel}
         </p>
+      </motion.div>
+
+      {/* Page guide */}
+      <motion.div variants={fadeUp}>
+        <PageGuide {...PAGE_GUIDES["/journeys"]} />
       </motion.div>
 
       {/* Enriched Channel Legend */}

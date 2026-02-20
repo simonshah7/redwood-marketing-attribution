@@ -21,6 +21,8 @@ import {
   type RecommendedAction,
 } from "@/lib/next-best-action";
 import { fmtCurrency } from "@/lib/format";
+import { PageGuide } from "@/components/shared/page-guide";
+import { PAGE_GUIDES } from "@/lib/guide-content";
 
 const stagger = {
   hidden: { opacity: 0 },
@@ -195,6 +197,11 @@ export default function NextBestActionPage() {
           Prescriptive recommendations for every open deal based on winning
           patterns, engagement gaps, and stage-appropriate actions.
         </p>
+      </motion.div>
+
+      {/* Page guide */}
+      <motion.div variants={fadeUp}>
+        <PageGuide {...PAGE_GUIDES["/next-best-action"]} />
       </motion.div>
 
       {/* KPI Row */}

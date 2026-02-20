@@ -26,6 +26,8 @@ import {
 import { ENRICHED_DATA } from "@/lib/mock-enriched-data";
 import { scoreABMAccounts, type ABMAccountScore } from "@/lib/abm-scoring";
 import { fmtCurrency } from "@/lib/format";
+import { PageGuide } from "@/components/shared/page-guide";
+import { PAGE_GUIDES } from "@/lib/guide-content";
 
 const stagger = {
   hidden: { opacity: 0 },
@@ -167,6 +169,11 @@ export default function ABMCommandPage() {
           Target account engagement heat map with buying committee visibility
           and recommended next plays.
         </p>
+      </motion.div>
+
+      {/* Page guide */}
+      <motion.div variants={fadeUp}>
+        <PageGuide {...PAGE_GUIDES["/abm"]} />
       </motion.div>
 
       {/* KPI Row */}

@@ -3,6 +3,7 @@ import { DM_Sans, JetBrains_Mono } from "next/font/google";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 import { PeriodProvider } from "@/lib/period-context";
+import { GuideProvider } from "@/lib/guide-context";
 import { SidebarContent } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
 import { CommandPalette } from "@/components/command-palette";
@@ -42,7 +43,8 @@ export default function RootLayout({
       <body className="font-sans antialiased">
         <ThemeProvider>
           <PeriodProvider>
-            <TooltipProvider delayDuration={0}>
+            <GuideProvider>
+              <TooltipProvider delayDuration={0}>
               {/* Skip to content — a11y */}
               <a
                 href="#main-content"
@@ -70,6 +72,7 @@ export default function RootLayout({
               <ScrollToTop />
             </TooltipProvider>
             <Toaster position="bottom-right" theme="dark" richColors />
+            </GuideProvider>
           </PeriodProvider>
         </ThemeProvider>
       </body>

@@ -2,7 +2,9 @@
 
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
-import { Menu, Moon, Sun, ChevronRight } from "lucide-react";
+import { Menu, Moon, Sun, ChevronRight, BookOpen } from "lucide-react";
+import { useGuide } from "@/lib/guide-context";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { FreshnessIndicator } from "@/components/shared/freshness";
 import { PeriodSelector } from "@/components/controls/period-selector";
@@ -32,12 +34,14 @@ const PAGE_META: Record<string, PageMeta> = {
   "/spend-optimizer": { title: "Spend Optimizer", section: "Actions" },
   "/content-intelligence": { title: "Content Intelligence", section: "Actions" },
   "/cross-sell": { title: "Cross-Sell Attribution", section: "Actions" },
+  "/cohorts": { title: "Cohort Analysis", section: "Deep Dives" },
 };
 
 export function Header() {
   const pathname = usePathname();
   const meta = PAGE_META[pathname] || { title: "Dashboard", section: "Attribution" };
   const { theme, setTheme } = useTheme();
+  const { guideMode, toggleGuideMode } = useGuide();
 
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b border-border bg-background/80 px-6 backdrop-blur-sm">
@@ -78,6 +82,27 @@ export function Header() {
 
       {/* Period selector */}
       <PeriodSelector />
+
+      {/* Guide Mode toggle */}
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            onClick={toggleGuideMode}
+            className={`flex h-8 w-8 items-center justify-center rounded-md border transition-colors ${
+              guideMode
+                ? "border-primary/30 bg-primary/10 text-primary"
+                : "border-border text-muted-foreground hover:bg-accent hover:text-foreground"
+            }`}
+            aria-label="Toggle guide mode"
+            aria-pressed={guideMode}
+          >
+            <BookOpen className="h-4 w-4" />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent side="bottom">
+          <p>Guide Mode {guideMode ? "On" : "Off"}</p>
+        </TooltipContent>
+      </Tooltip>
 
       {/* Theme toggle */}
       <button

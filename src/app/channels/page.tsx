@@ -21,6 +21,10 @@ import {
 } from "@/lib/data";
 import { HelpTip, HELP_TEXT } from "@/components/shared/help-tip";
 import { usePeriod } from "@/lib/period-context";
+import { PageGuide } from "@/components/shared/page-guide";
+import { SoWhatPanel } from "@/components/cards/so-what-panel";
+import { PAGE_GUIDES } from "@/lib/guide-content";
+import { useMemo } from "react";
 
 const stagger = {
   hidden: { opacity: 0 },
@@ -64,6 +68,19 @@ function getChannelStats(ch: Channel) {
 export default function ChannelsPage() {
   const { periodLabel } = usePeriod();
 
+  // Compute channel-level SoWhats
+  const channelSoWhats = useMemo(() => {
+    const stats = CHANNEL_KEYS.map(ch => {
+      const touches = DATA.flatMap(d => d.touches.filter(t => t.channel === ch)).length;
+      return { ch, touches };
+    }).sort((a, b) => b.touches - a.touches);
+    const top = stats[0];
+    const bottom = stats[stats.length - 1];
+    return [
+      `${CHANNELS[top.ch].name} has the most activity with ${top.touches} touches, while ${CHANNELS[bottom.ch].name} trails with ${bottom.touches}. Touch volume alone doesn't predict conversion — compare with win rates on the Overview page.`,
+    ];
+  }, []);
+
   return (
     <motion.div
       variants={stagger}
@@ -79,6 +96,11 @@ export default function ChannelsPage() {
         <p className="mt-1 text-sm text-muted-foreground">
           Deep dive into individual channel metrics and campaign performance &middot; {periodLabel}
         </p>
+      </motion.div>
+
+      {/* Page guide */}
+      <motion.div variants={fadeUp}>
+        <PageGuide {...PAGE_GUIDES["/channels"]} />
       </motion.div>
 
       {/* Channel Cards 2x2 */}
@@ -181,6 +203,10 @@ export default function ChannelsPage() {
             </motion.div>
           );
         })}
+      </motion.div>
+      {/* Channel interpretation */}
+      <motion.div variants={fadeUp}>
+        <SoWhatPanel interpretations={channelSoWhats} />
       </motion.div>
     </motion.div>
   );

@@ -17,6 +17,11 @@ import { HelpTip, HELP_TEXT } from "@/components/shared/help-tip";
 import { usePeriod } from "@/lib/period-context";
 import { analyzeFunnel, analyzeVelocity } from "@/lib/funnel-analysis";
 import { ENRICHED_DATA } from "@/lib/mock-enriched-data";
+import { PageGuide } from "@/components/shared/page-guide";
+import { SoWhatPanel } from "@/components/cards/so-what-panel";
+import { ActionCard } from "@/components/cards/action-card";
+import { PAGE_GUIDES } from "@/lib/guide-content";
+import { interpretPipeline } from "@/lib/interpretation-engine";
 
 const stagger = {
   hidden: { opacity: 0 },
@@ -115,6 +120,20 @@ export default function PipelinePage() {
   const funnel = useMemo(() => analyzeFunnel(DATA), []);
   const velocity = useMemo(() => analyzeVelocity(ENRICHED_DATA), []);
 
+  const interpretation = useMemo(
+    () =>
+      interpretPipeline({
+        stageMetrics: funnel.stageMetrics,
+        velocityByStage: velocity,
+        overallConversionRate: funnel.overallConversionRate,
+        topDropoffStage: funnel.topDropoffStage,
+        bottleneckStage: funnel.bottleneckStage,
+        avgTouchesWon: funnel.avgTouchesWon,
+        avgTouchesLost: funnel.avgTouchesLost,
+      }),
+    [funnel, velocity]
+  );
+
   return (
     <motion.div
       variants={stagger}
@@ -130,6 +149,11 @@ export default function PipelinePage() {
         <p className="mt-1 text-sm text-muted-foreground">
           Channel influence across pipeline stages, regions, and industries &middot; {periodLabel}
         </p>
+      </motion.div>
+
+      {/* Page guide */}
+      <motion.div variants={fadeUp}>
+        <PageGuide {...PAGE_GUIDES["/pipeline"]} />
       </motion.div>
 
       {/* Stage Influence */}
@@ -279,6 +303,11 @@ export default function PipelinePage() {
         </Card>
       </motion.div>
 
+      {/* Conversion interpretation */}
+      <motion.div variants={fadeUp}>
+        <SoWhatPanel interpretations={interpretation.conversionSoWhats} />
+      </motion.div>
+
       {/* Velocity by Stage */}
       {velocity.length > 0 && (
         <motion.div variants={fadeUp}>
@@ -318,6 +347,11 @@ export default function PipelinePage() {
           </Card>
         </motion.div>
       )}
+
+      {/* Velocity interpretation */}
+      <motion.div variants={fadeUp}>
+        <SoWhatPanel interpretations={interpretation.velocitySoWhats} />
+      </motion.div>
 
       {/* Region Breakdown */}
       <motion.div variants={fadeUp}>
@@ -435,6 +469,15 @@ export default function PipelinePage() {
           </CardContent>
         </Card>
       </motion.div>
+
+      {/* Action Cards */}
+      {interpretation.actions.length > 0 && (
+        <motion.div variants={fadeUp} className="grid gap-4 md:grid-cols-2">
+          {interpretation.actions.map((a) => (
+            <ActionCard key={a.title} {...a} />
+          ))}
+        </motion.div>
+      )}
     </motion.div>
   );
 }

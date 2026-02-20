@@ -22,6 +22,8 @@ import {
 import { ENRICHED_DATA } from "@/lib/mock-enriched-data";
 import { analyzeCrossSell, type CrossSellSummary } from "@/lib/cross-sell-analysis";
 import { fmtCurrency } from "@/lib/format";
+import { PageGuide } from "@/components/shared/page-guide";
+import { PAGE_GUIDES } from "@/lib/guide-content";
 
 const stagger = {
   hidden: { opacity: 0 },
@@ -135,6 +137,11 @@ export default function CrossSellPage() {
           Identify which content sequences and engagement patterns predict
           cross-sell success.
         </p>
+      </motion.div>
+
+      {/* Page guide */}
+      <motion.div variants={fadeUp}>
+        <PageGuide {...PAGE_GUIDES["/cross-sell"]} />
       </motion.div>
 
       {/* KPI Row */}
