@@ -3,6 +3,7 @@ import { DM_Sans, JetBrains_Mono } from "next/font/google";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 import { PeriodProvider } from "@/lib/period-context";
+import { GuideProvider } from "@/lib/guide-context";
 import { SidebarContent } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
 import { CommandPalette } from "@/components/command-palette";
@@ -39,10 +40,17 @@ export default function RootLayout({
       className={`${dmSans.variable} ${jetBrainsMono.variable}`}
       suppressHydrationWarning
     >
-      <body className="font-sans antialiased">
+      <body className="font-sans antialiased" suppressHydrationWarning>
+        {/* Set dynamic print date */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `document.body.setAttribute('data-print-date', new Date().toLocaleDateString('en-US', {year:'numeric',month:'short',day:'numeric'}));`,
+          }}
+        />
         <ThemeProvider>
           <PeriodProvider>
-            <TooltipProvider delayDuration={0}>
+            <GuideProvider>
+              <TooltipProvider delayDuration={300}>
               {/* Skip to content — a11y */}
               <a
                 href="#main-content"
@@ -53,7 +61,7 @@ export default function RootLayout({
 
               <div className="flex min-h-screen">
                 {/* Desktop sidebar */}
-                <aside className="hidden w-[260px] shrink-0 border-r border-border bg-card lg:block">
+                <aside className="hidden w-[260px] shrink-0 border-r border-border bg-card lg:block" aria-label="Primary navigation">
                   <div className="sticky top-0 h-screen overflow-y-auto">
                     <SidebarContent />
                   </div>
@@ -62,7 +70,9 @@ export default function RootLayout({
                 {/* Main content */}
                 <div className="flex flex-1 flex-col">
                   <Header />
-                  <main id="main-content" className="flex-1 p-6" tabIndex={-1}>{children}</main>
+                  <main id="main-content" className="flex-1 p-4 sm:p-6" tabIndex={-1}>
+                    <div className="mx-auto max-w-[1400px]">{children}</div>
+                  </main>
                 </div>
               </div>
 
@@ -70,6 +80,7 @@ export default function RootLayout({
               <ScrollToTop />
             </TooltipProvider>
             <Toaster position="bottom-right" theme="dark" richColors />
+            </GuideProvider>
           </PeriodProvider>
         </ThemeProvider>
       </body>

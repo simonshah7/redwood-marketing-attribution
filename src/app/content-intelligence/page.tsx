@@ -26,19 +26,9 @@ import {
   generateContentRecommendations,
 } from "@/lib/content-intelligence";
 import { fmtCurrency } from "@/lib/format";
-
-const stagger = {
-  hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.06 } },
-};
-const fadeUp = {
-  hidden: { opacity: 0, y: 12 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.4, ease: "easeOut" as const },
-  },
-};
+import { PageGuide } from "@/components/shared/page-guide";
+import { PAGE_GUIDES } from "@/lib/guide-content";
+import { stagger, fadeUp } from "@/lib/motion";
 
 const STAGE_LABELS: Record<string, string> = {
   disco_set: "Discovery",
@@ -102,6 +92,11 @@ export default function ContentIntelligencePage() {
           Which content accelerates deals, which is dead weight, and what should
           the content team create next.
         </p>
+      </motion.div>
+
+      {/* Page guide */}
+      <motion.div variants={fadeUp}>
+        <PageGuide {...PAGE_GUIDES["/content-intelligence"]} />
       </motion.div>
 
       {/* KPI Row */}

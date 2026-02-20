@@ -29,6 +29,8 @@ import { applyStageTransitionFilter } from "@/lib/explorer-analysis";
 import { exportViewAsPdf } from "@/lib/export-pdf";
 import { usePeriod } from "@/lib/period-context";
 import { cn } from "@/lib/utils";
+import { PageGuide } from "@/components/shared/page-guide";
+import { PAGE_GUIDES } from "@/lib/guide-content";
 import { Badge } from "@/components/ui/badge";
 import {
   Select,
@@ -322,6 +324,11 @@ function ExplorerContent() {
             Export PDF
           </button>
         </div>
+      </motion.div>
+
+      {/* Page guide */}
+      <motion.div variants={item}>
+        <PageGuide {...PAGE_GUIDES["/explorer"]} />
       </motion.div>
 
       {/* Global Filter Bar + Stage Transition + Saved Views */}

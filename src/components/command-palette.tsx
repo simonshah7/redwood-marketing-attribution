@@ -21,6 +21,7 @@ import {
   LineChart,
   ArrowRightLeft,
   Command,
+  GitBranch,
 } from "lucide-react";
 
 interface NavResult {
@@ -37,6 +38,7 @@ const NAV_ITEMS: NavResult[] = [
   { label: "Last-Touch Attribution", href: "/last-touch", section: "Attribution", icon: <Target className="h-4 w-4" />, keywords: ["last", "touch", "conversion", "close"] },
   { label: "Multi-Touch Attribution", href: "/multi-touch", section: "Attribution", icon: <Layers className="h-4 w-4" />, keywords: ["multi", "touch", "linear", "time", "decay", "position"] },
   { label: "Attribution Trends", href: "/attribution-trends", section: "Attribution", icon: <LineChart className="h-4 w-4" />, keywords: ["trends", "momentum", "divergence", "period"] },
+  { label: "Data-Driven (Markov)", href: "/data-driven", section: "Attribution", icon: <GitBranch className="h-4 w-4" />, keywords: ["markov", "data", "driven", "probabilistic", "removal", "transition"] },
   { label: "Channel Performance", href: "/channels", section: "Deep Dives", icon: <Radio className="h-4 w-4" />, keywords: ["channel", "linkedin", "email", "events", "campaigns"] },
   { label: "Account Journeys", href: "/journeys", section: "Deep Dives", icon: <Route className="h-4 w-4" />, keywords: ["journey", "timeline", "account", "touchpoints"] },
   { label: "Pipeline Influence", href: "/pipeline", section: "Deep Dives", icon: <TrendingUp className="h-4 w-4" />, keywords: ["pipeline", "funnel", "stages", "influence", "region"] },

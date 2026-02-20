@@ -24,19 +24,12 @@ import {
 import { ENRICHED_DATA } from "@/lib/mock-enriched-data";
 import { scoreAllOpenDeals, backtestDealScoring, type DealScore } from "@/lib/deal-scoring";
 import { fmtCurrency } from "@/lib/format";
-
-const stagger = {
-  hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.06 } },
-};
-const fadeUp = {
-  hidden: { opacity: 0, y: 12 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.4, ease: "easeOut" as const },
-  },
-};
+import { PageGuide } from "@/components/shared/page-guide";
+import { SoWhatPanel } from "@/components/cards/so-what-panel";
+import { ActionCard } from "@/components/cards/action-card";
+import { PAGE_GUIDES } from "@/lib/guide-content";
+import { interpretDealScoring } from "@/lib/interpretation-engine";
+import { stagger, fadeUp } from "@/lib/motion";
 
 function ScoreBadge({ score }: { score: number }) {
   const color =
@@ -105,6 +98,18 @@ export default function DealScoringPage() {
     0
   );
 
+  const interpretation = useMemo(
+    () =>
+      interpretDealScoring({
+        scores,
+        backtest,
+        avgScore,
+        atRiskCount,
+        totalWeightedPipeline,
+      }),
+    [scores, backtest, avgScore, atRiskCount, totalWeightedPipeline]
+  );
+
   // Score distribution
   const distribution = [
     { label: "0-20%", count: scores.filter((s) => s.probability < 20).length, color: "bg-red-500" },
@@ -131,6 +136,11 @@ export default function DealScoringPage() {
           Every open deal scored by probability of closing based on touchpoint
           pattern analysis against won and lost deals.
         </p>
+      </motion.div>
+
+      {/* Page guide */}
+      <motion.div variants={fadeUp}>
+        <PageGuide {...PAGE_GUIDES["/deal-scoring"]} />
       </motion.div>
 
       {/* KPI Row */}
@@ -189,6 +199,11 @@ export default function DealScoringPage() {
             </div>
           </CardContent>
         </Card>
+      </motion.div>
+
+      {/* KPI interpretation */}
+      <motion.div variants={fadeUp}>
+        <SoWhatPanel interpretations={interpretation.kpiSoWhats} />
       </motion.div>
 
       {/* Score Distribution */}
@@ -277,6 +292,11 @@ export default function DealScoringPage() {
         </Card>
       </motion.div>
 
+      {/* Backtest interpretation */}
+      <motion.div variants={fadeUp}>
+        <SoWhatPanel interpretations={interpretation.backtestSoWhats} />
+      </motion.div>
+
       {/* Deal Score Table */}
       <motion.div variants={fadeUp}>
         <Card>
@@ -291,12 +311,12 @@ export default function DealScoringPage() {
                 <TableRow>
                   <TableHead>Account</TableHead>
                   <TableHead className="text-right">Deal Value</TableHead>
-                  <TableHead>Stage</TableHead>
+                  <TableHead className="hidden sm:table-cell">Stage</TableHead>
                   <TableHead>Score</TableHead>
-                  <TableHead>Score Breakdown</TableHead>
-                  <TableHead>Confidence</TableHead>
-                  <TableHead>Trend</TableHead>
-                  <TableHead>Top Risk</TableHead>
+                  <TableHead className="hidden lg:table-cell">Score Breakdown</TableHead>
+                  <TableHead className="hidden md:table-cell">Confidence</TableHead>
+                  <TableHead className="hidden md:table-cell">Trend</TableHead>
+                  <TableHead className="hidden sm:table-cell">Top Risk</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -311,7 +331,7 @@ export default function DealScoringPage() {
                     <TableCell className="text-right font-mono text-sm">
                       {fmtCurrency(deal.deal_amount)}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden sm:table-cell">
                       <Badge variant="secondary" className="text-[10px]">
                         {deal.stage.replace(/_/g, " ")}
                       </Badge>
@@ -319,10 +339,10 @@ export default function DealScoringPage() {
                     <TableCell>
                       <ScoreBadge score={deal.probability} />
                     </TableCell>
-                    <TableCell className="w-48">
+                    <TableCell className="hidden lg:table-cell w-48">
                       <ScoreBar components={deal.score_components} />
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden md:table-cell">
                       <Badge
                         variant="secondary"
                         className={`text-[10px] ${
@@ -336,7 +356,7 @@ export default function DealScoringPage() {
                         {deal.confidence}
                       </Badge>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden md:table-cell">
                       <div className="flex items-center gap-1">
                         <TrendIcon trend={deal.trend} />
                         <span className="text-xs text-muted-foreground">
@@ -344,7 +364,7 @@ export default function DealScoringPage() {
                         </span>
                       </div>
                     </TableCell>
-                    <TableCell className="max-w-40">
+                    <TableCell className="hidden sm:table-cell max-w-40">
                       {deal.risk_factors.length > 0 ? (
                         <span
                           className={`text-xs ${
@@ -368,6 +388,15 @@ export default function DealScoringPage() {
           </CardContent>
         </Card>
       </motion.div>
+
+      {/* Action Cards */}
+      {interpretation.actions.length > 0 && (
+        <motion.div variants={fadeUp} className="grid gap-4 md:grid-cols-2">
+          {interpretation.actions.map((a) => (
+            <ActionCard key={a.title} {...a} />
+          ))}
+        </motion.div>
+      )}
 
       {/* Score Component Legend */}
       <motion.div variants={fadeUp}>

@@ -28,19 +28,9 @@ import {
   type ForecastDeal,
 } from "@/lib/revenue-forecast";
 import { fmtCurrency } from "@/lib/format";
-
-const stagger = {
-  hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.06 } },
-};
-const fadeUp = {
-  hidden: { opacity: 0, y: 12 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.4, ease: "easeOut" as const },
-  },
-};
+import { PageGuide } from "@/components/shared/page-guide";
+import { PAGE_GUIDES } from "@/lib/guide-content";
+import { stagger, fadeUp } from "@/lib/motion";
 
 function CategoryBadge({
   category,
@@ -157,6 +147,11 @@ export default function RevenueForecastPage() {
           Marketing-informed forecast based on deal scores and touchpoint
           patterns vs traditional stage-based forecast.
         </p>
+      </motion.div>
+
+      {/* Page guide */}
+      <motion.div variants={fadeUp}>
+        <PageGuide {...PAGE_GUIDES["/revenue-forecast"]} />
       </motion.div>
 
       {/* KPI Row */}

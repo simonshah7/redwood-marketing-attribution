@@ -22,19 +22,12 @@ import {
 import { optimizeSpend, compareScenarios, DEFAULT_SCENARIOS, type OptimizationResult } from "@/lib/spend-optimizer";
 import { TOTAL_QUARTERLY_BUDGET } from "@/lib/mock-channel-spend";
 import { fmtCurrency } from "@/lib/format";
-
-const stagger = {
-  hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.06 } },
-};
-const fadeUp = {
-  hidden: { opacity: 0, y: 12 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.4, ease: "easeOut" as const },
-  },
-};
+import { PageGuide } from "@/components/shared/page-guide";
+import { SoWhatPanel } from "@/components/cards/so-what-panel";
+import { ActionCard } from "@/components/cards/action-card";
+import { PAGE_GUIDES } from "@/lib/guide-content";
+import { interpretSpendOptimizer } from "@/lib/interpretation-engine";
+import { stagger, fadeUp } from "@/lib/motion";
 
 function AllocationBar({
   current,
@@ -97,6 +90,17 @@ export default function SpendOptimizerPage() {
   const result = useMemo(() => optimizeSpend(budget), [budget]);
   const scenarios = useMemo(() => compareScenarios(budget, DEFAULT_SCENARIOS), [budget]);
 
+  const interpretation = useMemo(
+    () =>
+      interpretSpendOptimizer({
+        totalBudget: budget,
+        projectedPipelineDelta: result.pipelineDelta,
+        projectedPipelineDeltaPct: result.pipelineDeltaPct,
+        allocations: result.allocations,
+      }),
+    [budget, result]
+  );
+
   const maxBudget = Math.max(
     ...result.allocations.map((a) =>
       Math.max(a.currentBudget, a.recommendedBudget)
@@ -123,6 +127,11 @@ export default function SpendOptimizerPage() {
           Optimal budget allocation based on marginal ROI analysis across
           channels. Equalize marginal returns to maximize pipeline.
         </p>
+      </motion.div>
+
+      {/* Page guide */}
+      <motion.div variants={fadeUp}>
+        <PageGuide {...PAGE_GUIDES["/spend-optimizer"]} />
       </motion.div>
 
       {/* Budget Input + KPIs */}
@@ -258,6 +267,11 @@ export default function SpendOptimizerPage() {
         </Card>
       </motion.div>
 
+      {/* Allocation interpretation */}
+      <motion.div variants={fadeUp}>
+        <SoWhatPanel interpretations={interpretation.allocationSoWhats} />
+      </motion.div>
+
       {/* Channel Detail Table */}
       <motion.div variants={fadeUp}>
         <Card>
@@ -269,12 +283,12 @@ export default function SpendOptimizerPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Channel</TableHead>
-                  <TableHead className="text-right">Current Spend</TableHead>
+                  <TableHead className="text-right hidden sm:table-cell">Current Spend</TableHead>
                   <TableHead className="text-right">Recommended</TableHead>
                   <TableHead className="text-right">Change</TableHead>
-                  <TableHead className="text-right">Current ROI</TableHead>
-                  <TableHead className="text-right">Projected ROI</TableHead>
-                  <TableHead>Pipeline Impact</TableHead>
+                  <TableHead className="text-right hidden md:table-cell">Current ROI</TableHead>
+                  <TableHead className="text-right hidden md:table-cell">Projected ROI</TableHead>
+                  <TableHead className="hidden lg:table-cell">Pipeline Impact</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -283,7 +297,7 @@ export default function SpendOptimizerPage() {
                     <TableCell className="font-medium">
                       {alloc.channelName}
                     </TableCell>
-                    <TableCell className="text-right font-mono text-sm">
+                    <TableCell className="text-right font-mono text-sm hidden sm:table-cell">
                       {fmtCurrency(alloc.currentBudget)}
                     </TableCell>
                     <TableCell className="text-right font-mono text-sm text-primary">
@@ -303,13 +317,13 @@ export default function SpendOptimizerPage() {
                         {alloc.changePct.toFixed(0)}%
                       </span>
                     </TableCell>
-                    <TableCell className="text-right font-mono text-sm">
+                    <TableCell className="text-right font-mono text-sm hidden md:table-cell">
                       {alloc.currentROI.toFixed(1)}x
                     </TableCell>
-                    <TableCell className="text-right font-mono text-sm text-primary">
+                    <TableCell className="text-right font-mono text-sm text-primary hidden md:table-cell">
                       {alloc.projectedROI.toFixed(1)}x
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden lg:table-cell">
                       <div className="flex items-center gap-2">
                         <WaterfallBar
                           value={alloc.pipelineDelta}
@@ -371,6 +385,15 @@ export default function SpendOptimizerPage() {
           </CardContent>
         </Card>
       </motion.div>
+
+      {/* Action Cards */}
+      {interpretation.actions.length > 0 && (
+        <motion.div variants={fadeUp} className="grid gap-4 md:grid-cols-2">
+          {interpretation.actions.map((a) => (
+            <ActionCard key={a.title} {...a} />
+          ))}
+        </motion.div>
+      )}
 
       {/* Methodology */}
       <motion.div variants={fadeUp}>

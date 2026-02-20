@@ -26,6 +26,13 @@ import { fmtCurrency, fmtPct } from "@/lib/format";
 import { exportViewAsPdf } from "@/lib/export-pdf";
 import { usePeriod } from "@/lib/period-context";
 import { getMoMDelta, computeTrends } from "@/lib/mock-multi-period";
+import { StartHereCard } from "@/components/cards/start-here-card";
+import { PageGuide } from "@/components/shared/page-guide";
+import { SoWhatPanel } from "@/components/cards/so-what-panel";
+import { ActionCard } from "@/components/cards/action-card";
+import { PAGE_GUIDES } from "@/lib/guide-content";
+import { interpretOverview } from "@/lib/interpretation-engine";
+import { stagger, fadeUp } from "@/lib/motion";
 
 function computeKpis() {
   const totalPipeline = DATA.reduce((s, d) => s + d.deal, 0);
@@ -93,19 +100,6 @@ function computeInsights() {
   };
 }
 
-const stagger = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.06 },
-  },
-};
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" as const } },
-};
-
 export default function OverviewPage() {
   const kpis = computeKpis();
   const insights = computeInsights();
@@ -121,6 +115,24 @@ export default function OverviewPage() {
 
   // Compute attribution using selected model
   const attribution = useMemo(() => runAttribution(model, DATA), [model]);
+
+  // Interpretation engine
+  const modelLabel = ATTRIBUTION_MODELS.find((m) => m.id === model)?.label ?? model;
+  const interpretation = useMemo(
+    () =>
+      interpretOverview({
+        attribution,
+        channelKeys: CHANNEL_KEYS,
+        model: modelLabel,
+        kpis,
+        momDeltas: {
+          pipeline: momData.deltas.pipeline,
+          closedWon: momData.deltas.closedWon,
+          winRate: momData.deltas.winRate,
+        },
+      }),
+    [attribution, modelLabel, kpis, momData]
+  );
 
   // Cost-per-pipeline mapping
   const budgetMapping: Record<string, keyof ChannelBudgets> = {
@@ -173,10 +185,20 @@ export default function OverviewPage() {
           </div>
         </motion.div>
 
+        {/* Welcome card for new users */}
+        <motion.div variants={fadeUp}>
+          <StartHereCard />
+        </motion.div>
+
+        {/* Page guide */}
+        <motion.div variants={fadeUp}>
+          <PageGuide {...PAGE_GUIDES["/"]} />
+        </motion.div>
+
         {/* KPI Row */}
         <motion.div
           variants={stagger}
-          className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5"
+          className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
         >
           <motion.div variants={fadeUp}>
             <KpiCard
@@ -301,6 +323,11 @@ export default function OverviewPage() {
           </div>
         </motion.div>
 
+        {/* Channel interpretation */}
+        <motion.div variants={fadeUp}>
+          <SoWhatPanel interpretations={interpretation.channelSoWhats} />
+        </motion.div>
+
         {/* Model Comparison + Pipeline Funnel */}
         <motion.div
           variants={stagger}
@@ -312,6 +339,11 @@ export default function OverviewPage() {
           <motion.div variants={fadeUp}>
             <PipelineFunnel />
           </motion.div>
+        </motion.div>
+
+        {/* Funnel interpretation */}
+        <motion.div variants={fadeUp}>
+          <SoWhatPanel interpretations={interpretation.funnelSoWhats} />
         </motion.div>
 
         {/* Attribution Alerts */}
@@ -348,6 +380,15 @@ export default function OverviewPage() {
         <motion.div variants={fadeUp}>
           <MonthlyTimeline />
         </motion.div>
+
+        {/* Action Cards */}
+        {interpretation.actions.length > 0 && (
+          <motion.div variants={fadeUp} className="grid gap-4 md:grid-cols-2">
+            {interpretation.actions.map((a) => (
+              <ActionCard key={a.title} {...a} />
+            ))}
+          </motion.div>
+        )}
       </motion.div>
 
       <BudgetModal

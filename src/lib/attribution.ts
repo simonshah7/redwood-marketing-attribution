@@ -178,6 +178,7 @@ export function positionBasedAttribution(
 // Markov Chain Attribution — Data-Driven via Removal Effect
 // Builds a transition matrix between channels, then computes
 // the conversion probability with vs without each channel.
+// Enhanced with path frequency analysis for small datasets.
 // ============================================================
 
 export function markovAttribution(data: Account[]): Record<Channel, AttributionResult> {
@@ -205,14 +206,6 @@ export function markovAttribution(data: Account[]): Record<Channel, AttributionR
       addTransition(channels[i], channels[i + 1]);
     }
     addTransition(channels[channels.length - 1], endState);
-  }
-
-  // Convert to probability matrix
-  function getTransitionProb(from: string, to: string): number {
-    const row = transitions.get(from);
-    if (!row) return 0;
-    const total = Array.from(row.values()).reduce((s, v) => s + v, 0);
-    return total > 0 ? (row.get(to) || 0) / total : 0;
   }
 
   // All states (channels + start + conversion + null)
@@ -256,13 +249,6 @@ export function markovAttribution(data: Account[]): Record<Channel, AttributionR
           if (j !== undefined) Q[i][j] += prob;
         }
       }
-
-      // Re-normalize after removal
-      if (removedChannel) {
-        const rowSum = Q[i].reduce((s, v) => s + v, 0) + R[i];
-        // Remaining probability goes to null (non-conversion)
-        // No need to re-normalize — the "missing" probability is absorbed by null
-      }
     }
 
     // Solve (I - Q) * absorption = R via iterative method
@@ -299,23 +285,72 @@ export function markovAttribution(data: Account[]): Record<Channel, AttributionR
     totalRemovalEffect += effect;
   }
 
-  // Distribute pipeline/revenue based on normalized removal effects
-  if (totalRemovalEffect === 0) {
-    // Fallback to linear if Markov can't differentiate
-    return multiTouchAttribution(data);
+  // ── Path frequency analysis ──────────────────────────────
+  // Measures how much each channel participates in converting
+  // vs non-converting journeys. Produces differentiated weights
+  // even when removal effects are small (common in small datasets).
+  const pathFreq: Record<string, number> = {};
+  CHANNEL_KEYS.forEach(ch => { pathFreq[ch] = 0; });
+
+  const wonAccounts = data.filter(a => a.stage === 'closed_won');
+  const lostAccounts = data.filter(a => a.stage === 'closed_lost');
+  const totalAccounts = data.length;
+
+  for (const ch of CHANNEL_KEYS) {
+    // Frequency in winning paths
+    const wonWithCh = wonAccounts.filter(a => a.touches.some(t => t.channel === ch)).length;
+    const wonRate = wonAccounts.length > 0 ? wonWithCh / wonAccounts.length : 0;
+
+    // Frequency in losing paths
+    const lostWithCh = lostAccounts.filter(a => a.touches.some(t => t.channel === ch)).length;
+    const lostRate = lostAccounts.length > 0 ? lostWithCh / lostAccounts.length : 0;
+
+    // Touch density in winning paths (avg touches per won account)
+    const wonTouchDensity = wonAccounts.length > 0
+      ? wonAccounts.reduce((s, a) => s + a.touches.filter(t => t.channel === ch).length, 0) / wonAccounts.length
+      : 0;
+    const overallTouchDensity = totalAccounts > 0
+      ? data.reduce((s, a) => s + a.touches.filter(t => t.channel === ch).length, 0) / totalAccounts
+      : 0;
+
+    // Score: win-rate lift × touch density lift
+    const winLift = wonRate - lostRate; // negative = more in losing, positive = more in winning
+    const densityLift = overallTouchDensity > 0 ? wonTouchDensity / overallTouchDensity : 1;
+    pathFreq[ch] = Math.max(0.01, (1 + winLift) * densityLift);
   }
 
+  const totalPathFreq = Object.values(pathFreq).reduce((s, v) => s + v, 0);
+
+  // ── Blend removal effects with path frequency ────────────
+  // Use 60% removal effect + 40% path frequency when removal
+  // effects exist; 100% path frequency as fallback.
+  const blendedWeights: Record<string, number> = {};
+  const removalShare = totalRemovalEffect > 1e-8 ? 0.6 : 0;
+  const freqShare = 1 - removalShare;
+
+  for (const ch of CHANNEL_KEYS) {
+    const removalNorm = totalRemovalEffect > 0 ? removalEffects[ch] / totalRemovalEffect : 0;
+    const freqNorm = totalPathFreq > 0 ? pathFreq[ch] / totalPathFreq : 1 / CHANNEL_KEYS.length;
+    blendedWeights[ch] = removalShare * removalNorm + freqShare * freqNorm;
+  }
+
+  // Distribute pipeline/revenue based on blended weights per account
   for (const account of data) {
     if (account.touches.length === 0) continue;
-    const channels = new Set(account.touches.map(t => t.channel));
-    let accountTotalEffect = 0;
-    for (const ch of channels) {
-      accountTotalEffect += removalEffects[ch] || 0;
-    }
-    if (accountTotalEffect === 0) continue;
+    const accountChannels = new Set(account.touches.map(t => t.channel));
 
-    for (const ch of channels) {
-      const weight = (removalEffects[ch] || 0) / accountTotalEffect;
+    // Per-account: weight by global Markov weight × local touch count
+    let accountTotal = 0;
+    const channelScores: Record<string, number> = {};
+    for (const ch of accountChannels) {
+      const touchCount = account.touches.filter(t => t.channel === ch).length;
+      channelScores[ch] = blendedWeights[ch] * touchCount;
+      accountTotal += channelScores[ch];
+    }
+    if (accountTotal === 0) continue;
+
+    for (const ch of accountChannels) {
+      const weight = channelScores[ch] / accountTotal;
       result[ch].pipeline += account.deal * weight;
       result[ch].opps += weight;
       if (account.stage === 'closed_won') result[ch].revenue += account.deal * weight;
@@ -386,6 +421,131 @@ export function wShapedAttribution(data: Account[]): Record<Channel, Attribution
   });
 
   return result as Record<Channel, AttributionResult>;
+}
+
+// ============================================================
+// Markov diagnostics — exposed for the Data-Driven page
+// ============================================================
+
+export interface MarkovDiagnostics {
+  transitionMatrix: Record<string, Record<string, number>>;
+  removalEffects: Record<string, number>;
+  pathFrequency: Record<string, { wonRate: number; lostRate: number; wonDensity: number; score: number }>;
+  baseConversionRate: number;
+}
+
+export function markovDiagnostics(data: Account[]): MarkovDiagnostics {
+  // Build transition counts
+  const transitions = new Map<string, Map<string, number>>();
+  function addTransition(from: string, to: string) {
+    if (!transitions.has(from)) transitions.set(from, new Map());
+    const row = transitions.get(from)!;
+    row.set(to, (row.get(to) || 0) + 1);
+  }
+
+  for (const account of data) {
+    if (account.touches.length === 0) continue;
+    const channels = account.touches.map(t => t.channel);
+    const isConversion = account.stage === 'closed_won';
+    const endState = isConversion ? 'conversion' : 'null';
+    addTransition('start', channels[0]);
+    for (let i = 0; i < channels.length - 1; i++) {
+      addTransition(channels[i], channels[i + 1]);
+    }
+    addTransition(channels[channels.length - 1], endState);
+  }
+
+  // Build probability matrix
+  const transitionMatrix: Record<string, Record<string, number>> = {};
+  for (const [from, row] of transitions) {
+    const total = Array.from(row.values()).reduce((s, v) => s + v, 0);
+    transitionMatrix[from] = {};
+    for (const [to, count] of row) {
+      transitionMatrix[from][to] = total > 0 ? Math.round((count / total) * 1000) / 1000 : 0;
+    }
+  }
+
+  // Compute base conversion via absorption
+  const allStates = new Set<string>(['start', 'conversion', 'null']);
+  for (const [from, row] of transitions) {
+    allStates.add(from);
+    for (const to of row.keys()) allStates.add(to);
+  }
+  const states = Array.from(allStates);
+
+  function computeConversionRate(removedChannel?: Channel): number {
+    const transient = states.filter(s => s !== 'conversion' && s !== 'null');
+    const n = transient.length;
+    const stateIdx = new Map(transient.map((s, i) => [s, i]));
+    const Q: number[][] = Array.from({ length: n }, () => Array(n).fill(0));
+    const R: number[] = Array(n).fill(0);
+
+    for (let i = 0; i < n; i++) {
+      const from = transient[i];
+      if (from === removedChannel) continue;
+      const row = transitions.get(from);
+      if (!row) continue;
+      const total = Array.from(row.values()).reduce((s, v) => s + v, 0);
+      if (total === 0) continue;
+      for (const [to, count] of row) {
+        if (to === removedChannel) continue;
+        const prob = count / total;
+        if (to === 'conversion') {
+          R[i] += prob;
+        } else if (to !== 'null') {
+          const j = stateIdx.get(to);
+          if (j !== undefined) Q[i][j] += prob;
+        }
+      }
+    }
+
+    const absorption = Array(n).fill(0);
+    for (let iter = 0; iter < 100; iter++) {
+      let maxDelta = 0;
+      for (let i = 0; i < n; i++) {
+        let newVal = R[i];
+        for (let j = 0; j < n; j++) {
+          newVal += Q[i][j] * absorption[j];
+        }
+        maxDelta = Math.max(maxDelta, Math.abs(newVal - absorption[i]));
+        absorption[i] = newVal;
+      }
+      if (maxDelta < 1e-10) break;
+    }
+
+    const startIdx = stateIdx.get('start');
+    return startIdx !== undefined ? absorption[startIdx] : 0;
+  }
+
+  const baseConversionRate = computeConversionRate();
+
+  const removalEffects: Record<string, number> = {};
+  for (const ch of CHANNEL_KEYS) {
+    const removedRate = computeConversionRate(ch);
+    removalEffects[ch] = Math.max(0, baseConversionRate - removedRate);
+  }
+
+  // Path frequency analysis
+  const wonAccounts = data.filter(a => a.stage === 'closed_won');
+  const lostAccounts = data.filter(a => a.stage === 'closed_lost');
+  const pathFrequency: Record<string, { wonRate: number; lostRate: number; wonDensity: number; score: number }> = {};
+  for (const ch of CHANNEL_KEYS) {
+    const wonWithCh = wonAccounts.filter(a => a.touches.some(t => t.channel === ch)).length;
+    const wonRate = wonAccounts.length > 0 ? wonWithCh / wonAccounts.length : 0;
+    const lostWithCh = lostAccounts.filter(a => a.touches.some(t => t.channel === ch)).length;
+    const lostRate = lostAccounts.length > 0 ? lostWithCh / lostAccounts.length : 0;
+    const wonDensity = wonAccounts.length > 0
+      ? wonAccounts.reduce((s, a) => s + a.touches.filter(t => t.channel === ch).length, 0) / wonAccounts.length
+      : 0;
+    const overallDensity = data.length > 0
+      ? data.reduce((s, a) => s + a.touches.filter(t => t.channel === ch).length, 0) / data.length
+      : 0;
+    const winLift = wonRate - lostRate;
+    const densityLift = overallDensity > 0 ? wonDensity / overallDensity : 1;
+    pathFrequency[ch] = { wonRate, lostRate, wonDensity, score: Math.max(0.01, (1 + winLift) * densityLift) };
+  }
+
+  return { transitionMatrix, removalEffects, pathFrequency, baseConversionRate };
 }
 
 // ============================================================

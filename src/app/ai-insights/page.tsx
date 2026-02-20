@@ -20,19 +20,9 @@ import { fmtCurrency, fmtPct } from "@/lib/format";
 import { generateExecutiveSummary } from "@/lib/export-summary";
 import { exportViewAsPdf } from "@/lib/export-pdf";
 import { usePeriod } from "@/lib/period-context";
-
-const stagger = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.06 },
-  },
-};
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" as const } },
-};
+import { PageGuide } from "@/components/shared/page-guide";
+import { PAGE_GUIDES } from "@/lib/guide-content";
+import { stagger, fadeUp } from "@/lib/motion";
 
 export default function AIInsightsPage() {
   const { periodLabel } = usePeriod();
@@ -219,6 +209,11 @@ export default function AIInsightsPage() {
             Export PDF
           </button>
         </div>
+      </motion.div>
+
+      {/* Page guide */}
+      <motion.div variants={fadeUp}>
+        <PageGuide {...PAGE_GUIDES["/ai-insights"]} />
       </motion.div>
 
       {/* Hero Banner */}

@@ -117,16 +117,17 @@ export function ModelComparison({ model = "linear" }: ModelComparisonProps) {
         </p>
       </CardHeader>
       <CardContent>
+        <div role="img" aria-label="Stacked bar chart comparing pipeline attribution across First Touch, Last Touch, and Multi-Touch models by channel">
         <ResponsiveContainer width="100%" height={180}>
           <BarChart data={data} layout="vertical" barCategoryGap="20%">
             <XAxis type="number" domain={[0, 100]} hide />
             <YAxis
               type="category"
               dataKey="name"
-              width={160}
+              width={120}
               tick={{
                 fill: "hsl(var(--chart-axis))",
-                fontSize: 12,
+                fontSize: 11,
               }}
               axisLine={false}
               tickLine={false}
@@ -150,6 +151,7 @@ export function ModelComparison({ model = "linear" }: ModelComparisonProps) {
             ))}
           </BarChart>
         </ResponsiveContainer>
+        </div>
 
         {/* Legend */}
         <div className="mt-3 flex flex-wrap items-center gap-4">

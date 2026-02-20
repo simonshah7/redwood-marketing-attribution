@@ -26,19 +26,12 @@ import { ModelSwitcher } from "@/components/controls/model-switcher";
 import { fmtCurrency, fmtPct } from "@/lib/format";
 import { HelpTip, HELP_TEXT } from "@/components/shared/help-tip";
 import { usePeriod } from "@/lib/period-context";
-
-const stagger = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.06 },
-  },
-};
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" as const } },
-};
+import { PageGuide } from "@/components/shared/page-guide";
+import { SoWhatPanel } from "@/components/cards/so-what-panel";
+import { ActionCard } from "@/components/cards/action-card";
+import { PAGE_GUIDES } from "@/lib/guide-content";
+import { interpretMultiTouch } from "@/lib/interpretation-engine";
+import { stagger, fadeUp } from "@/lib/motion";
 
 function computeDeltas() {
   const ft = firstTouchAttribution(DATA);
@@ -102,6 +95,26 @@ export default function MultiTouchPage() {
   const deltas = computeDeltas();
   const wonVsLost = computeWonVsLost();
 
+  // Interpretation engine
+  const wonVsLostForEngine = useMemo(() => {
+    const wonDeals = DATA.filter((d) => d.stage === "closed_won");
+    const lostDeals = DATA.filter((d) => d.stage === "closed_lost");
+    return CHANNEL_KEYS.map((ch) => ({
+      channel: ch,
+      wonAvg: wonDeals.length > 0
+        ? wonDeals.reduce((s, d) => s + d.touches.filter((t) => t.channel === ch).length, 0) / wonDeals.length
+        : 0,
+      lostAvg: lostDeals.length > 0
+        ? lostDeals.reduce((s, d) => s + d.touches.filter((t) => t.channel === ch).length, 0) / lostDeals.length
+        : 0,
+    }));
+  }, []);
+
+  const interpretation = useMemo(
+    () => interpretMultiTouch({ deltas, wonVsLost: wonVsLostForEngine, totalPipeline }),
+    [deltas, wonVsLostForEngine, totalPipeline]
+  );
+
   return (
     <motion.div
       variants={stagger}
@@ -120,6 +133,11 @@ export default function MultiTouchPage() {
           </p>
         </div>
         <ModelSwitcher value={model} onChange={setModel} />
+      </motion.div>
+
+      {/* Page guide */}
+      <motion.div variants={fadeUp}>
+        <PageGuide {...PAGE_GUIDES["/multi-touch"]} />
       </motion.div>
 
       {/* Channel Cards with deltas */}
@@ -273,6 +291,11 @@ export default function MultiTouchPage() {
         </Card>
       </motion.div>
 
+      {/* Comparison interpretation */}
+      <motion.div variants={fadeUp}>
+        <SoWhatPanel interpretations={interpretation.comparisonSoWhats} />
+      </motion.div>
+
       {/* Won vs Lost Bar Chart */}
       <motion.div variants={fadeUp}>
         <Card>
@@ -286,11 +309,12 @@ export default function MultiTouchPage() {
             </p>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={280}>
+            <div role="img" aria-label="Grouped bar chart comparing average touches per channel between won and lost deals">
+            <ResponsiveContainer width="100%" height={240}>
               <BarChart data={wonVsLost} barCategoryGap="20%">
                 <XAxis
                   dataKey="name"
-                  tick={{ fill: "hsl(var(--chart-axis))", fontSize: 12 }}
+                  tick={{ fill: "hsl(var(--chart-axis))", fontSize: 11 }}
                   axisLine={false}
                   tickLine={false}
                 />
@@ -344,6 +368,7 @@ export default function MultiTouchPage() {
                 />
               </BarChart>
             </ResponsiveContainer>
+            </div>
             <div className="mt-3 flex items-center gap-4">
               <div className="flex items-center gap-1.5">
                 <span className="inline-block h-2.5 w-2.5 rounded-sm bg-[hsl(168,55%,42%)]" />
@@ -356,6 +381,11 @@ export default function MultiTouchPage() {
             </div>
           </CardContent>
         </Card>
+      </motion.div>
+
+      {/* Won/Lost interpretation */}
+      <motion.div variants={fadeUp}>
+        <SoWhatPanel interpretations={interpretation.wonLostSoWhats} />
       </motion.div>
 
       {/* Insight Cards */}
@@ -381,6 +411,14 @@ export default function MultiTouchPage() {
           />
         </div>
       </motion.div>
+      {/* Action Cards */}
+      {interpretation.actions.length > 0 && (
+        <motion.div variants={fadeUp} className="grid gap-4 md:grid-cols-2">
+          {interpretation.actions.map((a) => (
+            <ActionCard key={a.title} {...a} />
+          ))}
+        </motion.div>
+      )}
     </motion.div>
   );
 }

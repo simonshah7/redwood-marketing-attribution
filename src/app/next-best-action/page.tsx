@@ -21,19 +21,9 @@ import {
   type RecommendedAction,
 } from "@/lib/next-best-action";
 import { fmtCurrency } from "@/lib/format";
-
-const stagger = {
-  hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.06 } },
-};
-const fadeUp = {
-  hidden: { opacity: 0, y: 12 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.4, ease: "easeOut" as const },
-  },
-};
+import { PageGuide } from "@/components/shared/page-guide";
+import { PAGE_GUIDES } from "@/lib/guide-content";
+import { stagger, fadeUp } from "@/lib/motion";
 
 function UrgencyBadge({ urgency }: { urgency: RecommendedAction["urgency"] }) {
   const config = {
@@ -195,6 +185,11 @@ export default function NextBestActionPage() {
           Prescriptive recommendations for every open deal based on winning
           patterns, engagement gaps, and stage-appropriate actions.
         </p>
+      </motion.div>
+
+      {/* Page guide */}
+      <motion.div variants={fadeUp}>
+        <PageGuide {...PAGE_GUIDES["/next-best-action"]} />
       </motion.div>
 
       {/* KPI Row */}

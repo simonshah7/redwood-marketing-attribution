@@ -17,19 +17,12 @@ import { HelpTip, HELP_TEXT } from "@/components/shared/help-tip";
 import { usePeriod } from "@/lib/period-context";
 import { analyzeFunnel, analyzeVelocity } from "@/lib/funnel-analysis";
 import { ENRICHED_DATA } from "@/lib/mock-enriched-data";
-
-const stagger = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.06 },
-  },
-};
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" as const } },
-};
+import { PageGuide } from "@/components/shared/page-guide";
+import { SoWhatPanel } from "@/components/cards/so-what-panel";
+import { ActionCard } from "@/components/cards/action-card";
+import { PAGE_GUIDES } from "@/lib/guide-content";
+import { interpretPipeline } from "@/lib/interpretation-engine";
+import { stagger, fadeUp } from "@/lib/motion";
 
 function buildStageChannelData() {
   return STAGES.map((stage) => {
@@ -115,6 +108,20 @@ export default function PipelinePage() {
   const funnel = useMemo(() => analyzeFunnel(DATA), []);
   const velocity = useMemo(() => analyzeVelocity(ENRICHED_DATA), []);
 
+  const interpretation = useMemo(
+    () =>
+      interpretPipeline({
+        stageMetrics: funnel.stageMetrics,
+        velocityByStage: velocity,
+        overallConversionRate: funnel.overallConversionRate,
+        topDropoffStage: funnel.topDropoffStage,
+        bottleneckStage: funnel.bottleneckStage,
+        avgTouchesWon: funnel.avgTouchesWon,
+        avgTouchesLost: funnel.avgTouchesLost,
+      }),
+    [funnel, velocity]
+  );
+
   return (
     <motion.div
       variants={stagger}
@@ -132,6 +139,11 @@ export default function PipelinePage() {
         </p>
       </motion.div>
 
+      {/* Page guide */}
+      <motion.div variants={fadeUp}>
+        <PageGuide {...PAGE_GUIDES["/pipeline"]} />
+      </motion.div>
+
       {/* Stage Influence */}
       <motion.div variants={fadeUp}>
         <Card>
@@ -145,7 +157,8 @@ export default function PipelinePage() {
             </p>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+            <div role="img" aria-label="Stacked horizontal bar chart showing channel touch mix percentage by pipeline stage">
+            <ResponsiveContainer width="100%" height={280}>
               <BarChart
                 data={stageData}
                 layout="vertical"
@@ -155,8 +168,8 @@ export default function PipelinePage() {
                 <YAxis
                   type="category"
                   dataKey="name"
-                  width={120}
-                  tick={{ fill: "hsl(var(--chart-axis))", fontSize: 11 }}
+                  width={90}
+                  tick={{ fill: "hsl(var(--chart-axis))", fontSize: 10 }}
                   axisLine={false}
                   tickLine={false}
                 />
@@ -206,6 +219,7 @@ export default function PipelinePage() {
                 ))}
               </BarChart>
             </ResponsiveContainer>
+            </div>
             {/* Legend */}
             <div className="mt-3 flex flex-wrap items-center gap-4">
               {CHANNEL_KEYS.map((ch) => (
@@ -236,10 +250,10 @@ export default function PipelinePage() {
             </p>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-2 overflow-x-auto pb-2">
               {funnel.stageMetrics.filter(s => s.stage !== 'closed_won' && s.stage !== 'closed_lost').map((stage, i, arr) => (
-                <div key={stage.stage} className="flex items-center gap-2">
-                  <div className="rounded-lg border border-border p-3 text-center min-w-[120px]">
+                <div key={stage.stage} className="flex items-center gap-2 shrink-0">
+                  <div className="rounded-lg border border-border p-3 text-center min-w-[100px]">
                     <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">{stage.stageName}</p>
                     <p className="text-lg font-bold tabular-nums">{stage.accountCount}</p>
                     <p className="text-[10px] text-muted-foreground">{fmt(stage.pipeline)}</p>
@@ -247,7 +261,7 @@ export default function PipelinePage() {
                   {i < arr.length - 1 && (
                     <div className="flex flex-col items-center">
                       <span className={`text-xs font-bold tabular-nums ${stage.conversionToNext >= 0.7 ? 'text-emerald-500' : stage.conversionToNext >= 0.4 ? 'text-amber-500' : 'text-red-500'}`}>
-                        {(stage.conversionToNext * 100).toFixed(0)}%
+                        {stage.conversionToNext >= 0.7 ? '✓ ' : stage.conversionToNext < 0.4 ? '⚠ ' : ''}{(stage.conversionToNext * 100).toFixed(0)}%
                       </span>
                       <span className="text-muted-foreground">→</span>
                       <span className="text-[9px] text-muted-foreground">
@@ -277,6 +291,11 @@ export default function PipelinePage() {
             </div>
           </CardContent>
         </Card>
+      </motion.div>
+
+      {/* Conversion interpretation */}
+      <motion.div variants={fadeUp}>
+        <SoWhatPanel interpretations={interpretation.conversionSoWhats} />
       </motion.div>
 
       {/* Velocity by Stage */}
@@ -318,6 +337,11 @@ export default function PipelinePage() {
           </Card>
         </motion.div>
       )}
+
+      {/* Velocity interpretation */}
+      <motion.div variants={fadeUp}>
+        <SoWhatPanel interpretations={interpretation.velocitySoWhats} />
+      </motion.div>
 
       {/* Region Breakdown */}
       <motion.div variants={fadeUp}>
@@ -435,6 +459,15 @@ export default function PipelinePage() {
           </CardContent>
         </Card>
       </motion.div>
+
+      {/* Action Cards */}
+      {interpretation.actions.length > 0 && (
+        <motion.div variants={fadeUp} className="grid gap-4 md:grid-cols-2">
+          {interpretation.actions.map((a) => (
+            <ActionCard key={a.title} {...a} />
+          ))}
+        </motion.div>
+      )}
     </motion.div>
   );
 }

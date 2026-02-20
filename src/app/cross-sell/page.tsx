@@ -22,19 +22,9 @@ import {
 import { ENRICHED_DATA } from "@/lib/mock-enriched-data";
 import { analyzeCrossSell, type CrossSellSummary } from "@/lib/cross-sell-analysis";
 import { fmtCurrency } from "@/lib/format";
-
-const stagger = {
-  hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.06 } },
-};
-const fadeUp = {
-  hidden: { opacity: 0, y: 12 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.4, ease: "easeOut" as const },
-  },
-};
+import { PageGuide } from "@/components/shared/page-guide";
+import { PAGE_GUIDES } from "@/lib/guide-content";
+import { stagger, fadeUp } from "@/lib/motion";
 
 function ReadinessBar({ score }: { score: number }) {
   return (
@@ -135,6 +125,11 @@ export default function CrossSellPage() {
           Identify which content sequences and engagement patterns predict
           cross-sell success.
         </p>
+      </motion.div>
+
+      {/* Page guide */}
+      <motion.div variants={fadeUp}>
+        <PageGuide {...PAGE_GUIDES["/cross-sell"]} />
       </motion.div>
 
       {/* KPI Row */}
