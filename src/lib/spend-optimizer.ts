@@ -32,11 +32,11 @@ export interface OptimizationResult {
 
 // Pipeline = coefficient * sqrt(spend)
 // Marginal pipeline = coefficient / (2 * sqrt(spend))
-function pipelineFromSpend(coefficient: number, spend: number): number {
+export function pipelineFromSpend(coefficient: number, spend: number): number {
   return coefficient * Math.sqrt(spend);
 }
 
-function marginalPipeline(coefficient: number, spend: number): number {
+export function marginalPipeline(coefficient: number, spend: number): number {
   if (spend <= 0) return Infinity;
   return coefficient / (2 * Math.sqrt(spend));
 }
@@ -130,4 +130,80 @@ export function optimizeSpend(totalBudget: number, channelData?: ChannelSpendDat
     currentTotalRevenue,
     allocations: results.sort((a, b) => b.recommendedBudget - a.recommendedBudget),
   };
+}
+
+// ---- Scenario Comparison ----
+
+export interface ScenarioResult {
+  label: string;
+  totalBudget: number;
+  projectedPipeline: number;
+  pipelineDelta: number;
+  allocations: ChannelAllocation[];
+}
+
+export function compareScenarios(
+  baseBudget: number,
+  scenarios: { label: string; budgetMultiplier: number }[],
+  channelData?: ChannelSpendData[],
+): ScenarioResult[] {
+  // Run optimization for each scenario budget
+  return scenarios.map(scenario => {
+    const budget = Math.round(baseBudget * scenario.budgetMultiplier);
+    const result = optimizeSpend(budget, channelData);
+    return {
+      label: scenario.label,
+      totalBudget: budget,
+      projectedPipeline: result.projectedTotalPipeline,
+      pipelineDelta: result.pipelineDelta,
+      allocations: result.allocations,
+    };
+  });
+}
+
+// Default scenarios
+export const DEFAULT_SCENARIOS = [
+  { label: '-20% Budget', budgetMultiplier: 0.80 },
+  { label: 'Current', budgetMultiplier: 1.0 },
+  { label: '+20% Budget', budgetMultiplier: 1.20 },
+  { label: '+50% Budget', budgetMultiplier: 1.50 },
+];
+
+// ---- Diminishing Returns Curve Data ----
+
+export interface DiminishingReturnsPoint {
+  spend: number;
+  pipeline: number;
+  marginalROI: number;
+}
+
+export function getChannelResponseCurve(
+  channelData: ChannelSpendData,
+  maxSpendMultiplier: number = 3.0,
+  points: number = 20,
+): DiminishingReturnsPoint[] {
+  const result: DiminishingReturnsPoint[] = [];
+  const maxSpend = channelData.currentBudget * maxSpendMultiplier;
+
+  for (let i = 0; i <= points; i++) {
+    const spend = Math.round((maxSpend / points) * i) || 100;
+    result.push({
+      spend,
+      pipeline: Math.round(pipelineFromSpend(channelData.coefficient, spend)),
+      marginalROI: Math.round(marginalPipeline(channelData.coefficient, spend) * 100) / 100,
+    });
+  }
+  return result;
+}
+
+export function getAllChannelCurves(
+  channelData?: ChannelSpendData[],
+): { channel: string; channelName: string; curve: DiminishingReturnsPoint[]; currentSpend: number }[] {
+  const channels = channelData || CHANNEL_SPEND_DATA;
+  return channels.map(ch => ({
+    channel: ch.channel,
+    channelName: ch.channelName,
+    curve: getChannelResponseCurve(ch),
+    currentSpend: ch.currentBudget,
+  }));
 }

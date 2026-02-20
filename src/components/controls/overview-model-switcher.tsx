@@ -16,17 +16,19 @@ interface OverviewModelSwitcherProps {
   onChange: (model: AttributionModel) => void;
 }
 
-type TopLevel = "first_touch" | "last_touch" | "multi_touch";
+type TopLevel = "first_touch" | "last_touch" | "multi_touch" | "data_driven";
 
 const MULTI_TOUCH_MODELS: { id: AttributionModel; label: string; helpKey: keyof typeof HELP_TEXT }[] = [
   { id: "linear", label: "Linear", helpKey: "linear" },
   { id: "time_decay", label: "Time Decay", helpKey: "time_decay" },
   { id: "position_based", label: "Position Based", helpKey: "position_based" },
+  { id: "w_shaped", label: "W-Shaped", helpKey: "w_shaped" },
 ];
 
 function getTopLevel(model: AttributionModel): TopLevel {
   if (model === "first_touch") return "first_touch";
   if (model === "last_touch") return "last_touch";
+  if (model === "markov") return "data_driven";
   return "multi_touch";
 }
 
@@ -48,6 +50,8 @@ export function OverviewModelSwitcher({ value, onChange }: OverviewModelSwitcher
       onChange("first_touch");
     } else if (v === "last_touch") {
       onChange("last_touch");
+    } else if (v === "data_driven") {
+      onChange("markov");
     } else {
       onChange(multiModel);
     }
@@ -63,6 +67,8 @@ export function OverviewModelSwitcher({ value, onChange }: OverviewModelSwitcher
     ? HELP_TEXT.first_touch
     : topLevel === "last_touch"
     ? HELP_TEXT.last_touch
+    : topLevel === "data_driven"
+    ? HELP_TEXT.markov
     : HELP_TEXT[multiModel as keyof typeof HELP_TEXT] || HELP_TEXT.linear;
 
   return (
@@ -80,6 +86,9 @@ export function OverviewModelSwitcher({ value, onChange }: OverviewModelSwitcher
           </SelectItem>
           <SelectItem value="multi_touch" className="text-xs">
             Multi-Touch
+          </SelectItem>
+          <SelectItem value="data_driven" className="text-xs">
+            Data-Driven (Markov)
           </SelectItem>
         </SelectContent>
       </Select>

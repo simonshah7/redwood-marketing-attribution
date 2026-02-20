@@ -20,6 +20,7 @@ import { ModelSwitcher } from "@/components/controls/model-switcher";
 import { fmtCurrency, fmtPct } from "@/lib/format";
 import { HelpTip, HELP_TEXT } from "@/components/shared/help-tip";
 import { usePeriod } from "@/lib/period-context";
+import { AccountFilter, applyAccountFilters, type AccountFilters } from "@/components/shared/account-filter";
 
 const stagger = {
   hidden: { opacity: 0 },
@@ -75,10 +76,14 @@ export default function FirstTouchPage() {
     }))
     .sort((a, b) => b.pipeline - a.pipeline);
 
+  const [filters, setFilters] = useState<AccountFilters>({ search: "", stages: [], regions: [], industries: [] });
+
   const accountData = DATA.map((acc) => ({
     ...acc,
     firstTouch: acc.touches.length > 0 ? acc.touches[0].channel : null,
   }));
+
+  const filteredAccounts = applyAccountFilters(accountData, filters);
 
   return (
     <motion.div
@@ -206,9 +211,16 @@ export default function FirstTouchPage() {
               Account First-Touch Attribution
             </CardTitle>
             <p className="text-xs text-muted-foreground">
-              All {DATA.length} accounts with their first marketing touchpoint
+              {filteredAccounts.length} of {accountData.length} accounts
             </p>
           </CardHeader>
+          <div className="px-6 pb-4">
+            <AccountFilter
+              onFilterChange={setFilters}
+              showRegionFilter
+              regions={["NA", "EMEA", "APAC"]}
+            />
+          </div>
           <CardContent>
             <ScrollArea className="h-[400px]">
               <table className="w-full text-sm">
@@ -221,7 +233,7 @@ export default function FirstTouchPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {accountData.map((acc) => (
+                  {filteredAccounts.map((acc) => (
                     <tr
                       key={acc.name}
                       className="border-b border-border/50 transition-colors hover:bg-accent/50"

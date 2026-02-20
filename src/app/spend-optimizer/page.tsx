@@ -19,7 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { optimizeSpend, type OptimizationResult } from "@/lib/spend-optimizer";
+import { optimizeSpend, compareScenarios, DEFAULT_SCENARIOS, type OptimizationResult } from "@/lib/spend-optimizer";
 import { TOTAL_QUARTERLY_BUDGET } from "@/lib/mock-channel-spend";
 import { fmtCurrency } from "@/lib/format";
 
@@ -95,6 +95,7 @@ function WaterfallBar({ value, max }: { value: number; max: number }) {
 export default function SpendOptimizerPage() {
   const [budget, setBudget] = useState(TOTAL_QUARTERLY_BUDGET);
   const result = useMemo(() => optimizeSpend(budget), [budget]);
+  const scenarios = useMemo(() => compareScenarios(budget, DEFAULT_SCENARIOS), [budget]);
 
   const maxBudget = Math.max(
     ...result.allocations.map((a) =>
@@ -330,6 +331,43 @@ export default function SpendOptimizerPage() {
                 ))}
               </TableBody>
             </Table>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Budget Scenario Comparison */}
+      <motion.div variants={fadeUp}>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Budget Scenarios</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {scenarios.map((scenario) => {
+                const isCurrent = scenario.label === 'Current';
+                return (
+                  <div
+                    key={scenario.label}
+                    className={`rounded-lg border p-4 ${
+                      isCurrent ? 'border-primary/30 bg-primary/5' : 'border-border'
+                    }`}
+                  >
+                    <p className="text-xs font-medium text-muted-foreground">{scenario.label}</p>
+                    <p className="text-sm font-mono text-muted-foreground mt-0.5">
+                      Budget: {fmtCurrency(scenario.totalBudget)}
+                    </p>
+                    <p className="text-xl font-bold tabular-nums mt-2">
+                      {fmtCurrency(scenario.projectedPipeline)}
+                    </p>
+                    <p className={`text-xs font-mono mt-0.5 ${
+                      scenario.pipelineDelta >= 0 ? 'text-emerald-500' : 'text-red-500'
+                    }`}>
+                      {scenario.pipelineDelta >= 0 ? '+' : ''}{fmtCurrency(scenario.pipelineDelta)} pipeline
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
           </CardContent>
         </Card>
       </motion.div>

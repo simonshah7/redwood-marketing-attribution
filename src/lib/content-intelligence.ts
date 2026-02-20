@@ -325,3 +325,103 @@ export function generateContentRecommendations(
 
   return recommendations.slice(0, 6);
 }
+
+// ---- Content Sequence Analysis ----
+
+export interface ContentSequence {
+  sequence: string[]; // ordered asset names
+  sequenceLabel: string; // "Asset A → Asset B → Asset C"
+  occurrenceCount: number;
+  wonCount: number;
+  lostCount: number;
+  winRate: number;
+  avgDealSize: number;
+  avgDaysToClose: number;
+}
+
+export function analyzeContentSequences(accounts: EnrichedAccount[]): ContentSequence[] {
+  // For each account, extract the ordered sequence of content assets consumed
+  const accountSequences = accounts
+    .filter(a => a.touchpoints.length >= 2)
+    .map(a => {
+      const contentTouches = a.touchpoints.filter(
+        tp => tp.channel === 'content_download' && tp.content_asset
+      );
+      return {
+        account: a,
+        assets: contentTouches.map(tp => tp.content_asset!),
+      };
+    })
+    .filter(x => x.assets.length >= 2);
+
+  // Find common subsequences of length 2-3
+  const patternMap = new Map<string, {
+    sequence: string[];
+    accounts: EnrichedAccount[];
+  }>();
+
+  for (const { account, assets } of accountSequences) {
+    const seen = new Set<string>();
+    for (let len = 2; len <= Math.min(3, assets.length); len++) {
+      for (let i = 0; i <= assets.length - len; i++) {
+        const subseq = assets.slice(i, i + len);
+        // Deduplicate consecutive same assets
+        const deduped: string[] = [];
+        for (const s of subseq) {
+          if (deduped.length === 0 || deduped[deduped.length - 1] !== s) deduped.push(s);
+        }
+        if (deduped.length < 2) continue;
+
+        const key = deduped.join(' → ');
+        if (seen.has(key)) continue;
+        seen.add(key);
+
+        if (!patternMap.has(key)) {
+          patternMap.set(key, { sequence: deduped, accounts: [] });
+        }
+        patternMap.get(key)!.accounts.push(account);
+      }
+    }
+  }
+
+  const results: ContentSequence[] = [];
+
+  for (const [label, { sequence, accounts: matched }] of patternMap) {
+    if (matched.length < 2) continue;
+
+    const wonCount = matched.filter(a => a.stage === 'closed_won').length;
+    const lostCount = matched.filter(a => a.stage === 'closed_lost').length;
+    const decided = wonCount + lostCount;
+
+    const avgDeal = matched.reduce((s, a) => s + a.deal_amount, 0) / matched.length;
+
+    const durations = matched
+      .filter(a => a.stage === 'closed_won')
+      .map(a => {
+        const totalDays = a.stage_history.reduce((s, sh) => s + sh.days_in_stage, 0);
+        return totalDays;
+      });
+    const avgDays = durations.length > 0
+      ? durations.reduce((a, b) => a + b, 0) / durations.length
+      : 0;
+
+    results.push({
+      sequence,
+      sequenceLabel: label,
+      occurrenceCount: matched.length,
+      wonCount,
+      lostCount,
+      winRate: decided > 0 ? wonCount / decided : 0,
+      avgDealSize: avgDeal,
+      avgDaysToClose: avgDays,
+    });
+  }
+
+  return results
+    .sort((a, b) => {
+      const scoreA = a.occurrenceCount * a.winRate * a.avgDealSize;
+      const scoreB = b.occurrenceCount * b.winRate * b.avgDealSize;
+      return scoreB - scoreA;
+    })
+    .slice(0, 10);
+}

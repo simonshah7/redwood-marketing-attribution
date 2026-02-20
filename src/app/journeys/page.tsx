@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -82,6 +83,82 @@ export default function JourneysPage() {
   const top10 = [...ENRICHED_DATA]
     .sort((a, b) => b.deal_amount - a.deal_amount)
     .slice(0, 10);
+
+  // Compute channel transitions from journey data
+  const channelTransitions = useMemo(() => {
+    const transitions = new Map<string, number>();
+    const channelTotals = new Map<string, number>();
+
+    for (const acc of ENRICHED_DATA) {
+      const touches = acc.touchpoints;
+      for (let i = 0; i < touches.length; i++) {
+        const from = touches[i].channel;
+        channelTotals.set(from, (channelTotals.get(from) || 0) + 1);
+        if (i < touches.length - 1) {
+          const to = touches[i + 1].channel;
+          const key = `${from}→${to}`;
+          transitions.set(key, (transitions.get(key) || 0) + 1);
+        }
+      }
+    }
+
+    // Get top 12 transitions by count
+    const sorted = [...transitions.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 12);
+
+    const maxCount = sorted.length > 0 ? sorted[0][1] : 1;
+
+    return sorted.map(([key, count]) => {
+      const [from, to] = key.split('→');
+      return {
+        from,
+        to,
+        count,
+        pct: Math.round((count / maxCount) * 100),
+      };
+    });
+  }, []);
+
+  // Compute golden path from won deals
+  const goldenPath = useMemo(() => {
+    const wonDeals = ENRICHED_DATA.filter(a => a.stage === 'closed_won');
+
+    // Count channel at each position (normalized 0-4: first, early, mid, late, last)
+    const positionChannels: Record<string, Record<string, number>> = {};
+    const positions = ['First Touch', 'Early Funnel', 'Mid Funnel', 'Late Funnel', 'Last Touch'];
+
+    for (const deal of wonDeals) {
+      const n = deal.touchpoints.length;
+      if (n === 0) continue;
+
+      deal.touchpoints.forEach((tp, i) => {
+        let posIdx: number;
+        if (i === 0) posIdx = 0;
+        else if (i === n - 1) posIdx = 4;
+        else {
+          const frac = i / (n - 1);
+          posIdx = frac < 0.33 ? 1 : frac < 0.66 ? 2 : 3;
+        }
+        const pos = positions[posIdx];
+        if (!positionChannels[pos]) positionChannels[pos] = {};
+        positionChannels[pos][tp.channel] = (positionChannels[pos][tp.channel] || 0) + 1;
+      });
+    }
+
+    return positions.map(pos => {
+      const channels = positionChannels[pos] || {};
+      const sorted = Object.entries(channels).sort((a, b) => b[1] - a[1]);
+      const top = sorted[0];
+      const total = sorted.reduce((s, [, c]) => s + c, 0);
+      return {
+        position: pos,
+        topChannel: top ? top[0] : 'unknown',
+        topChannelPct: top && total > 0 ? Math.round((top[1] / total) * 100) : 0,
+        total,
+      };
+    });
+  }, []);
 
   return (
     <motion.div
@@ -284,6 +361,88 @@ export default function JourneysPage() {
             description="Deals stuck in early pipeline stages show heavy email engagement but zero event touches. Consider using events as an accelerator for stalled opportunities."
           />
         </div>
+      </motion.div>
+
+      {/* Channel Transition Flow */}
+      <motion.div variants={fadeUp}>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-semibold uppercase tracking-wide">
+              Channel Transition Flow
+            </CardTitle>
+            <p className="text-xs text-muted-foreground">
+              Most common channel-to-channel transitions across all journeys
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {channelTransitions.map(({ from, to, count, pct }) => {
+                const fromInfo = ENRICHED_CHANNELS[from as EnrichedChannel];
+                const toInfo = ENRICHED_CHANNELS[to as EnrichedChannel];
+                if (!fromInfo || !toInfo) return null;
+                return (
+                  <div key={`${from}→${to}`} className="flex items-center gap-3">
+                    <div className="flex items-center gap-1.5 w-36 shrink-0 justify-end">
+                      <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: fromInfo.color }} />
+                      <span className="text-xs text-muted-foreground truncate">{fromInfo.name}</span>
+                    </div>
+                    <div className="text-muted-foreground/40 text-xs">&rarr;</div>
+                    <div className="flex items-center gap-1.5 w-36 shrink-0">
+                      <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: toInfo.color }} />
+                      <span className="text-xs text-muted-foreground truncate">{toInfo.name}</span>
+                    </div>
+                    <div className="flex-1 h-5 rounded-full bg-muted relative">
+                      <div
+                        className="h-5 rounded-full transition-all"
+                        style={{
+                          width: `${Math.max(pct, 5)}%`,
+                          background: `linear-gradient(90deg, ${fromInfo.color}80, ${toInfo.color}80)`,
+                        }}
+                      />
+                    </div>
+                    <span className="text-xs font-mono text-muted-foreground w-10 text-right shrink-0">{count}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Golden Path */}
+      <motion.div variants={fadeUp}>
+        <Card className="border-emerald-500/20">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-semibold uppercase tracking-wide text-emerald-400">
+              Golden Path &mdash; Won Deal Journey Pattern
+            </CardTitle>
+            <p className="text-xs text-muted-foreground">
+              Most common channel at each journey stage for closed-won deals
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-2 overflow-x-auto pb-2">
+              {goldenPath.map((step, i) => {
+                const chInfo = ENRICHED_CHANNELS[step.topChannel as EnrichedChannel];
+                return (
+                  <div key={step.position} className="flex items-center gap-2">
+                    <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-3 text-center min-w-[120px]">
+                      <p className="text-[10px] font-medium text-emerald-400/70 uppercase tracking-wide">{step.position}</p>
+                      <div className="mt-1 flex items-center justify-center gap-1.5">
+                        <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ backgroundColor: chInfo?.color || '#666' }} />
+                        <span className="text-xs font-medium text-foreground">{chInfo?.name || step.topChannel}</span>
+                      </div>
+                      <p className="mt-0.5 text-[10px] text-muted-foreground">{step.topChannelPct}% of won deals</p>
+                    </div>
+                    {i < goldenPath.length - 1 && (
+                      <span className="text-emerald-500/50 text-lg">&rarr;</span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
       </motion.div>
     </motion.div>
   );

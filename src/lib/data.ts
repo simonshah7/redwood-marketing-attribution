@@ -125,15 +125,59 @@ function seededRandom() {
   return (seed - 1) / 2147483646;
 }
 
-function generateTouchpoints(_account: typeof ACCOUNTS_BASE[0]): Touchpoint[] {
+// Seasonal weights by month index: Feb=0 … Jan=11
+// Q4 (Oct-Nov) peaks, summer dips, Jan slight dip
+const SEASONAL_WEIGHTS = [0.7, 0.8, 0.9, 1.0, 0.9, 0.7, 0.6, 0.7, 0.9, 1.2, 1.3, 0.8];
+
+function seasonalMonthIdx(linearIdx: number): number {
+  // Build cumulative distribution from seasonal weights
+  const totalWeight = SEASONAL_WEIGHTS.reduce((s, w) => s + w, 0);
+  const r = seededRandom() * totalWeight;
+  let cum = 0;
+  // Start search from linearIdx to keep chronological bias, wrap around
+  for (let offset = 0; offset < 12; offset++) {
+    const idx = (linearIdx + offset) % 12;
+    cum += SEASONAL_WEIGHTS[idx];
+    if (r <= cum) return idx;
+  }
+  return linearIdx;
+}
+
+function generateTouchpoints(account: typeof ACCOUNTS_BASE[0]): Touchpoint[] {
   const touches: Touchpoint[] = [];
   const months = ['2025-02','2025-03','2025-04','2025-05','2025-06','2025-07','2025-08','2025-09','2025-10','2025-11','2025-12','2026-01'];
-  const numTouches = 3 + Math.floor(seededRandom() * 12);
 
-  // SKEW: LinkedIn heavy first-touch, Events heavy mid-funnel, Forms heavy last-touch
-  const firstW: Record<string, number> = { linkedin: 0.50, email: 0.15, form: 0.10, events: 0.25 };
-  const midW: Record<string, number> = { linkedin: 0.20, email: 0.35, form: 0.05, events: 0.40 };
-  const lastW: Record<string, number> = { linkedin: 0.10, email: 0.25, form: 0.50, events: 0.15 };
+  const isLost = account.stage === 'closed_lost';
+  const isWon = account.stage === 'closed_won';
+
+  // Touch count varies by deal outcome
+  const numTouches = isLost
+    ? 2 + Math.floor(seededRandom() * 3)    // 2-4 for lost deals
+    : isWon
+      ? 6 + Math.floor(seededRandom() * 9)  // 6-14 for won deals
+      : 3 + Math.floor(seededRandom() * 12); // 3-14 for active pipeline
+
+  // Channel weights per phase, adjusted by deal outcome
+  let firstW: Record<string, number>;
+  let midW: Record<string, number>;
+  let lastW: Record<string, number>;
+
+  if (isLost) {
+    // Lost deals: single-channel heavy (email or linkedin), near-zero events
+    firstW = { linkedin: 0.45, email: 0.50, form: 0.04, events: 0.01 };
+    midW   = { linkedin: 0.40, email: 0.55, form: 0.04, events: 0.01 };
+    lastW  = { linkedin: 0.35, email: 0.55, form: 0.09, events: 0.01 };
+  } else if (isWon) {
+    // Won deals: diverse channels, stronger event presence mid-funnel
+    firstW = { linkedin: 0.45, email: 0.15, form: 0.10, events: 0.30 };
+    midW   = { linkedin: 0.15, email: 0.25, form: 0.10, events: 0.50 };
+    lastW  = { linkedin: 0.10, email: 0.20, form: 0.50, events: 0.20 };
+  } else {
+    // Default weights (active pipeline)
+    firstW = { linkedin: 0.50, email: 0.15, form: 0.10, events: 0.25 };
+    midW   = { linkedin: 0.20, email: 0.35, form: 0.05, events: 0.40 };
+    lastW  = { linkedin: 0.10, email: 0.25, form: 0.50, events: 0.15 };
+  }
 
   function weightedPick(weights: Record<string, number>): Channel {
     const r = seededRandom();
@@ -148,7 +192,8 @@ function generateTouchpoints(_account: typeof ACCOUNTS_BASE[0]): Touchpoint[] {
   for (let i = 0; i < numTouches; i++) {
     const phase = i === 0 ? 'first' : i === numTouches - 1 ? 'last' : 'mid';
     const ch = phase === 'first' ? weightedPick(firstW) : phase === 'last' ? weightedPick(lastW) : weightedPick(midW);
-    const monthIdx = Math.min(Math.floor((i / numTouches) * 12), 11);
+    const linearIdx = Math.min(Math.floor((i / numTouches) * 12), 11);
+    const monthIdx = seasonalMonthIdx(linearIdx);
     const month = months[monthIdx];
     const day = String(1 + Math.floor(seededRandom() * 28)).padStart(2, '0');
     const campaigns = CAMPAIGNS[ch];

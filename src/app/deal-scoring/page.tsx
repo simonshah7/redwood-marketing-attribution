@@ -22,7 +22,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ENRICHED_DATA } from "@/lib/mock-enriched-data";
-import { scoreAllOpenDeals, type DealScore } from "@/lib/deal-scoring";
+import { scoreAllOpenDeals, backtestDealScoring, type DealScore } from "@/lib/deal-scoring";
 import { fmtCurrency } from "@/lib/format";
 
 const stagger = {
@@ -92,6 +92,7 @@ function ScoreBar({
 
 export default function DealScoringPage() {
   const scores = useMemo(() => scoreAllOpenDeals(ENRICHED_DATA), []);
+  const backtest = useMemo(() => backtestDealScoring(ENRICHED_DATA), []);
 
   const avgScore =
     scores.length > 0
@@ -216,6 +217,61 @@ export default function DealScoringPage() {
                   </span>
                 </div>
               ))}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Model Accuracy (Backtest) */}
+      <motion.div variants={fadeUp}>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Model Accuracy (Backtest on Closed Deals)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="rounded-lg border border-border p-4">
+                <p className="text-xs text-muted-foreground">AUC Score</p>
+                <p className="text-2xl font-bold tabular-nums">{backtest.auc.toFixed(2)}</p>
+                <p className="text-[10px] text-muted-foreground mt-1">
+                  {backtest.auc >= 0.7 ? 'Good discriminative power' : 'Moderate discriminative power'}
+                </p>
+              </div>
+              <div className="rounded-lg border border-border p-4">
+                <p className="text-xs text-muted-foreground">Score Separation</p>
+                <p className="text-2xl font-bold tabular-nums">{backtest.scoreSeparation.toFixed(0)}pts</p>
+                <p className="text-[10px] text-muted-foreground mt-1">
+                  Won avg: {backtest.avgScoreWon.toFixed(0)}% vs Lost avg: {backtest.avgScoreLost.toFixed(0)}%
+                </p>
+              </div>
+              <div className="rounded-lg border border-border p-4">
+                <p className="text-xs text-muted-foreground">Precision</p>
+                <p className="text-2xl font-bold tabular-nums">{(backtest.precision * 100).toFixed(0)}%</p>
+                <p className="text-[10px] text-muted-foreground mt-1">Of predicted wins, how many actually won</p>
+              </div>
+              <div className="rounded-lg border border-border p-4">
+                <p className="text-xs text-muted-foreground">Recall</p>
+                <p className="text-2xl font-bold tabular-nums">{(backtest.recall * 100).toFixed(0)}%</p>
+                <p className="text-[10px] text-muted-foreground mt-1">Of actual wins, how many were predicted</p>
+              </div>
+            </div>
+
+            {/* Threshold Analysis */}
+            <div className="mt-4">
+              <p className="text-xs font-medium text-muted-foreground mb-2">Threshold Analysis</p>
+              <div className="flex items-end gap-1 h-24">
+                {backtest.thresholdAnalysis.map(t => (
+                  <div key={t.threshold} className="flex flex-1 flex-col items-center gap-0.5">
+                    <div
+                      className="w-full rounded-t-sm bg-primary/60 transition-all"
+                      style={{ height: `${t.f1 * 100}%`, minHeight: 2 }}
+                      title={`F1: ${(t.f1 * 100).toFixed(0)}% | Precision: ${(t.precision * 100).toFixed(0)}% | Recall: ${(t.recall * 100).toFixed(0)}%`}
+                    />
+                    <span className="text-[9px] text-muted-foreground">{t.threshold}</span>
+                  </div>
+                ))}
+              </div>
+              <p className="text-[10px] text-muted-foreground mt-1">Score threshold vs F1 score — higher bars = better balance of precision and recall</p>
             </div>
           </CardContent>
         </Card>

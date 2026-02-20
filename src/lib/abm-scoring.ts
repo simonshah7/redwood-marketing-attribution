@@ -3,7 +3,7 @@
 // Account-level scoring with buying committee coverage
 // ============================================================
 
-import type { EnrichedAccount, EnrichedChannel, BuyingCommitteeMember } from './enriched-data';
+import type { EnrichedAccount, EnrichedChannel, BuyingCommitteeMember, ContactRole, UnifiedTouchpoint } from './enriched-data';
 
 export interface ABMAccountScore {
   account_id: string;
@@ -59,6 +59,21 @@ function computeRecencyScore(daysSinceActivity: number): number {
   return Math.max(5, 20 - (daysSinceActivity - 45) * 0.3);
 }
 
+function computeTimeDecayedCount(
+  touchpoints: { date: string }[],
+  referenceDate: string,
+): number {
+  const refDate = new Date(referenceDate);
+  return touchpoints.reduce((sum, tp) => {
+    const daysSinceTouch = Math.max(
+      0,
+      Math.floor((refDate.getTime() - new Date(tp.date).getTime()) / 86400000),
+    );
+    const decayWeight = Math.pow(0.95, daysSinceTouch);
+    return sum + decayWeight;
+  }, 0);
+}
+
 function computeFrequencyScore(touchpointCount: number): number {
   if (touchpointCount >= 12) return 100;
   if (touchpointCount >= 8) return 85;
@@ -77,10 +92,27 @@ function computeBreadthScore(channelCount: number): number {
   return 0;
 }
 
+const ROLE_WEIGHTS: Record<ContactRole, number> = {
+  champion: 2.0,
+  economic_buyer: 1.8,
+  technical_evaluator: 1.5,
+  influencer: 1.0,
+  blocker: 0.5,
+};
+
 function computeCommitteeCoverage(committee: BuyingCommitteeMember[]): number {
   if (committee.length === 0) return 0;
-  const engaged = committee.filter(m => m.touchpoint_count > 0);
-  return Math.round((engaged.length / committee.length) * 100);
+
+  const totalWeight = committee.reduce(
+    (sum, m) => sum + (ROLE_WEIGHTS[m.role] ?? 1.0),
+    0,
+  );
+
+  const engagedWeight = committee
+    .filter(m => m.touchpoint_count > 0)
+    .reduce((sum, m) => sum + (ROLE_WEIGHTS[m.role] ?? 1.0), 0);
+
+  return Math.round((engagedWeight / totalWeight) * 100);
 }
 
 function determineTrend(
@@ -180,9 +212,10 @@ export function scoreABMAccounts(
     // Channels engaged
     const channels = [...new Set(touchpoints.map(tp => tp.channel))] as EnrichedChannel[];
 
-    // Sub-scores
+    // Sub-scores (frequency uses time-decayed touchpoint weight)
     const recency = computeRecencyScore(daysSinceActivity);
-    const frequency = computeFrequencyScore(touchpoints.length);
+    const decayedCount = computeTimeDecayedCount(touchpoints, referenceDate);
+    const frequency = computeFrequencyScore(decayedCount);
     const breadth = computeBreadthScore(channels.length);
     const coverage = computeCommitteeCoverage(committee);
 
@@ -237,4 +270,81 @@ export function scoreABMAccounts(
       recommended_play: play,
     };
   }).sort((a, b) => b.engagement_score - a.engagement_score);
+}
+
+// ---- Competitive Signal Detection ----
+
+export interface CompetitiveSignal {
+  account_id: string;
+  account_name: string;
+  signal_type: 'competitive_content' | 'competitor_campaign' | 'evaluation_stage';
+  description: string;
+  severity: 'high' | 'medium' | 'low';
+}
+
+const COMPETITOR_CAMPAIGN_KEYWORDS = /conquest|competitive|displacement|ctrl-m|tws/i;
+const COMPETITIVE_CONTENT_KEYWORDS = /comparison|vs|migration/i;
+
+function touchpointHasCompetitorCampaign(tp: UnifiedTouchpoint): boolean {
+  return !!(tp.campaign_name && COMPETITOR_CAMPAIGN_KEYWORDS.test(tp.campaign_name));
+}
+
+function touchpointHasCompetitiveContent(tp: UnifiedTouchpoint): boolean {
+  return !!(tp.content_asset && COMPETITIVE_CONTENT_KEYWORDS.test(tp.content_asset));
+}
+
+export function detectCompetitiveSignals(
+  accounts: EnrichedAccount[],
+  referenceDate: string = '2026-01-31',
+): CompetitiveSignal[] {
+  const signals: CompetitiveSignal[] = [];
+
+  for (const account of accounts) {
+    const touchpoints = account.touchpoints;
+    let hasCompetitorTouch = false;
+
+    // Scan for competitor campaign signals
+    for (const tp of touchpoints) {
+      if (touchpointHasCompetitorCampaign(tp)) {
+        hasCompetitorTouch = true;
+        signals.push({
+          account_id: account.account_id,
+          account_name: account.account_name,
+          signal_type: 'competitor_campaign',
+          description: `Campaign "${tp.campaign_name}" on ${tp.date} indicates competitor activity`,
+          severity: 'medium',
+        });
+      }
+    }
+
+    // Scan for competitive content signals
+    for (const tp of touchpoints) {
+      if (touchpointHasCompetitiveContent(tp)) {
+        hasCompetitorTouch = true;
+        signals.push({
+          account_id: account.account_id,
+          account_name: account.account_name,
+          signal_type: 'competitive_content',
+          description: `Content "${tp.content_asset}" accessed on ${tp.date} suggests competitive evaluation`,
+          severity: 'medium',
+        });
+      }
+    }
+
+    // Evaluation stage + competitor touches → high severity
+    if (
+      hasCompetitorTouch &&
+      (account.stage === 'eval_planning' || account.stage === 'negotiation')
+    ) {
+      signals.push({
+        account_id: account.account_id,
+        account_name: account.account_name,
+        signal_type: 'evaluation_stage',
+        description: `Account at ${account.stage} stage with competitor-related touches — competitive deal risk`,
+        severity: 'high',
+      });
+    }
+  }
+
+  return signals;
 }

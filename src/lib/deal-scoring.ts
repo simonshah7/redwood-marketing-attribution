@@ -383,3 +383,176 @@ export function scoreAllOpenDeals(
     };
   }).sort((a, b) => b.probability - a.probability);
 }
+
+// ============================================================
+// BACKTESTING ENGINE
+// Validates the scoring model against historical closed deals
+// ============================================================
+
+export interface BacktestResult {
+  totalClosed: number;
+  wonCount: number;
+  lostCount: number;
+  accuracyPct: number;
+  precision: number;
+  recall: number;
+  avgScoreWon: number;
+  avgScoreLost: number;
+  scoreSeparation: number;
+  thresholdAnalysis: { threshold: number; precision: number; recall: number; f1: number }[];
+  rocPoints: { threshold: number; tpr: number; fpr: number }[];
+  auc: number;
+}
+
+export function backtestDealScoring(
+  accounts: EnrichedAccount[],
+  referenceDate: string = '2026-01-31',
+): BacktestResult {
+  const wonAccounts = accounts.filter(a => a.stage === 'closed_won');
+  const lostAccounts = accounts.filter(a => a.stage === 'closed_lost');
+  const closedAccounts = [...wonAccounts, ...lostAccounts];
+
+  const totalClosed = closedAccounts.length;
+  const wonCount = wonAccounts.length;
+  const lostCount = lostAccounts.length;
+
+  // Build reference stats from won deals for touchpoint volume comparison
+  const wonAvgTouches = wonCount > 0
+    ? wonAccounts.reduce((sum, a) => sum + a.touchpoints.length, 0) / wonCount
+    : 8;
+
+  // Compute a retro-score for each closed deal using simplified component scoring
+  function retroScore(account: EnrichedAccount): number {
+    const touchpoints = account.touchpoints;
+    const uniqueChannels = new Set(touchpoints.map(tp => tp.channel));
+
+    // Channel diversity: unique channels out of the 6 most common, scaled to 100
+    const chDiversity = Math.min(100, (uniqueChannels.size / 6) * 100);
+
+    // Touchpoint volume: compare count to won average
+    const tpCount = touchpointCountScore(touchpoints.length, wonAvgTouches);
+
+    // Recency: use 80 as a default since these deals were actively engaged when closing
+    const recency = 80;
+
+    // Event & content engagement
+    const evtContent = eventContentScore(touchpoints);
+
+    // Apply the same weights as the main scorer (simplified — no velocity or win signals)
+    // Channel Diversity: 0.20, Touchpoint Volume: 0.15, Win Signals: 0.25,
+    // Velocity: 0.15, Recency: 0.10, Event & Content: 0.15
+    // We redistribute the Win Signals & Velocity weights (0.40 total) proportionally
+    // across the factors we can compute:
+    //   chDiversity:  0.20 + (0.20/0.60)*0.40 = 0.333
+    //   tpCount:      0.15 + (0.15/0.60)*0.40 = 0.250
+    //   recency:      0.10 + (0.10/0.60)*0.40 = 0.167
+    //   evtContent:   0.15 + (0.15/0.60)*0.40 = 0.250
+    const score =
+      chDiversity * 0.333 +
+      tpCount * 0.25 +
+      recency * 0.167 +
+      evtContent * 0.25;
+
+    return Math.round(score);
+  }
+
+  // Score all closed deals
+  const wonScores = wonAccounts.map(a => retroScore(a));
+  const lostScores = lostAccounts.map(a => retroScore(a));
+
+  const avgScoreWon = wonScores.length > 0
+    ? wonScores.reduce((s, v) => s + v, 0) / wonScores.length
+    : 0;
+  const avgScoreLost = lostScores.length > 0
+    ? lostScores.reduce((s, v) => s + v, 0) / lostScores.length
+    : 0;
+  const scoreSeparation = avgScoreWon - avgScoreLost;
+
+  // Build scored entries with actual outcome
+  const scoredDeals = closedAccounts.map((a, i) => ({
+    score: i < wonCount ? wonScores[i] : lostScores[i - wonCount],
+    isWon: a.stage === 'closed_won',
+  }));
+
+  // Threshold analysis: for each threshold, "predict win" if score >= threshold
+  const thresholds = [10, 20, 30, 40, 50, 60, 70, 80, 90];
+  const thresholdAnalysis = thresholds.map(threshold => {
+    const predictedWins = scoredDeals.filter(d => d.score >= threshold);
+    const truePositives = predictedWins.filter(d => d.isWon).length;
+    const falsePositives = predictedWins.filter(d => !d.isWon).length;
+    const falseNegatives = scoredDeals.filter(d => d.score < threshold && d.isWon).length;
+
+    const precision = (truePositives + falsePositives) > 0
+      ? truePositives / (truePositives + falsePositives)
+      : 0;
+    const recall = (truePositives + falseNegatives) > 0
+      ? truePositives / (truePositives + falseNegatives)
+      : 0;
+    const f1 = (precision + recall) > 0
+      ? 2 * (precision * recall) / (precision + recall)
+      : 0;
+
+    return {
+      threshold,
+      precision: Math.round(precision * 1000) / 1000,
+      recall: Math.round(recall * 1000) / 1000,
+      f1: Math.round(f1 * 1000) / 1000,
+    };
+  });
+
+  // ROC curve: compute TPR and FPR at fine-grained thresholds (0, 5, 10, ..., 100)
+  const rocThresholds = Array.from({ length: 21 }, (_, i) => i * 5);
+  const rocPoints = rocThresholds.map(threshold => {
+    const tp = scoredDeals.filter(d => d.score >= threshold && d.isWon).length;
+    const fp = scoredDeals.filter(d => d.score >= threshold && !d.isWon).length;
+    const fn = scoredDeals.filter(d => d.score < threshold && d.isWon).length;
+    const tn = scoredDeals.filter(d => d.score < threshold && !d.isWon).length;
+
+    const tpr = (tp + fn) > 0 ? tp / (tp + fn) : 0;
+    const fpr = (fp + tn) > 0 ? fp / (fp + tn) : 0;
+
+    return {
+      threshold,
+      tpr: Math.round(tpr * 1000) / 1000,
+      fpr: Math.round(fpr * 1000) / 1000,
+    };
+  });
+
+  // AUC via trapezoidal rule (sort ROC points by FPR ascending)
+  const sortedRoc = [...rocPoints].sort((a, b) => a.fpr - b.fpr);
+  let auc = 0;
+  for (let i = 1; i < sortedRoc.length; i++) {
+    const dx = sortedRoc[i].fpr - sortedRoc[i - 1].fpr;
+    const avgY = (sortedRoc[i].tpr + sortedRoc[i - 1].tpr) / 2;
+    auc += dx * avgY;
+  }
+  auc = Math.round(auc * 1000) / 1000;
+
+  // Overall accuracy at the "best F1" threshold
+  const bestThreshold = thresholdAnalysis.reduce(
+    (best, t) => (t.f1 > best.f1 ? t : best),
+    thresholdAnalysis[0],
+  );
+  const correctAtBest = scoredDeals.filter(d =>
+    (d.score >= bestThreshold.threshold && d.isWon) ||
+    (d.score < bestThreshold.threshold && !d.isWon)
+  ).length;
+  const accuracyPct = totalClosed > 0
+    ? Math.round((correctAtBest / totalClosed) * 1000) / 10
+    : 0;
+
+  return {
+    totalClosed,
+    wonCount,
+    lostCount,
+    accuracyPct,
+    precision: bestThreshold.precision,
+    recall: bestThreshold.recall,
+    avgScoreWon: Math.round(avgScoreWon * 10) / 10,
+    avgScoreLost: Math.round(avgScoreLost * 10) / 10,
+    scoreSeparation: Math.round(scoreSeparation * 10) / 10,
+    thresholdAnalysis,
+    rocPoints,
+    auc,
+  };
+}
