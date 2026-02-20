@@ -64,14 +64,14 @@ const NAV_SECTIONS: NavSection[] = [
         icon: <Layers className="h-4 w-4" />,
       },
       {
+        label: "Data-Driven (Markov)",
+        href: "/data-driven",
+        icon: <GitBranch className="h-4 w-4" />,
+      },
+      {
         label: "Attribution Trends",
         href: "/attribution-trends",
         icon: <LineChart className="h-4 w-4" />,
-      },
-      {
-        label: "Data-Driven",
-        href: "/data-driven",
-        icon: <GitBranch className="h-4 w-4" />,
       },
     ],
   },
