@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { useEffect } from "react";
 import { useTheme } from "next-themes";
 import { Menu, Moon, Sun, ChevronRight, BookOpen } from "lucide-react";
 import { useGuide } from "@/lib/guide-context";
@@ -43,6 +44,24 @@ export function Header() {
   const { theme, setTheme } = useTheme();
   const { guideMode, toggleGuideMode } = useGuide();
 
+  // Keyboard shortcuts
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      // Cmd/Ctrl+Shift+D → toggle dark mode
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === "D") {
+        e.preventDefault();
+        setTheme(theme === "dark" ? "light" : "dark");
+      }
+      // Cmd/Ctrl+Shift+G → toggle guide mode
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === "G") {
+        e.preventDefault();
+        toggleGuideMode();
+      }
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [theme, setTheme, toggleGuideMode]);
+
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b border-border bg-background/80 px-6 backdrop-blur-sm">
       {/* Mobile hamburger */}
@@ -73,15 +92,19 @@ export function Header() {
       </div>
 
       {/* Command palette trigger */}
-      <CommandPaletteTrigger />
+      <div className="hidden sm:block">
+        <CommandPaletteTrigger />
+      </div>
 
       {/* Data freshness in header */}
-      <div className="hidden lg:block">
+      <div className="hidden xl:block">
         <FreshnessIndicator />
       </div>
 
       {/* Period selector */}
-      <PeriodSelector />
+      <div className="hidden sm:block">
+        <PeriodSelector />
+      </div>
 
       {/* Guide Mode toggle */}
       <Tooltip>
@@ -100,19 +123,26 @@ export function Header() {
           </button>
         </TooltipTrigger>
         <TooltipContent side="bottom">
-          <p>Guide Mode {guideMode ? "On" : "Off"}</p>
+          <p>Guide Mode {guideMode ? "On" : "Off"} <kbd className="ml-1 rounded border border-border bg-muted/50 px-1 py-0.5 font-mono text-[10px]">⌘⇧G</kbd></p>
         </TooltipContent>
       </Tooltip>
 
       {/* Theme toggle */}
-      <button
-        onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-        className="flex h-8 w-8 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-        aria-label="Toggle theme"
-      >
-        <Sun className="h-4 w-4 rotate-0 scale-100 transition-transform dark:-rotate-90 dark:scale-0" />
-        <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-transform dark:rotate-0 dark:scale-100" />
-      </button>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className="flex h-8 w-8 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            aria-label="Toggle theme"
+          >
+            <Sun className="h-4 w-4 rotate-0 scale-100 transition-transform dark:-rotate-90 dark:scale-0" />
+            <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-transform dark:rotate-0 dark:scale-100" />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent side="bottom">
+          <p>Toggle theme <kbd className="ml-1 rounded border border-border bg-muted/50 px-1 py-0.5 font-mono text-[10px]">⌘⇧D</kbd></p>
+        </TooltipContent>
+      </Tooltip>
     </header>
   );
 }

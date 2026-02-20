@@ -25,19 +25,7 @@ import { PageGuide } from "@/components/shared/page-guide";
 import { SoWhatPanel } from "@/components/cards/so-what-panel";
 import { PAGE_GUIDES } from "@/lib/guide-content";
 import { useMemo } from "react";
-
-const stagger = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.08 },
-  },
-};
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" as const } },
-};
+import { stagger, fadeUp } from "@/lib/motion";
 
 function getChannelStats(ch: Channel) {
   const allTouches = DATA.flatMap((d) =>

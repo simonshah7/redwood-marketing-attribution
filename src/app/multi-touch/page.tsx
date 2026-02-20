@@ -31,19 +31,7 @@ import { SoWhatPanel } from "@/components/cards/so-what-panel";
 import { ActionCard } from "@/components/cards/action-card";
 import { PAGE_GUIDES } from "@/lib/guide-content";
 import { interpretMultiTouch } from "@/lib/interpretation-engine";
-
-const stagger = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.06 },
-  },
-};
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" as const } },
-};
+import { stagger, fadeUp } from "@/lib/motion";
 
 function computeDeltas() {
   const ft = firstTouchAttribution(DATA);
@@ -321,11 +309,12 @@ export default function MultiTouchPage() {
             </p>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={280}>
+            <div role="img" aria-label="Grouped bar chart comparing average touches per channel between won and lost deals">
+            <ResponsiveContainer width="100%" height={240}>
               <BarChart data={wonVsLost} barCategoryGap="20%">
                 <XAxis
                   dataKey="name"
-                  tick={{ fill: "hsl(var(--chart-axis))", fontSize: 12 }}
+                  tick={{ fill: "hsl(var(--chart-axis))", fontSize: 11 }}
                   axisLine={false}
                   tickLine={false}
                 />
@@ -379,6 +368,7 @@ export default function MultiTouchPage() {
                 />
               </BarChart>
             </ResponsiveContainer>
+            </div>
             <div className="mt-3 flex items-center gap-4">
               <div className="flex items-center gap-1.5">
                 <span className="inline-block h-2.5 w-2.5 rounded-sm bg-[hsl(168,55%,42%)]" />

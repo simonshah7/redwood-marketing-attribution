@@ -68,9 +68,9 @@ export function PipelineFunnel() {
                 </span>
               </div>
             )}
-            <div className="flex items-center gap-3">
-              <div className="w-32 shrink-0 text-right">
-                <p className="text-xs font-medium text-foreground">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-20 sm:w-32 shrink-0 text-right">
+                <p className="text-[11px] sm:text-xs font-medium text-foreground truncate">
                   {stage.name}
                 </p>
               </div>

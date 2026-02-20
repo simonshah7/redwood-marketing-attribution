@@ -32,6 +32,7 @@ import { SoWhatPanel } from "@/components/cards/so-what-panel";
 import { ActionCard } from "@/components/cards/action-card";
 import { PAGE_GUIDES } from "@/lib/guide-content";
 import { interpretOverview } from "@/lib/interpretation-engine";
+import { stagger, fadeUp } from "@/lib/motion";
 
 function computeKpis() {
   const totalPipeline = DATA.reduce((s, d) => s + d.deal, 0);
@@ -98,19 +99,6 @@ function computeInsights() {
     emailLtPct,
   };
 }
-
-const stagger = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.06 },
-  },
-};
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" as const } },
-};
 
 export default function OverviewPage() {
   const kpis = computeKpis();
@@ -210,7 +198,7 @@ export default function OverviewPage() {
         {/* KPI Row */}
         <motion.div
           variants={stagger}
-          className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5"
+          className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
         >
           <motion.div variants={fadeUp}>
             <KpiCard

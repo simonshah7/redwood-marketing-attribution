@@ -38,19 +38,7 @@ import {
 } from "@/lib/attribution-trends";
 import { PageGuide } from "@/components/shared/page-guide";
 import { PAGE_GUIDES } from "@/lib/guide-content";
-
-const stagger = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.06 },
-  },
-};
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" as const } },
-};
+import { stagger, fadeUp } from "@/lib/motion";
 
 function MomentumBadge({ momentum }: { momentum: 'rising' | 'stable' | 'declining' }) {
   return (

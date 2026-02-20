@@ -22,19 +22,7 @@ import { SoWhatPanel } from "@/components/cards/so-what-panel";
 import { ActionCard } from "@/components/cards/action-card";
 import { PAGE_GUIDES } from "@/lib/guide-content";
 import { interpretPipeline } from "@/lib/interpretation-engine";
-
-const stagger = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.06 },
-  },
-};
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" as const } },
-};
+import { stagger, fadeUp } from "@/lib/motion";
 
 function buildStageChannelData() {
   return STAGES.map((stage) => {
@@ -169,7 +157,8 @@ export default function PipelinePage() {
             </p>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+            <div role="img" aria-label="Stacked horizontal bar chart showing channel touch mix percentage by pipeline stage">
+            <ResponsiveContainer width="100%" height={280}>
               <BarChart
                 data={stageData}
                 layout="vertical"
@@ -179,8 +168,8 @@ export default function PipelinePage() {
                 <YAxis
                   type="category"
                   dataKey="name"
-                  width={120}
-                  tick={{ fill: "hsl(var(--chart-axis))", fontSize: 11 }}
+                  width={90}
+                  tick={{ fill: "hsl(var(--chart-axis))", fontSize: 10 }}
                   axisLine={false}
                   tickLine={false}
                 />
@@ -230,6 +219,7 @@ export default function PipelinePage() {
                 ))}
               </BarChart>
             </ResponsiveContainer>
+            </div>
             {/* Legend */}
             <div className="mt-3 flex flex-wrap items-center gap-4">
               {CHANNEL_KEYS.map((ch) => (
@@ -260,10 +250,10 @@ export default function PipelinePage() {
             </p>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-2 overflow-x-auto pb-2">
               {funnel.stageMetrics.filter(s => s.stage !== 'closed_won' && s.stage !== 'closed_lost').map((stage, i, arr) => (
-                <div key={stage.stage} className="flex items-center gap-2">
-                  <div className="rounded-lg border border-border p-3 text-center min-w-[120px]">
+                <div key={stage.stage} className="flex items-center gap-2 shrink-0">
+                  <div className="rounded-lg border border-border p-3 text-center min-w-[100px]">
                     <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">{stage.stageName}</p>
                     <p className="text-lg font-bold tabular-nums">{stage.accountCount}</p>
                     <p className="text-[10px] text-muted-foreground">{fmt(stage.pipeline)}</p>
@@ -271,7 +261,7 @@ export default function PipelinePage() {
                   {i < arr.length - 1 && (
                     <div className="flex flex-col items-center">
                       <span className={`text-xs font-bold tabular-nums ${stage.conversionToNext >= 0.7 ? 'text-emerald-500' : stage.conversionToNext >= 0.4 ? 'text-amber-500' : 'text-red-500'}`}>
-                        {(stage.conversionToNext * 100).toFixed(0)}%
+                        {stage.conversionToNext >= 0.7 ? '✓ ' : stage.conversionToNext < 0.4 ? '⚠ ' : ''}{(stage.conversionToNext * 100).toFixed(0)}%
                       </span>
                       <span className="text-muted-foreground">→</span>
                       <span className="text-[9px] text-muted-foreground">

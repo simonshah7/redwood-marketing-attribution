@@ -29,19 +29,7 @@ import { SoWhatPanel } from "@/components/cards/so-what-panel";
 import { ActionCard } from "@/components/cards/action-card";
 import { PAGE_GUIDES } from "@/lib/guide-content";
 import { interpretDealScoring } from "@/lib/interpretation-engine";
-
-const stagger = {
-  hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.06 } },
-};
-const fadeUp = {
-  hidden: { opacity: 0, y: 12 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.4, ease: "easeOut" as const },
-  },
-};
+import { stagger, fadeUp } from "@/lib/motion";
 
 function ScoreBadge({ score }: { score: number }) {
   const color =
@@ -323,12 +311,12 @@ export default function DealScoringPage() {
                 <TableRow>
                   <TableHead>Account</TableHead>
                   <TableHead className="text-right">Deal Value</TableHead>
-                  <TableHead>Stage</TableHead>
+                  <TableHead className="hidden sm:table-cell">Stage</TableHead>
                   <TableHead>Score</TableHead>
-                  <TableHead>Score Breakdown</TableHead>
-                  <TableHead>Confidence</TableHead>
-                  <TableHead>Trend</TableHead>
-                  <TableHead>Top Risk</TableHead>
+                  <TableHead className="hidden lg:table-cell">Score Breakdown</TableHead>
+                  <TableHead className="hidden md:table-cell">Confidence</TableHead>
+                  <TableHead className="hidden md:table-cell">Trend</TableHead>
+                  <TableHead className="hidden sm:table-cell">Top Risk</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -343,7 +331,7 @@ export default function DealScoringPage() {
                     <TableCell className="text-right font-mono text-sm">
                       {fmtCurrency(deal.deal_amount)}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden sm:table-cell">
                       <Badge variant="secondary" className="text-[10px]">
                         {deal.stage.replace(/_/g, " ")}
                       </Badge>
@@ -351,10 +339,10 @@ export default function DealScoringPage() {
                     <TableCell>
                       <ScoreBadge score={deal.probability} />
                     </TableCell>
-                    <TableCell className="w-48">
+                    <TableCell className="hidden lg:table-cell w-48">
                       <ScoreBar components={deal.score_components} />
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden md:table-cell">
                       <Badge
                         variant="secondary"
                         className={`text-[10px] ${
@@ -368,7 +356,7 @@ export default function DealScoringPage() {
                         {deal.confidence}
                       </Badge>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden md:table-cell">
                       <div className="flex items-center gap-1">
                         <TrendIcon trend={deal.trend} />
                         <span className="text-xs text-muted-foreground">
@@ -376,7 +364,7 @@ export default function DealScoringPage() {
                         </span>
                       </div>
                     </TableCell>
-                    <TableCell className="max-w-40">
+                    <TableCell className="hidden sm:table-cell max-w-40">
                       {deal.risk_factors.length > 0 ? (
                         <span
                           className={`text-xs ${

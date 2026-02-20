@@ -98,13 +98,15 @@ export function MonthlyTimeline() {
         </p>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={280}>
+        <div role="img" aria-label="Stacked bar chart showing monthly marketing touch volume by channel over 12 months">
+        <ResponsiveContainer width="100%" height={240}>
           <BarChart data={data} barCategoryGap="15%">
             <XAxis
               dataKey="name"
-              tick={{ fill: "hsl(var(--chart-axis))", fontSize: 11 }}
+              tick={{ fill: "hsl(var(--chart-axis))", fontSize: 10 }}
               axisLine={false}
               tickLine={false}
+              interval="preserveStartEnd"
             />
             <YAxis
               tick={{ fill: "hsl(var(--chart-axis))", fontSize: 11 }}
@@ -127,6 +129,7 @@ export function MonthlyTimeline() {
             ))}
           </BarChart>
         </ResponsiveContainer>
+        </div>
 
         {/* Legend */}
         <div className="mt-3 flex flex-wrap items-center gap-4">
