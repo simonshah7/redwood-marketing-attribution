@@ -23,6 +23,7 @@ import {
   LineChart,
   ArrowRightLeft,
   ChevronDown,
+  GitBranch,
 } from "lucide-react";
 
 interface NavItem {
@@ -66,6 +67,11 @@ const NAV_SECTIONS: NavSection[] = [
         label: "Attribution Trends",
         href: "/attribution-trends",
         icon: <LineChart className="h-4 w-4" />,
+      },
+      {
+        label: "Data-Driven",
+        href: "/data-driven",
+        icon: <GitBranch className="h-4 w-4" />,
       },
     ],
   },

@@ -36,6 +36,7 @@ const PAGE_META: Record<string, PageMeta> = {
   "/content-intelligence": { title: "Content Intelligence", section: "Actions" },
   "/cross-sell": { title: "Cross-Sell Attribution", section: "Actions" },
   "/cohorts": { title: "Cohort Analysis", section: "Deep Dives" },
+  "/data-driven": { title: "Data-Driven Attribution", section: "Attribution" },
 };
 
 export function Header() {

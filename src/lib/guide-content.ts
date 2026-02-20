@@ -37,6 +37,14 @@ export const PAGE_GUIDES: Record<string, PageGuideContent> = {
     whatToDo:
       "Compare delta columns — large positive deltas reveal undervalued channels worth more investment. Look at won vs lost touchpoint patterns to understand what winning journeys look like.",
   },
+  "/data-driven": {
+    whatItShows:
+      "Markov chain-based attribution that measures each channel's true incremental impact on conversion. Unlike rule-based models, this approach uses probabilistic analysis of actual journey paths.",
+    whenToUseIt:
+      "When you need an unbiased, data-driven view of channel value. Especially useful for validating or challenging assumptions from simpler attribution models.",
+    whatToDo:
+      "Compare Markov weights against Linear to spot channels whose value is hidden by simpler models. Check the transition matrix to understand how accounts flow between channels on the path to conversion.",
+  },
   "/attribution-trends": {
     whatItShows:
       "How channel attribution evolves month-over-month across all models. Reveals seasonal patterns and shifting channel effectiveness.",
