@@ -272,7 +272,7 @@ export function generateTrendInsights(model: AttributionModel): AttributionTrend
 
   const channelNames: Record<Channel, string> = {
     linkedin: 'LinkedIn Ads',
-    email: 'Marketo Email',
+    email: 'HubSpot Email',
     form: 'Form Submissions',
     events: 'Events & Webinars',
   };

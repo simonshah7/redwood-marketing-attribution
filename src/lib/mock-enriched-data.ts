@@ -1,5 +1,5 @@
 // ============================================================
-// ENRICHED MOCK DATA GENERATOR — RunMyJobs Marketing Attribution
+// ENRICHED MOCK DATA GENERATOR — Acme Cloud Marketing Attribution
 // Generates UnifiedTouchpoint & EnrichedAccount data per spec2
 // ============================================================
 
@@ -42,77 +42,77 @@ function weightedPick<T>(items: T[], weights: number[]): T {
 // ---- Reference Data ----
 
 const PAGE_URLS: { url: string; title: string }[] = [
-  { url: '/workload-automation/', title: 'RunMyJobs Workload Automation' },
-  { url: '/solutions/sap/', title: 'SAP Job Scheduling Solutions' },
-  { url: '/solutions/sap/rise/', title: 'RISE with SAP Automation' },
+  { url: '/cloud-observability/', title: 'CloudWatch Pro Observability Platform' },
+  { url: '/solutions/kubernetes/', title: 'Kubernetes Monitoring Solutions' },
+  { url: '/solutions/aws/', title: 'AWS Infrastructure Monitoring' },
   { url: '/demo/', title: 'Request a Demo' },
-  { url: '/pricing/', title: 'RunMyJobs Pricing' },
+  { url: '/pricing/', title: 'CloudWatch Pro Pricing' },
   { url: '/customers/', title: 'Customer Success Stories' },
-  { url: '/resources/whitepaper/sap-migration/', title: 'SAP Migration Whitepaper' },
-  { url: '/blog/ctrl-m-alternative/', title: 'Blog: Best Ctrl-M Alternative' },
+  { url: '/resources/whitepaper/cloud-migration/', title: 'Cloud Migration Whitepaper' },
+  { url: '/blog/datadog-alternative/', title: 'Blog: Best Datadog Alternative' },
   { url: '/roi-calculator/', title: 'ROI Calculator' },
-  { url: '/platform/', title: 'RunMyJobs Platform Overview' },
-  { url: '/solutions/finance-automation/', title: 'Finance Automation' },
-  { url: '/blog/workload-automation-trends/', title: 'Blog: WLA Trends 2025' },
-  { url: '/case-study/siemens/', title: 'Case Study: Siemens' },
-  { url: '/resources/datasheet/runmyjobs/', title: 'RunMyJobs Datasheet' },
-  { url: '/about/', title: 'About Redwood Software' },
+  { url: '/platform/', title: 'CloudWatch Pro Platform Overview' },
+  { url: '/solutions/ci-cd-analytics/', title: 'CI/CD Analytics' },
+  { url: '/blog/observability-trends/', title: 'Blog: Observability Trends 2025' },
+  { url: '/case-study/apex-financial/', title: 'Case Study: Apex Financial' },
+  { url: '/resources/datasheet/cloudwatch-pro/', title: 'CloudWatch Pro Datasheet' },
+  { url: '/about/', title: 'About Acme Cloud' },
 ];
 
 const CONTENT_ASSETS: { name: string; type: AssetType }[] = [
-  { name: 'SAP Job Scheduling Migration Guide', type: 'guide' },
-  { name: 'Ctrl-M to RunMyJobs Comparison Sheet', type: 'datasheet' },
-  { name: 'RunMyJobs ROI Calculator Results', type: 'roi_calculator' },
-  { name: 'Workload Automation Buyer\'s Guide', type: 'guide' },
-  { name: 'Siemens Case Study', type: 'case_study' },
+  { name: 'Cloud Migration Monitoring Guide', type: 'guide' },
+  { name: 'Datadog to CloudWatch Pro Comparison Sheet', type: 'datasheet' },
+  { name: 'CloudWatch Pro ROI Calculator Results', type: 'roi_calculator' },
+  { name: 'Observability Platform Buyer\'s Guide', type: 'guide' },
+  { name: 'Apex Financial Case Study', type: 'case_study' },
   { name: 'Total Economic Impact Study', type: 'whitepaper' },
-  { name: 'S/4HANA Automation Datasheet', type: 'datasheet' },
-  { name: 'RunMyJobs vs Competitors Infographic', type: 'infographic' },
-  { name: 'CIO Guide to IT Process Automation', type: 'whitepaper' },
-  { name: 'Manufacturing WLA Best Practices', type: 'guide' },
+  { name: 'Kubernetes Monitoring Datasheet', type: 'datasheet' },
+  { name: 'CloudWatch Pro vs Competitors Infographic', type: 'infographic' },
+  { name: 'CTO Guide to Cloud Observability', type: 'whitepaper' },
+  { name: 'DevOps Monitoring Best Practices', type: 'guide' },
 ];
 
 const BDR_SEQUENCES = [
-  'RMJ Enterprise — SAP Ctrl-M Displacement Q4',
-  'RMJ Enterprise — S/4HANA Migration Awareness',
-  'RMJ Enterprise — Event Follow-Up Sapphire',
-  'RMJ Mid-Market — Inbound Demo Follow-Up',
-  'RMJ Enterprise — Competitive Win-Back',
-  'RMJ Enterprise — Pricing Follow-Up',
+  'CWP Enterprise — Datadog Displacement Q4',
+  'CWP Enterprise — Cloud Migration Awareness',
+  'CWP Enterprise — Event Follow-Up KubeCon',
+  'CWP Mid-Market — Inbound Demo Follow-Up',
+  'CWP Enterprise — Competitive Win-Back',
+  'CWP Enterprise — Pricing Follow-Up',
 ];
 
 const LINKEDIN_CAMPAIGNS = [
-  'RMJ | SAP S/4HANA Migration | IT Leaders',
-  'RMJ | RISE with SAP | C-Level',
-  'RMJ | Workload Automation SaaS | Retarget',
-  'RMJ | DevOps Automation | Tech Leads',
-  'RMJ | Competitor Conquest | Ctrl-M/TWS',
-  'RMJ | SAP BTP Automation | ABM Tier 1',
+  'CWP | Cloud Migration | Platform Engineers',
+  'CWP | Kubernetes Monitoring | C-Level',
+  'CWP | Observability SaaS | Retarget',
+  'CWP | DevOps Automation | Tech Leads',
+  'CWP | Competitor Conquest | Datadog/Splunk',
+  'CWP | Infrastructure Monitoring | ABM Tier 1',
 ];
 
 const AD_CREATIVES = [
-  'SAP S/4HANA Migration — IT Leader Testimonial',
-  'RISE with SAP — CIO Webinar Promo',
-  'Ctrl-M Alternative — Comparison Infographic',
-  'RunMyJobs SaaS — Free Assessment Offer',
-  'Workload Automation ROI — Calculator CTA',
-  'SAP Job Scheduling — Customer Story Video',
+  'Cloud Migration — Platform Engineer Testimonial',
+  'K8s Monitoring — CTO Webinar Promo',
+  'Datadog Alternative — Comparison Infographic',
+  'CloudWatch Pro SaaS — Free Assessment Offer',
+  'Observability ROI — Calculator CTA',
+  'Infrastructure Monitoring — Customer Story Video',
 ];
 
 const EMAIL_PROGRAMS = [
-  'RMJ Nurture — SAP Modernization Sequence',
-  'RMJ Nurture — Competitive Displacement',
-  'RMJ Newsletter — Jan 2026',
-  'RMJ Newsletter — Dec 2025',
-  'RMJ Event Follow-Up — Gartner IOCS',
-  'RMJ Demo Request Follow-Up',
-  'RMJ Webinar Invite — RISE with SAP',
+  'CWP Nurture — Cloud Migration Sequence',
+  'CWP Nurture — Competitive Displacement',
+  'CWP Newsletter — Jan 2026',
+  'CWP Newsletter — Dec 2025',
+  'CWP Event Follow-Up — KubeCon',
+  'CWP Demo Request Follow-Up',
+  'CWP Webinar Invite — K8s Monitoring',
 ];
 
 const EMAIL_NAMES = [
-  'SAP Mod Nurture Email 1 — Pain Points',
-  'SAP Mod Nurture Email 2 — Case Study',
-  'SAP Mod Nurture Email 3 — ROI Calculator',
+  'Cloud Migration Nurture Email 1 — Pain Points',
+  'Cloud Migration Nurture Email 2 — Case Study',
+  'Cloud Migration Nurture Email 3 — ROI Calculator',
   'Competitive Email 1 — Why Switch',
   'Competitive Email 2 — Migration Ease',
   'Newsletter — Product Updates',
@@ -123,29 +123,29 @@ const EMAIL_NAMES = [
 ];
 
 const EVENTS: { name: string; type: 'conference' | 'webinar' | 'workshop' | 'customer_summit' }[] = [
-  { name: 'SAP Sapphire Orlando 2025', type: 'conference' },
-  { name: 'Gartner IOCS Las Vegas 2025', type: 'conference' },
-  { name: 'ASUG Annual Conference', type: 'conference' },
-  { name: 'Redwood Webinar: Migrate from Ctrl-M', type: 'webinar' },
-  { name: 'Redwood Webinar: S/4HANA Job Scheduling', type: 'webinar' },
-  { name: 'SAPPHIRE Barcelona 2025', type: 'conference' },
-  { name: 'Redwood Customer Summit 2025', type: 'customer_summit' },
-  { name: 'Automation Workshop: Hands-On RunMyJobs', type: 'workshop' },
+  { name: 'KubeCon NA 2025', type: 'conference' },
+  { name: 'AWS re:Invent 2025', type: 'conference' },
+  { name: 'DevOps Days San Francisco', type: 'conference' },
+  { name: 'Acme Webinar: Migrate from Datadog', type: 'webinar' },
+  { name: 'Acme Webinar: Kubernetes Monitoring at Scale', type: 'webinar' },
+  { name: 'SREcon Europe 2025', type: 'conference' },
+  { name: 'Acme Cloud Summit 2025', type: 'customer_summit' },
+  { name: 'Observability Workshop: Hands-On CloudWatch Pro', type: 'workshop' },
 ];
 
 const AD_ACCOUNTS: { id: string; name: string }[] = [
-  { id: 'act_001', name: 'RMJ Enterprise — NA' },
-  { id: 'act_002', name: 'RMJ Enterprise — EMEA' },
-  { id: 'act_003', name: 'RMJ ABM Tier 1' },
-  { id: 'act_004', name: 'RMJ Mid-Market — Global' },
-  { id: 'act_005', name: 'RMJ Competitive Conquest' },
+  { id: 'act_001', name: 'CWP Enterprise — NA' },
+  { id: 'act_002', name: 'CWP Enterprise — EMEA' },
+  { id: 'act_003', name: 'CWP ABM Tier 1' },
+  { id: 'act_004', name: 'CWP Mid-Market — Global' },
+  { id: 'act_005', name: 'CWP Competitive Conquest' },
 ];
 
 const ORGANIC_SOCIAL_POSTS: { detail: string; postType: string }[] = [
-  { detail: 'LinkedIn organic: RunMyJobs customer success story', postType: 'customer_story' },
-  { detail: 'LinkedIn organic: SAP S/4HANA migration tips', postType: 'thought_leadership' },
-  { detail: 'LinkedIn organic: Redwood employee advocacy share', postType: 'employee_advocacy' },
-  { detail: 'LinkedIn organic: WLA trends infographic', postType: 'infographic' },
+  { detail: 'LinkedIn organic: CloudWatch Pro customer success story', postType: 'customer_story' },
+  { detail: 'LinkedIn organic: Cloud migration monitoring tips', postType: 'thought_leadership' },
+  { detail: 'LinkedIn organic: Acme Cloud employee advocacy share', postType: 'employee_advocacy' },
+  { detail: 'LinkedIn organic: Observability trends infographic', postType: 'infographic' },
   { detail: 'LinkedIn organic: Webinar promotion post', postType: 'event_promo' },
   { detail: 'LinkedIn organic: Product update announcement', postType: 'product_update' },
 ];
@@ -167,44 +167,44 @@ interface AccountBase {
 }
 
 const ACCOUNTS_BASE: AccountBase[] = [
-  { name: 'Siemens AG', size: 'Enterprise', industry: 'Manufacturing', deal: 485000, stage: 'closed_won', region: 'EMEA', deal_type: 'New Logo', product_line: 'RunMyJobs' },
-  { name: 'Nestlé SA', size: 'Enterprise', industry: 'Consumer Goods', deal: 620000, stage: 'negotiation', region: 'EMEA', deal_type: 'New Logo', product_line: 'RunMyJobs' },
-  { name: 'Johnson Controls', size: 'Enterprise', industry: 'Industrial', deal: 310000, stage: 'eval_planning', region: 'NA', deal_type: 'New Logo', product_line: 'RunMyJobs' },
-  { name: 'Deloitte LLP', size: 'Enterprise', industry: 'Professional Services', deal: 275000, stage: 'closed_won', region: 'NA', deal_type: 'Expansion', product_line: 'RunMyJobs' },
-  { name: 'BASF SE', size: 'Enterprise', industry: 'Chemicals', deal: 540000, stage: 'solution_accepted', region: 'EMEA', deal_type: 'New Logo', product_line: 'RunMyJobs' },
-  { name: 'Honeywell Intl', size: 'Enterprise', industry: 'Conglomerate', deal: 390000, stage: 'disco_completed', region: 'NA', deal_type: 'New Logo', product_line: 'RunMyJobs' },
-  { name: 'Colgate-Palmolive', size: 'Enterprise', industry: 'Consumer Goods', deal: 220000, stage: 'closed_lost', region: 'NA', deal_type: 'New Logo', product_line: 'RunMyJobs' },
-  { name: 'Roche Holding', size: 'Enterprise', industry: 'Pharma', deal: 680000, stage: 'eval_planning', region: 'EMEA', deal_type: 'New Logo', product_line: 'RunMyJobs' },
-  { name: 'BHP Group', size: 'Enterprise', industry: 'Mining', deal: 445000, stage: 'disco_set', region: 'APAC', deal_type: 'New Logo', product_line: 'RunMyJobs' },
-  { name: 'Toyota Motor Corp', size: 'Enterprise', industry: 'Automotive', deal: 720000, stage: 'negotiation', region: 'APAC', deal_type: 'New Logo', product_line: 'RunMyJobs' },
-  { name: 'Pfizer Inc', size: 'Enterprise', industry: 'Pharma', deal: 350000, stage: 'closed_won', region: 'NA', deal_type: 'Expansion', product_line: 'RunMyJobs' },
-  { name: 'Unilever PLC', size: 'Enterprise', industry: 'Consumer Goods', deal: 290000, stage: 'solution_accepted', region: 'EMEA', deal_type: 'New Logo', product_line: 'RunMyJobs' },
-  { name: 'Dow Chemical', size: 'Enterprise', industry: 'Chemicals', deal: 410000, stage: 'disco_completed', region: 'NA', deal_type: 'New Logo', product_line: 'RunMyJobs' },
-  { name: 'Continental AG', size: 'Mid-Market', industry: 'Automotive', deal: 185000, stage: 'closed_lost', region: 'EMEA', deal_type: 'New Logo', product_line: 'RunMyJobs' },
-  { name: 'Kimberly-Clark', size: 'Enterprise', industry: 'Consumer Goods', deal: 255000, stage: 'disco_set', region: 'NA', deal_type: 'New Logo', product_line: 'RunMyJobs' },
-  { name: 'Merck KGaA', size: 'Enterprise', industry: 'Pharma', deal: 520000, stage: 'eval_planning', region: 'EMEA', deal_type: 'New Logo', product_line: 'RunMyJobs' },
-  { name: 'Caterpillar Inc', size: 'Enterprise', industry: 'Heavy Equipment', deal: 375000, stage: 'disco_completed', region: 'NA', deal_type: 'New Logo', product_line: 'RunMyJobs' },
-  { name: 'ABB Ltd', size: 'Enterprise', industry: 'Industrial', deal: 430000, stage: 'solution_accepted', region: 'EMEA', deal_type: 'Expansion', product_line: 'RunMyJobs' },
-  { name: 'Lenovo Group', size: 'Enterprise', industry: 'Technology', deal: 295000, stage: 'closed_lost', region: 'APAC', deal_type: 'New Logo', product_line: 'RunMyJobs' },
-  { name: 'Procter & Gamble', size: 'Enterprise', industry: 'Consumer Goods', deal: 550000, stage: 'negotiation', region: 'NA', deal_type: 'New Logo', product_line: 'RunMyJobs' },
-  { name: 'Volvo Group', size: 'Enterprise', industry: 'Automotive', deal: 340000, stage: 'disco_set', region: 'EMEA', deal_type: 'New Logo', product_line: 'RunMyJobs' },
-  { name: 'Baker Hughes', size: 'Mid-Market', industry: 'Energy', deal: 210000, stage: 'disco_set', region: 'NA', deal_type: 'New Logo', product_line: 'RunMyJobs' },
-  { name: 'Sanofi SA', size: 'Enterprise', industry: 'Pharma', deal: 480000, stage: 'eval_planning', region: 'EMEA', deal_type: 'New Logo', product_line: 'RunMyJobs' },
-  { name: 'Emerson Electric', size: 'Enterprise', industry: 'Industrial', deal: 320000, stage: 'disco_completed', region: 'NA', deal_type: 'New Logo', product_line: 'RunMyJobs' },
+  { name: 'Apex Financial', size: 'Enterprise', industry: 'Financial Services', deal: 485000, stage: 'closed_won', region: 'EMEA', deal_type: 'New Logo', product_line: 'CloudWatch Pro' },
+  { name: 'NovaTech Solutions', size: 'Enterprise', industry: 'Technology', deal: 620000, stage: 'negotiation', region: 'EMEA', deal_type: 'New Logo', product_line: 'CloudWatch Pro' },
+  { name: 'Meridian Health', size: 'Enterprise', industry: 'Healthcare', deal: 310000, stage: 'eval_planning', region: 'NA', deal_type: 'New Logo', product_line: 'CloudWatch Pro' },
+  { name: 'Stratton Consulting', size: 'Enterprise', industry: 'Professional Services', deal: 275000, stage: 'closed_won', region: 'NA', deal_type: 'Expansion', product_line: 'CloudWatch Pro' },
+  { name: 'Vantage Logistics', size: 'Enterprise', industry: 'Logistics', deal: 540000, stage: 'solution_accepted', region: 'EMEA', deal_type: 'New Logo', product_line: 'CloudWatch Pro' },
+  { name: 'Orion Industries', size: 'Enterprise', industry: 'Manufacturing', deal: 390000, stage: 'disco_completed', region: 'NA', deal_type: 'New Logo', product_line: 'CloudWatch Pro' },
+  { name: 'Pinnacle Retail', size: 'Enterprise', industry: 'Retail', deal: 220000, stage: 'closed_lost', region: 'NA', deal_type: 'New Logo', product_line: 'CloudWatch Pro' },
+  { name: 'Helix Biotech', size: 'Enterprise', industry: 'Biotech', deal: 680000, stage: 'eval_planning', region: 'EMEA', deal_type: 'New Logo', product_line: 'CloudWatch Pro' },
+  { name: 'Pacific Minerals', size: 'Enterprise', industry: 'Mining', deal: 445000, stage: 'disco_set', region: 'APAC', deal_type: 'New Logo', product_line: 'CloudWatch Pro' },
+  { name: 'Zenith Motors', size: 'Enterprise', industry: 'Automotive', deal: 720000, stage: 'negotiation', region: 'APAC', deal_type: 'New Logo', product_line: 'CloudWatch Pro' },
+  { name: 'Cascade Pharma', size: 'Enterprise', industry: 'Pharma', deal: 350000, stage: 'closed_won', region: 'NA', deal_type: 'Expansion', product_line: 'CloudWatch Pro' },
+  { name: 'Broadleaf Media', size: 'Enterprise', industry: 'Media', deal: 290000, stage: 'solution_accepted', region: 'EMEA', deal_type: 'New Logo', product_line: 'CloudWatch Pro' },
+  { name: 'Titan Chemical', size: 'Enterprise', industry: 'Chemicals', deal: 410000, stage: 'disco_completed', region: 'NA', deal_type: 'New Logo', product_line: 'CloudWatch Pro' },
+  { name: 'Cobalt Engineering', size: 'Mid-Market', industry: 'Engineering', deal: 185000, stage: 'closed_lost', region: 'EMEA', deal_type: 'New Logo', product_line: 'CloudWatch Pro' },
+  { name: 'Ironwood Consumer', size: 'Enterprise', industry: 'Consumer Goods', deal: 255000, stage: 'disco_set', region: 'NA', deal_type: 'New Logo', product_line: 'CloudWatch Pro' },
+  { name: 'Vertex Genomics', size: 'Enterprise', industry: 'Biotech', deal: 520000, stage: 'eval_planning', region: 'EMEA', deal_type: 'New Logo', product_line: 'CloudWatch Pro' },
+  { name: 'Atlas Heavy Ind', size: 'Enterprise', industry: 'Heavy Equipment', deal: 375000, stage: 'disco_completed', region: 'NA', deal_type: 'New Logo', product_line: 'CloudWatch Pro' },
+  { name: 'Nordic Automation', size: 'Enterprise', industry: 'Industrial', deal: 430000, stage: 'solution_accepted', region: 'EMEA', deal_type: 'Expansion', product_line: 'CloudWatch Pro' },
+  { name: 'Quantum Systems', size: 'Enterprise', industry: 'Technology', deal: 295000, stage: 'closed_lost', region: 'APAC', deal_type: 'New Logo', product_line: 'CloudWatch Pro' },
+  { name: 'Summit Brands', size: 'Enterprise', industry: 'Consumer Goods', deal: 550000, stage: 'negotiation', region: 'NA', deal_type: 'New Logo', product_line: 'CloudWatch Pro' },
+  { name: 'Fjord Mobility', size: 'Enterprise', industry: 'Automotive', deal: 340000, stage: 'disco_set', region: 'EMEA', deal_type: 'New Logo', product_line: 'CloudWatch Pro' },
+  { name: 'Trident Energy', size: 'Mid-Market', industry: 'Energy', deal: 210000, stage: 'disco_set', region: 'NA', deal_type: 'New Logo', product_line: 'CloudWatch Pro' },
+  { name: 'Lumina Sciences', size: 'Enterprise', industry: 'Pharma', deal: 480000, stage: 'eval_planning', region: 'EMEA', deal_type: 'New Logo', product_line: 'CloudWatch Pro' },
+  { name: 'Sterling Robotics', size: 'Enterprise', industry: 'Industrial', deal: 320000, stage: 'disco_completed', region: 'NA', deal_type: 'New Logo', product_line: 'CloudWatch Pro' },
   // Additional accounts for richer data
-  { name: 'Schneider Electric', size: 'Enterprise', industry: 'Industrial', deal: 460000, stage: 'closed_won', region: 'EMEA', deal_type: 'New Logo', product_line: 'RunMyJobs' },
-  { name: 'Bayer AG', size: 'Enterprise', industry: 'Pharma', deal: 530000, stage: 'closed_won', region: 'EMEA', deal_type: 'New Logo', product_line: 'RunMyJobs' },
-  { name: 'General Mills', size: 'Enterprise', industry: 'Consumer Goods', deal: 280000, stage: 'closed_lost', region: 'NA', deal_type: 'New Logo', product_line: 'RunMyJobs' },
-  { name: 'Rio Tinto', size: 'Enterprise', industry: 'Mining', deal: 395000, stage: 'closed_won', region: 'APAC', deal_type: 'New Logo', product_line: 'RunMyJobs' },
-  { name: 'Daimler Truck', size: 'Mid-Market', industry: 'Automotive', deal: 175000, stage: 'closed_lost', region: 'EMEA', deal_type: 'New Logo', product_line: 'RunMyJobs' },
-  { name: 'Medtronic', size: 'Enterprise', industry: 'Medical Devices', deal: 415000, stage: 'closed_won', region: 'NA', deal_type: 'Expansion', product_line: 'RunMyJobs' },
-  // Finance Automation accounts (for cross-sell analysis)
-  { name: 'Siemens AG', size: 'Enterprise', industry: 'Manufacturing', deal: 320000, stage: 'eval_planning', region: 'EMEA', deal_type: 'Expansion', product_line: 'Finance Automation' },
-  { name: 'Deloitte LLP', size: 'Enterprise', industry: 'Professional Services', deal: 245000, stage: 'disco_completed', region: 'NA', deal_type: 'Expansion', product_line: 'Finance Automation' },
-  { name: 'Toyota Motor Corp', size: 'Enterprise', industry: 'Automotive', deal: 410000, stage: 'solution_accepted', region: 'APAC', deal_type: 'Expansion', product_line: 'Finance Automation' },
-  { name: 'BASF SE', size: 'Enterprise', industry: 'Chemicals', deal: 280000, stage: 'disco_set', region: 'EMEA', deal_type: 'Expansion', product_line: 'Finance Automation' },
-  { name: 'Pfizer Inc', size: 'Enterprise', industry: 'Pharma', deal: 195000, stage: 'negotiation', region: 'NA', deal_type: 'Expansion', product_line: 'Finance Automation' },
-  { name: 'Nestlé SA', size: 'Enterprise', industry: 'Consumer Goods', deal: 350000, stage: 'eval_planning', region: 'EMEA', deal_type: 'Expansion', product_line: 'Finance Automation' },
+  { name: 'Helios Power', size: 'Enterprise', industry: 'Energy', deal: 460000, stage: 'closed_won', region: 'EMEA', deal_type: 'New Logo', product_line: 'CloudWatch Pro' },
+  { name: 'Nexus Pharma', size: 'Enterprise', industry: 'Pharma', deal: 530000, stage: 'closed_won', region: 'EMEA', deal_type: 'New Logo', product_line: 'CloudWatch Pro' },
+  { name: 'Harbor Foods', size: 'Enterprise', industry: 'Consumer Goods', deal: 280000, stage: 'closed_lost', region: 'NA', deal_type: 'New Logo', product_line: 'CloudWatch Pro' },
+  { name: 'Austral Mining', size: 'Enterprise', industry: 'Mining', deal: 395000, stage: 'closed_won', region: 'APAC', deal_type: 'New Logo', product_line: 'CloudWatch Pro' },
+  { name: 'Crest Automotive', size: 'Mid-Market', industry: 'Automotive', deal: 175000, stage: 'closed_lost', region: 'EMEA', deal_type: 'New Logo', product_line: 'CloudWatch Pro' },
+  { name: 'Precision Medical', size: 'Enterprise', industry: 'Medical Devices', deal: 415000, stage: 'closed_won', region: 'NA', deal_type: 'Expansion', product_line: 'CloudWatch Pro' },
+  // PipelineIQ accounts (for cross-sell analysis)
+  { name: 'Apex Financial', size: 'Enterprise', industry: 'Financial Services', deal: 320000, stage: 'eval_planning', region: 'EMEA', deal_type: 'Expansion', product_line: 'PipelineIQ' },
+  { name: 'Stratton Consulting', size: 'Enterprise', industry: 'Professional Services', deal: 245000, stage: 'disco_completed', region: 'NA', deal_type: 'Expansion', product_line: 'PipelineIQ' },
+  { name: 'Zenith Motors', size: 'Enterprise', industry: 'Automotive', deal: 410000, stage: 'solution_accepted', region: 'APAC', deal_type: 'Expansion', product_line: 'PipelineIQ' },
+  { name: 'Vantage Logistics', size: 'Enterprise', industry: 'Logistics', deal: 280000, stage: 'disco_set', region: 'EMEA', deal_type: 'Expansion', product_line: 'PipelineIQ' },
+  { name: 'Cascade Pharma', size: 'Enterprise', industry: 'Pharma', deal: 195000, stage: 'negotiation', region: 'NA', deal_type: 'Expansion', product_line: 'PipelineIQ' },
+  { name: 'NovaTech Solutions', size: 'Enterprise', industry: 'Technology', deal: 350000, stage: 'eval_planning', region: 'EMEA', deal_type: 'Expansion', product_line: 'PipelineIQ' },
 ];
 
 // ---- Stage progression data ----
@@ -281,7 +281,7 @@ function generateWonDealTouchpoints(
   const pattern = Math.floor(seededRandom() * 3);
 
   if (pattern === 0) {
-    // Pattern A: LinkedIn Ad → SAP Sapphire → Nurture click → BDR call → Demo form
+    // Pattern A: LinkedIn Ad → KubeCon → Nurture click → BDR call → Demo form
     const liCamp = pick(LINKEDIN_CAMPAIGNS);
     const liAd = pick(AD_CREATIVES);
     const adAcct = pick(AD_ACCOUNTS);
@@ -292,7 +292,7 @@ function generateWonDealTouchpoints(
       campaign_name: liCamp, ad_creative: liAd, ad_format: 'Single Image',
       spend: 15 + Math.floor(seededRandom() * 40),
       ad_account_id: adAcct.id, ad_account_name: adAcct.name,
-      utm_source: 'linkedin', utm_medium: 'paid-social', utm_campaign: 'rmj-sap-migration-it-leaders',
+      utm_source: 'linkedin', utm_medium: 'paid-social', utm_campaign: 'cwp-cloud-migration-platform-eng',
     });
     // Web visit from LinkedIn
     const page = pick(PAGE_URLS.slice(0, 4));
@@ -302,19 +302,19 @@ function generateWonDealTouchpoints(
       interaction_detail: `Visited ${page.title}`,
       page_url: page.url, page_title: page.title, referrer_url: 'https://www.linkedin.com/',
     });
-    // SAP Sapphire attended (key win signal)
+    // KubeCon attended (key win signal)
     touches.push({
       ...common, touchpoint_id: `${oppId}-tp-${tpIdx++}`, date: makeDate(14 + Math.floor(seededRandom() * 20)),
       source_system: 'salesforce', channel: 'event', activity_type: 'event_attended',
-      interaction_detail: 'Attended SAP Sapphire Orlando 2025',
-      event_name: 'SAP Sapphire Orlando 2025', event_type: 'conference',
+      interaction_detail: 'Attended KubeCon NA 2025',
+      event_name: 'KubeCon NA 2025', event_type: 'conference',
     });
     // Pricing page visit (key win signal)
     touches.push({
       ...common, touchpoint_id: `${oppId}-tp-${tpIdx++}`, date: makeDate(35 + Math.floor(seededRandom() * 10)),
       source_system: 'marketo', channel: 'web_visit', activity_type: 'page_visit',
       interaction_detail: 'Visited pricing page',
-      page_url: '/pricing/', page_title: 'RunMyJobs Pricing',
+      page_url: '/pricing/', page_title: 'CloudWatch Pro Pricing',
     });
     // Nurture email click
     const prog = pick(EMAIL_PROGRAMS.slice(0, 2));
@@ -330,7 +330,7 @@ function generateWonDealTouchpoints(
     touches.push({
       ...common, touchpoint_id: `${oppId}-tp-${tpIdx++}`, date: makeDate(55 + Math.floor(seededRandom() * 10)),
       source_system: 'outreach', channel: 'bdr_call', activity_type: 'call_connected',
-      interaction_detail: `Connected call — discussed SAP migration timeline`,
+      interaction_detail: `Connected call — discussed cloud migration timeline`,
       bdr_sequence: seq, bdr_step_number: 3, bdr_step_type: 'call', bdr_outcome: 'connected',
     });
     // ROI Calculator (key win signal)
@@ -338,7 +338,7 @@ function generateWonDealTouchpoints(
       ...common, touchpoint_id: `${oppId}-tp-${tpIdx++}`, date: makeDate(62 + Math.floor(seededRandom() * 10)),
       source_system: 'marketo', channel: 'content_download', activity_type: 'content_downloaded',
       interaction_detail: 'Completed ROI Calculator',
-      content_asset: 'RunMyJobs ROI Calculator Results', asset_type: 'roi_calculator',
+      content_asset: 'CloudWatch Pro ROI Calculator Results', asset_type: 'roi_calculator',
       page_url: '/roi-calculator/',
     });
     // Demo form fill
@@ -363,7 +363,7 @@ function generateWonDealTouchpoints(
       ...common, touchpoint_id: `${oppId}-tp-${tpIdx++}`, date: makeDate(3),
       source_system: 'marketo', channel: 'web_visit', activity_type: 'page_visit',
       interaction_detail: 'Visited solutions page',
-      page_url: '/solutions/sap/', page_title: 'SAP Job Scheduling Solutions', referrer_url: 'https://www.google.com/',
+      page_url: '/solutions/sap/', page_title: 'Kubernetes Monitoring Solutions', referrer_url: 'https://www.google.com/',
     });
     // Webinar attended
     const webinar = pick(EVENTS.filter(e => e.type === 'webinar'));
@@ -386,14 +386,14 @@ function generateWonDealTouchpoints(
       ...common, touchpoint_id: `${oppId}-tp-${tpIdx++}`, date: makeDate(40 + Math.floor(seededRandom() * 8)),
       source_system: 'marketo', channel: 'web_visit', activity_type: 'page_visit',
       interaction_detail: 'Visited pricing page',
-      page_url: '/pricing/', page_title: 'RunMyJobs Pricing',
+      page_url: '/pricing/', page_title: 'CloudWatch Pro Pricing',
     });
     // Case study download
     touches.push({
       ...common, touchpoint_id: `${oppId}-tp-${tpIdx++}`, date: makeDate(45 + Math.floor(seededRandom() * 8)),
       source_system: 'marketo', channel: 'content_download', activity_type: 'content_downloaded',
-      interaction_detail: 'Downloaded Siemens Case Study',
-      content_asset: 'Siemens Case Study', asset_type: 'case_study',
+      interaction_detail: 'Downloaded Apex Financial Case Study',
+      content_asset: 'Apex Financial Case Study', asset_type: 'case_study',
     });
     // Form fill
     touches.push({
@@ -408,7 +408,7 @@ function generateWonDealTouchpoints(
     touches.push({
       ...common, touchpoint_id: `${oppId}-tp-${tpIdx++}`, date: makeDate(0),
       source_system: 'outreach', channel: 'bdr_call', activity_type: 'call_connected',
-      interaction_detail: 'Cold call — discussed automation pain points',
+      interaction_detail: 'Cold call — discussed observability pain points',
       bdr_sequence: seq, bdr_step_number: 1, bdr_step_type: 'call', bdr_outcome: 'connected',
     });
     // BDR email follow-up
@@ -432,7 +432,7 @@ function generateWonDealTouchpoints(
       ...common, touchpoint_id: `${oppId}-tp-${tpIdx++}`, date: makeDate(20 + Math.floor(seededRandom() * 10)),
       source_system: 'marketo', channel: 'web_visit', activity_type: 'page_visit',
       interaction_detail: 'Visited platform page',
-      page_url: '/platform/', page_title: 'RunMyJobs Platform Overview',
+      page_url: '/platform/', page_title: 'CloudWatch Pro Platform Overview',
     });
     // Event attended
     const event = pick(EVENTS.filter(e => e.type === 'conference'));
@@ -447,7 +447,7 @@ function generateWonDealTouchpoints(
       ...common, touchpoint_id: `${oppId}-tp-${tpIdx++}`, date: makeDate(50 + Math.floor(seededRandom() * 10)),
       source_system: 'marketo', channel: 'web_visit', activity_type: 'page_visit',
       interaction_detail: 'Visited pricing page',
-      page_url: '/pricing/', page_title: 'RunMyJobs Pricing',
+      page_url: '/pricing/', page_title: 'CloudWatch Pro Pricing',
     });
     // Form fill
     touches.push({
@@ -513,7 +513,7 @@ function generateLostDealTouchpoints(
       campaign_name: liCamp, ad_creative: liAd, ad_format: 'Single Image',
       spend: 20 + Math.floor(seededRandom() * 30),
       ad_account_id: adAcct.id, ad_account_name: adAcct.name,
-      utm_source: 'linkedin', utm_medium: 'paid-social', utm_campaign: 'rmj-generic',
+      utm_source: 'linkedin', utm_medium: 'paid-social', utm_campaign: 'cwp-generic',
     });
     touches.push({
       ...common, touchpoint_id: `${oppId}-tp-${tpIdx++}`, date: makeDate(5 + Math.floor(seededRandom() * 10)),
@@ -760,7 +760,7 @@ function generateInProgressDealTouchpoints(
       touchpoint_id: `${oppId}-tp-${numTouches}`, date: d.toISOString().split('T')[0],
       source_system: 'marketo', channel: 'web_visit', activity_type: 'page_visit',
       interaction_detail: 'Visited pricing page',
-      page_url: '/pricing/', page_title: 'RunMyJobs Pricing',
+      page_url: '/pricing/', page_title: 'CloudWatch Pro Pricing',
     });
   }
 
@@ -910,7 +910,7 @@ function generateEnrichedData(): EnrichedAccount[] {
       account_id: accountId,
       account_name: acc.name,
       opportunity_id: oppId,
-      opportunity_name: `${acc.name} — ${acc.product_line === 'Finance Automation' ? 'FA' : 'RMJ'} ${acc.deal_type === 'Expansion' ? 'Expansion' : 'Enterprise'}`,
+      opportunity_name: `${acc.name} — ${acc.product_line === 'PipelineIQ' ? 'PIQ' : 'CWP'} ${acc.deal_type === 'Expansion' ? 'Expansion' : 'Enterprise'}`,
       deal_amount: acc.deal,
       stage: acc.stage,
       deal_type: acc.deal_type,
@@ -934,12 +934,12 @@ function generateEnrichedData(): EnrichedAccount[] {
 
   // Link cross-sell opportunities
   const crossSellPairs = [
-    ['Siemens AG', 'RunMyJobs', 'Finance Automation'],
-    ['Deloitte LLP', 'RunMyJobs', 'Finance Automation'],
-    ['Toyota Motor Corp', 'RunMyJobs', 'Finance Automation'],
-    ['BASF SE', 'RunMyJobs', 'Finance Automation'],
-    ['Pfizer Inc', 'RunMyJobs', 'Finance Automation'],
-    ['Nestlé SA', 'RunMyJobs', 'Finance Automation'],
+    ['Apex Financial', 'CloudWatch Pro', 'PipelineIQ'],
+    ['Stratton Consulting', 'CloudWatch Pro', 'PipelineIQ'],
+    ['Zenith Motors', 'CloudWatch Pro', 'PipelineIQ'],
+    ['Vantage Logistics', 'CloudWatch Pro', 'PipelineIQ'],
+    ['Cascade Pharma', 'CloudWatch Pro', 'PipelineIQ'],
+    ['NovaTech Solutions', 'CloudWatch Pro', 'PipelineIQ'],
   ];
 
   for (const [name, primary, secondary] of crossSellPairs) {

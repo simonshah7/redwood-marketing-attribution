@@ -57,7 +57,7 @@ function CrossSellFlowDiagram({ summary }: { summary: CrossSellSummary }) {
       {/* Primary product */}
       <div className="flex items-center gap-4">
         <div className="rounded-lg border-2 border-primary bg-primary/5 px-6 py-3 text-center">
-          <p className="text-sm font-bold text-primary">RunMyJobs</p>
+          <p className="text-sm font-bold text-primary">CloudWatch Pro</p>
           <p className="text-[10px] text-muted-foreground">
             {summary.productBreakdown[0]?.totalAccounts || 0} accounts
           </p>
@@ -92,7 +92,7 @@ function CrossSellFlowDiagram({ summary }: { summary: CrossSellSummary }) {
 
       {/* Cross-sell product */}
       <div className="rounded-lg border-2 border-emerald-500 bg-emerald-500/5 px-6 py-3 text-center">
-        <p className="text-sm font-bold text-emerald-600">Finance Automation</p>
+        <p className="text-sm font-bold text-emerald-600">PipelineIQ</p>
         <p className="text-[10px] text-muted-foreground">
           {summary.productBreakdown[1]?.totalAccounts || 0} opportunities
         </p>
@@ -121,7 +121,7 @@ export default function CrossSellPage() {
           Multi-Product & Cross-Sell Attribution
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Cross-sell pattern detection between RunMyJobs and Finance Automation.
+          Cross-sell pattern detection between CloudWatch Pro and PipelineIQ.
           Identify which content sequences and engagement patterns predict
           cross-sell success.
         </p>
@@ -204,7 +204,7 @@ export default function CrossSellPage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-base">
-              Cross-Sell Pattern: RunMyJobs → Finance Automation
+              Cross-Sell Pattern: CloudWatch Pro → PipelineIQ
             </CardTitle>
           </CardHeader>
           <CardContent>

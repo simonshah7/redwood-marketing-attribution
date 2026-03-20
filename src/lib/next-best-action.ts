@@ -27,19 +27,19 @@ export interface AccountActions {
 // ---- Reference: Upcoming Events ----
 
 const UPCOMING_EVENTS = [
-  { name: 'Redwood Webinar: S/4HANA Job Scheduling', date: '2026-02-06', type: 'webinar' },
-  { name: 'Automation Workshop: Hands-On RunMyJobs', date: '2026-02-13', type: 'workshop' },
-  { name: 'SAP Sapphire Orlando 2026', date: '2026-03-10', type: 'conference' },
+  { name: 'Acme Webinar: Kubernetes Monitoring at Scale', date: '2026-02-06', type: 'webinar' },
+  { name: 'Observability Workshop: Hands-On CloudWatch Pro', date: '2026-02-13', type: 'workshop' },
+  { name: 'KubeCon EU 2026', date: '2026-03-10', type: 'conference' },
 ];
 
 // ---- Reference: Key Content Assets ----
 
 const KEY_CONTENT = [
-  { name: 'RunMyJobs ROI Calculator', channel: 'content_download' as EnrichedChannel, stage_fit: ['eval_planning', 'negotiation'] },
-  { name: 'Siemens Case Study', channel: 'content_download' as EnrichedChannel, stage_fit: ['solution_accepted', 'eval_planning'] },
+  { name: 'CloudWatch Pro ROI Calculator', channel: 'content_download' as EnrichedChannel, stage_fit: ['eval_planning', 'negotiation'] },
+  { name: 'Apex Financial Case Study', channel: 'content_download' as EnrichedChannel, stage_fit: ['solution_accepted', 'eval_planning'] },
   { name: 'Total Economic Impact Study', channel: 'content_download' as EnrichedChannel, stage_fit: ['negotiation'] },
-  { name: 'SAP Job Scheduling Migration Guide', channel: 'content_download' as EnrichedChannel, stage_fit: ['disco_completed', 'solution_accepted'] },
-  { name: 'Ctrl-M to RunMyJobs Comparison Sheet', channel: 'content_download' as EnrichedChannel, stage_fit: ['disco_set', 'disco_completed'] },
+  { name: 'Cloud Migration Monitoring Guide', channel: 'content_download' as EnrichedChannel, stage_fit: ['disco_completed', 'solution_accepted'] },
+  { name: 'Datadog to CloudWatch Pro Comparison Sheet', channel: 'content_download' as EnrichedChannel, stage_fit: ['disco_set', 'disco_completed'] },
 ];
 
 // ---- Action Generation Rules ----

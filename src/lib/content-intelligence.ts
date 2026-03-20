@@ -284,19 +284,19 @@ export function generateContentRecommendations(
   for (const gap of gaps) {
     if (gap.gap_type === 'low_density') {
       const rec = gap.stage === 'eval_planning' ? {
-        title: 'ROI Calculator: RunMyJobs vs Manual Scheduling',
+        title: 'ROI Calculator: CloudWatch Pro vs Legacy Monitoring',
         type: 'roi_calculator' as AssetType,
       } : gap.stage === 'negotiation' ? {
-        title: 'Total Economic Impact: RunMyJobs Enterprise',
+        title: 'Total Economic Impact: CloudWatch Pro Enterprise',
         type: 'whitepaper' as AssetType,
       } : gap.stage === 'solution_accepted' ? {
         title: 'Customer Success Video: Enterprise Migration Story',
         type: 'video' as AssetType,
       } : gap.stage === 'disco_completed' ? {
-        title: 'Technical Comparison Guide: RunMyJobs vs Legacy Schedulers',
+        title: 'Technical Comparison Guide: CloudWatch Pro vs Legacy Tools',
         type: 'datasheet' as AssetType,
       } : {
-        title: 'Industry Guide: Workload Automation Best Practices',
+        title: 'Industry Guide: Cloud Observability Best Practices',
         type: 'guide' as AssetType,
       };
 

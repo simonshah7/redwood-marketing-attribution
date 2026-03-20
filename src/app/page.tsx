@@ -164,7 +164,7 @@ export default function OverviewPage() {
               Attribution Overview
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              RunMyJobs pipeline attribution across all channels &middot; {periodLabel}
+              CloudWatch Pro pipeline attribution across all channels &middot; {periodLabel}
             </p>
           </div>
           <div className="flex items-center gap-3 flex-wrap">
@@ -371,7 +371,7 @@ export default function OverviewPage() {
             <InsightCard
               severity="info"
               title="Email nurtures undervalued"
-              description={`Email is ${fmtPct(insights.emailFtPct)} of first-touch and ${fmtPct(insights.emailLtPct)} of last-touch. Multi-touch reveals far more email influence — Marketo is the hidden workhorse of the funnel.`}
+              description={`Email is ${fmtPct(insights.emailFtPct)} of first-touch and ${fmtPct(insights.emailLtPct)} of last-touch. Multi-touch reveals far more email influence — HubSpot is the hidden workhorse of the funnel.`}
             />
           </div>
         </motion.div>
