@@ -5,9 +5,12 @@ import { cn } from "@/lib/utils";
 // The date of the current data snapshot
 export const DATA_SNAPSHOT_DATE = "2026-03-18";
 
+// Fixed reference date so the dashboard always shows consistent freshness
+const REFERENCE_NOW = "2026-03-20";
+
 function getDaysSince(dateStr: string): number {
   const snapshot = new Date(dateStr);
-  const now = new Date();
+  const now = new Date(REFERENCE_NOW);
   return Math.floor((now.getTime() - snapshot.getTime()) / 86400000);
 }
 
