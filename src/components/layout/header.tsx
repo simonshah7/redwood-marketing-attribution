@@ -81,7 +81,7 @@ export function Header() {
       {/* Breadcrumb */}
       <div className="flex flex-1 items-center gap-2 min-w-0">
         <nav className="hidden items-center gap-1.5 text-sm sm:flex" aria-label="Breadcrumb">
-          <span className="text-muted-foreground">Redwood</span>
+          <span className="text-muted-foreground">Acme Cloud</span>
           <ChevronRight className="h-3 w-3 text-muted-foreground/40" />
           <span className="text-muted-foreground">{meta.section}</span>
           <ChevronRight className="h-3 w-3 text-muted-foreground/40" />

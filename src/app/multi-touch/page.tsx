@@ -396,7 +396,7 @@ export default function MultiTouchPage() {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <InsightCard
             severity="info"
-            title="Marketo Email: Hidden Workhorse"
+            title="HubSpot Email: Hidden Workhorse"
             description="Multi-touch reveals significantly more email influence than either single-touch model. Email nurtures consistently appear in the middle of winning journeys but are invisible to first/last-touch attribution."
           />
           <InsightCard

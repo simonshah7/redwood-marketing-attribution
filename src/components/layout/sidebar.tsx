@@ -207,7 +207,7 @@ export function SidebarContent() {
         </div>
         <div className="flex flex-col">
           <span className="text-sm font-semibold text-foreground">
-            Redwood
+            Acme Cloud
           </span>
           <span className="text-[10px] text-muted-foreground">
             Marketing Intelligence

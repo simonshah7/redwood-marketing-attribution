@@ -9,7 +9,7 @@ export interface GuideContextValue {
 
 const GuideContext = createContext<GuideContextValue | null>(null);
 
-const STORAGE_KEY = 'redwood-guide-mode';
+const STORAGE_KEY = 'acme-guide-mode';
 
 export function GuideProvider({ children }: { children: ReactNode }) {
   const [guideMode, setGuideMode] = useState(true);

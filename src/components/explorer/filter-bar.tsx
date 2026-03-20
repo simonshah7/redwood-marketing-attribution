@@ -23,7 +23,7 @@ export interface ExplorerFilters {
 export const DEFAULT_FILTERS: ExplorerFilters = {
   dealType: "New Logo",
   segment: "Enterprise",
-  productLine: "RunMyJobs",
+  productLine: "CloudWatch Pro",
   dateStart: "2025-02-01",
   dateEnd: "2026-01-31",
   stages: [],
@@ -35,10 +35,10 @@ interface FilterBarProps {
 }
 
 export function FilterBar({ filters, onChange }: FilterBarProps) {
-  const isRMJEntNewLogo =
+  const isCWPEntNewLogo =
     filters.dealType === "New Logo" &&
     filters.segment === "Enterprise" &&
-    filters.productLine === "RunMyJobs";
+    filters.productLine === "CloudWatch Pro";
 
   return (
     <div className="rounded-lg border border-border bg-card p-4">
@@ -102,9 +102,9 @@ export function FilterBar({ filters, onChange }: FilterBarProps) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="All">All</SelectItem>
-              <SelectItem value="RunMyJobs">RunMyJobs</SelectItem>
-              <SelectItem value="Finance Automation">
-                Finance Automation
+              <SelectItem value="CloudWatch Pro">CloudWatch Pro</SelectItem>
+              <SelectItem value="PipelineIQ">
+                PipelineIQ
               </SelectItem>
             </SelectContent>
           </Select>
@@ -136,12 +136,12 @@ export function FilterBar({ filters, onChange }: FilterBarProps) {
         </div>
 
         {/* Filter badge */}
-        {isRMJEntNewLogo && (
+        {isCWPEntNewLogo && (
           <Badge
             variant="default"
             className="ml-auto h-6 text-[10px] font-semibold"
           >
-            Filtered: RMJ Enterprise New Logo deals
+            Filtered: CWP Enterprise New Logo deals
           </Badge>
         )}
       </div>

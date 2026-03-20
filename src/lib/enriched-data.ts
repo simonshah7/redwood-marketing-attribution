@@ -1,10 +1,10 @@
 // ============================================================
-// ENRICHED DATA MODEL — RunMyJobs Marketing Attribution
+// ENRICHED DATA MODEL — Acme Cloud Marketing Attribution
 // Spec2: UnifiedTouchpoint + EnrichedAccount schemas
 // ============================================================
 
 export type DealType = 'New Logo' | 'Expansion';
-export type ProductLine = 'RunMyJobs' | 'Finance Automation';
+export type ProductLine = 'CloudWatch Pro' | 'PipelineIQ';
 export type Segment = 'Enterprise' | 'Mid-Market';
 export type SourceSystem = 'salesforce' | 'marketo' | 'linkedin' | 'outreach';
 
@@ -186,18 +186,18 @@ export interface EnrichedChannelInfo {
 }
 
 export const ENRICHED_CHANNELS: Record<EnrichedChannel, EnrichedChannelInfo> = {
-  linkedin_ads:      { name: 'LinkedIn Ads',       color: 'hsl(200, 65%, 50%)', shortName: 'LinkedIn',  icon: 'linkedin' },
-  organic_social:    { name: 'Organic Social',     color: 'hsl(195, 55%, 45%)', shortName: 'Organic',   icon: 'share2' },
-  email_nurture:     { name: 'Email Nurture',      color: 'hsl(220, 50%, 58%)', shortName: 'Nurture',   icon: 'mail' },
-  email_newsletter:  { name: 'Email Newsletter',   color: 'hsl(230, 45%, 62%)', shortName: 'Newsletter',icon: 'newspaper' },
-  web_visit:         { name: 'Website Visit',       color: 'hsl(280, 45%, 55%)', shortName: 'Web',       icon: 'globe' },
-  form_submission:   { name: 'Form Submission',     color: 'hsl(168, 55%, 45%)', shortName: 'Forms',     icon: 'file-text' },
-  event:             { name: 'Events',              color: 'hsl(38, 55%, 55%)',  shortName: 'Events',    icon: 'calendar' },
-  webinar:           { name: 'Webinars',            color: 'hsl(45, 60%, 50%)',  shortName: 'Webinars',  icon: 'video' },
+  linkedin_ads:      { name: 'LinkedIn Ads',       color: 'hsl(220, 65%, 55%)', shortName: 'LinkedIn',  icon: 'linkedin' },
+  organic_social:    { name: 'Organic Social',     color: 'hsl(210, 55%, 50%)', shortName: 'Organic',   icon: 'share2' },
+  email_nurture:     { name: 'Email Nurture',      color: 'hsl(280, 55%, 55%)', shortName: 'Nurture',   icon: 'mail' },
+  email_newsletter:  { name: 'Email Newsletter',   color: 'hsl(290, 45%, 58%)', shortName: 'Newsletter',icon: 'newspaper' },
+  web_visit:         { name: 'Website Visit',       color: 'hsl(262, 50%, 55%)', shortName: 'Web',       icon: 'globe' },
+  form_submission:   { name: 'Form Submission',     color: 'hsl(250, 50%, 60%)', shortName: 'Forms',     icon: 'file-text' },
+  event:             { name: 'Events',              color: 'hsl(35, 65%, 55%)',  shortName: 'Events',    icon: 'calendar' },
+  webinar:           { name: 'Webinars',            color: 'hsl(40, 60%, 50%)',  shortName: 'Webinars',  icon: 'video' },
   bdr_email:         { name: 'BDR Email',           color: 'hsl(340, 50%, 55%)', shortName: 'BDR Email', icon: 'send' },
   bdr_call:          { name: 'BDR Call',            color: 'hsl(350, 55%, 50%)', shortName: 'BDR Call',  icon: 'phone' },
   bdr_linkedin:      { name: 'BDR LinkedIn',        color: 'hsl(0, 50%, 55%)',   shortName: 'BDR LI',   icon: 'user' },
-  content_download:  { name: 'Content Download',    color: 'hsl(140, 45%, 48%)', shortName: 'Content',   icon: 'download' },
+  content_download:  { name: 'Content Download',    color: 'hsl(245, 45%, 58%)', shortName: 'Content',   icon: 'download' },
 };
 
 export const ENRICHED_CHANNEL_KEYS: EnrichedChannel[] = Object.keys(ENRICHED_CHANNELS) as EnrichedChannel[];

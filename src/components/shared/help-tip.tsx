@@ -34,7 +34,7 @@ export function HelpTip({ text }: HelpTipProps) {
 export const HELP_TEXT = {
   // Attribution models
   first_touch:
-    "Gives 100% credit to the channel that first made this prospect aware of Redwood. Use this to understand where your pipeline originates.",
+    "Gives 100% credit to the channel that first made this prospect aware of Acme Cloud. Use this to understand where your pipeline originates.",
   last_touch:
     "Gives 100% credit to the final interaction before the deal progressed. Use this to understand what's converting prospects.",
   linear:

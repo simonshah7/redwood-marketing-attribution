@@ -1,6 +1,6 @@
 // ============================================================
 // FUNNEL ANALYSIS — Stage-to-Stage Conversion Rate Analysis
-// RunMyJobs Marketing Attribution Dashboard
+// Acme Cloud Marketing Attribution Dashboard
 // ============================================================
 
 import type { Account } from './data';

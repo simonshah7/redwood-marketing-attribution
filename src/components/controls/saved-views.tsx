@@ -20,32 +20,32 @@ export interface FilterPreset {
   created_at: string;
 }
 
-const STORAGE_KEY = "redwood-attribution-presets";
+const STORAGE_KEY = "acme-attribution-presets";
 
 const BUILT_IN_PRESETS: FilterPreset[] = [
   {
-    id: "built-in-rmj-ent-new",
-    name: "RMJ Enterprise New Logo",
+    id: "built-in-cwp-ent-new",
+    name: "CWP Enterprise New Logo",
     builtIn: true,
     created_at: "2025-01-01",
     filters: {
       dealType: "New Logo",
       segment: "Enterprise",
-      productLine: "RunMyJobs",
+      productLine: "CloudWatch Pro",
       dateStart: "2025-02-01",
       dateEnd: "2026-01-31",
       stages: [],
     },
   },
   {
-    id: "built-in-all-rmj",
-    name: "All RunMyJobs Pipeline",
+    id: "built-in-all-cwp",
+    name: "All CloudWatch Pro Pipeline",
     builtIn: true,
     created_at: "2025-01-01",
     filters: {
       dealType: "All",
       segment: "All",
-      productLine: "RunMyJobs",
+      productLine: "CloudWatch Pro",
       dateStart: "2025-02-01",
       dateEnd: "2026-01-31",
       stages: [],

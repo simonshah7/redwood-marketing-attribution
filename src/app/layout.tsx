@@ -24,9 +24,9 @@ const jetBrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Redwood Marketing Intelligence",
+  title: "Acme Marketing Intelligence",
   description:
-    "Marketing attribution and pipeline intelligence dashboard for Redwood Software",
+    "Marketing attribution and pipeline intelligence dashboard for Acme Cloud",
 };
 
 export default function RootLayout({

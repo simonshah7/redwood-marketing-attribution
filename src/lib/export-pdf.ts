@@ -30,11 +30,11 @@ export async function exportViewAsPdf(
 
   // Header
   pdf.setFontSize(14);
-  pdf.setTextColor(227, 52, 47); // Redwood red
-  pdf.text('Redwood', 15, 15);
+  pdf.setTextColor(109, 58, 232); // Acme purple
+  pdf.text('Acme Cloud', 15, 15);
   pdf.setTextColor(255, 255, 255);
   pdf.setFontSize(11);
-  pdf.text('RunMyJobs Marketing Attribution', 45, 15);
+  pdf.text('Marketing Attribution', 50, 15);
   pdf.setFontSize(9);
   pdf.setTextColor(160, 160, 160);
   pdf.text(`${viewTitle} · Data as of: ${dateLabel}`, 15, 22);
@@ -65,8 +65,8 @@ export async function exportViewAsPdf(
   // Footer
   pdf.setFontSize(7);
   pdf.setTextColor(120, 120, 120);
-  pdf.text('Confidential — Redwood Software', 15, pageH - 5);
+  pdf.text('Confidential — Acme Cloud', 15, pageH - 5);
   pdf.text(`Page 1`, pageW - 25, pageH - 5);
 
-  pdf.save(`redwood-rmj-attribution-${viewTitle.toLowerCase().replace(/\s+/g, '-')}-${DATA_SNAPSHOT_DATE}.pdf`);
+  pdf.save(`acme-cwp-attribution-${viewTitle.toLowerCase().replace(/\s+/g, '-')}-${DATA_SNAPSHOT_DATE}.pdf`);
 }

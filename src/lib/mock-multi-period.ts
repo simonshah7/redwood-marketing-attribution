@@ -80,12 +80,12 @@ const DEAL_SCALE_FACTORS: Record<ReportingPeriod, number> = {
 
 // Some accounts only appear in later periods (new pipeline)
 const LATE_ACCOUNTS: Record<string, ReportingPeriod> = {
-  'Schneider Electric': 'nov-2025',
-  'Bayer AG': 'nov-2025',
-  'General Mills': 'dec-2025',
-  'Rio Tinto': 'dec-2025',
-  'Daimler Truck': 'oct-2025',
-  'Medtronic': 'nov-2025',
+  'Helios Power': 'nov-2025',
+  'Nexus Pharma': 'nov-2025',
+  'Harbor Foods': 'dec-2025',
+  'Austral Mining': 'dec-2025',
+  'Crest Automotive': 'oct-2025',
+  'Precision Medical': 'nov-2025',
 };
 
 function isAccountVisibleInPeriod(accountName: string, period: ReportingPeriod): boolean {
