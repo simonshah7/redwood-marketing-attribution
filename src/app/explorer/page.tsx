@@ -208,7 +208,7 @@ function ExplorerContent() {
       ...DEFAULT_FILTERS,
       dealType: dt === "new_logo" ? "New Logo" : dt === "expansion" ? "Expansion" : dt === "all" ? "All" : DEFAULT_FILTERS.dealType,
       segment: seg === "enterprise" ? "Enterprise" : seg === "mid_market" ? "Mid-Market" : seg === "all" ? "All" : DEFAULT_FILTERS.segment,
-      productLine: prod === "rmj" ? "RunMyJobs" : prod === "fa" ? "Finance Automation" : prod === "all" ? "All" : DEFAULT_FILTERS.productLine,
+      productLine: prod === "cwp" ? "CloudWatch Pro" : prod === "piq" ? "PipelineIQ" : prod === "all" ? "All" : DEFAULT_FILTERS.productLine,
     };
   });
 
@@ -234,7 +234,7 @@ function ExplorerContent() {
       params.set("segment", filters.segment === "Enterprise" ? "enterprise" : filters.segment === "Mid-Market" ? "mid_market" : "all");
     }
     if (filters.productLine !== DEFAULT_FILTERS.productLine) {
-      params.set("product", filters.productLine === "RunMyJobs" ? "rmj" : filters.productLine === "Finance Automation" ? "fa" : "all");
+      params.set("product", filters.productLine === "CloudWatch Pro" ? "cwp" : filters.productLine === "PipelineIQ" ? "piq" : "all");
     }
     if (stageTransition !== "all") params.set("stage", stageTransition);
     router.replace(`/explorer?${params.toString()}`, { scroll: false });

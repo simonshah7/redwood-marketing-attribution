@@ -1,5 +1,5 @@
 // ============================================================
-// MOCK DATA ENGINE — RunMyJobs Marketing Attribution
+// MOCK DATA ENGINE — Acme Cloud Marketing Attribution
 // ============================================================
 
 export type Channel = 'linkedin' | 'email' | 'form' | 'events';
@@ -12,10 +12,10 @@ export interface ChannelInfo {
 }
 
 export const CHANNELS: Record<Channel, ChannelInfo> = {
-  linkedin: { name: 'LinkedIn Ads', color: 'hsl(200, 65%, 50%)', shortName: 'LinkedIn', icon: 'linkedin' },
-  email: { name: 'Marketo Email', color: 'hsl(220, 50%, 58%)', shortName: 'Email', icon: 'mail' },
-  form: { name: 'Form Submissions', color: 'hsl(168, 55%, 45%)', shortName: 'Web Forms', icon: 'file-text' },
-  events: { name: 'Events & Webinars', color: 'hsl(38, 55%, 55%)', shortName: 'Events', icon: 'calendar' },
+  linkedin: { name: 'LinkedIn Ads', color: 'hsl(220, 65%, 55%)', shortName: 'LinkedIn', icon: 'linkedin' },
+  email: { name: 'HubSpot Email', color: 'hsl(280, 55%, 55%)', shortName: 'Email', icon: 'mail' },
+  form: { name: 'Form Submissions', color: 'hsl(250, 50%, 60%)', shortName: 'Web Forms', icon: 'file-text' },
+  events: { name: 'Events & Webinars', color: 'hsl(35, 65%, 55%)', shortName: 'Events', icon: 'calendar' },
 };
 
 export const CHANNEL_KEYS: Channel[] = ['linkedin', 'email', 'form', 'events'];
@@ -27,49 +27,49 @@ export interface Stage {
 }
 
 export const STAGES: Stage[] = [
-  { key: 'disco_set', name: 'Discos Set', color: 'hsl(168, 55%, 42%)' },
-  { key: 'disco_completed', name: 'Discos Completed', color: 'hsl(168, 50%, 48%)' },
-  { key: 'solution_accepted', name: 'Solution Accepted', color: 'hsl(168, 45%, 54%)' },
-  { key: 'eval_planning', name: 'Evaluation Planning', color: 'hsl(170, 40%, 60%)' },
-  { key: 'negotiation', name: 'Negotiation', color: 'hsl(172, 35%, 66%)' },
-  { key: 'closed_won', name: 'Closed Won', color: 'hsl(168, 55%, 42%)' },
+  { key: 'disco_set', name: 'Discos Set', color: 'hsl(262, 60%, 50%)' },
+  { key: 'disco_completed', name: 'Discos Completed', color: 'hsl(262, 55%, 55%)' },
+  { key: 'solution_accepted', name: 'Solution Accepted', color: 'hsl(262, 50%, 60%)' },
+  { key: 'eval_planning', name: 'Evaluation Planning', color: 'hsl(262, 45%, 65%)' },
+  { key: 'negotiation', name: 'Negotiation', color: 'hsl(262, 40%, 70%)' },
+  { key: 'closed_won', name: 'Closed Won', color: 'hsl(262, 60%, 50%)' },
   { key: 'closed_lost', name: 'Closed Lost', color: 'hsl(220, 10%, 50%)' },
 ];
 
 export const CAMPAIGNS: Record<Channel, string[]> = {
   linkedin: [
-    'RMJ | SAP S/4HANA Migration | IT Leaders',
-    'RMJ | RISE with SAP | C-Level',
-    'RMJ | Workload Automation SaaS | Retarget',
-    'RMJ | DevOps Automation | Tech Leads',
-    'RMJ | Competitor Conquest | Ctrl-M/TWS',
-    'RMJ | SAP BTP Automation | ABM Tier 1',
+    'CWP | Cloud Migration | Platform Engineers',
+    'CWP | Kubernetes Monitoring | C-Level',
+    'CWP | Observability SaaS | Retarget',
+    'CWP | DevOps Automation | Tech Leads',
+    'CWP | Competitor Conquest | Datadog/Splunk',
+    'CWP | Infrastructure Monitoring | ABM Tier 1',
   ],
   email: [
-    'RMJ Nurture — SAP Modernization Sequence',
-    'RMJ Nurture — Competitive Displacement',
-    'RMJ Newsletter — Jan 2026',
-    'RMJ Newsletter — Dec 2025',
-    'RMJ Event Follow-Up — Gartner IOCS',
-    'RMJ Demo Request Follow-Up',
-    'RMJ Webinar Invite — RISE with SAP',
+    'CWP Nurture — Cloud Migration Sequence',
+    'CWP Nurture — Competitive Displacement',
+    'CWP Newsletter — Jan 2026',
+    'CWP Newsletter — Dec 2025',
+    'CWP Event Follow-Up — KubeCon',
+    'CWP Demo Request Follow-Up',
+    'CWP Webinar Invite — K8s Monitoring',
   ],
   events: [
-    'SAP Sapphire Orlando 2025',
-    'Gartner IOCS Las Vegas 2025',
-    'ASUG Annual Conference',
-    'Redwood Webinar: Migrate from Ctrl-M',
-    'Redwood Webinar: S/4HANA Job Scheduling',
-    'SAPPHIRE Barcelona 2025',
-    'Redwood Customer Summit 2025',
+    'KubeCon NA 2025',
+    'AWS re:Invent 2025',
+    'DevOps Days San Francisco',
+    'Acme Webinar: Migrate from Datadog',
+    'Acme Webinar: Kubernetes Monitoring at Scale',
+    'SREcon Europe 2025',
+    'Acme Cloud Summit 2025',
   ],
   form: [
-    'redwood.com/demo/quick — Demo Request',
-    'redwood.com/migration — Migration Assessment',
-    'redwood.com/resource/sap — SAP Guide Download',
-    'redwood.com/workload-automation — WA Datasheet',
-    'redwood.com/contact-us — Contact Form',
-    'redwood.com/roi-calculator — ROI Calculator',
+    'acmecloud.io/demo/quick — Demo Request',
+    'acmecloud.io/migration — Migration Assessment',
+    'acmecloud.io/resource/k8s — K8s Guide Download',
+    'acmecloud.io/observability — Observability Datasheet',
+    'acmecloud.io/contact-us — Contact Form',
+    'acmecloud.io/roi-calculator — ROI Calculator',
   ],
 };
 
@@ -92,30 +92,30 @@ export interface Account {
 }
 
 const ACCOUNTS_BASE = [
-  { name: 'Siemens AG', size: 'Enterprise', industry: 'Manufacturing', deal: 485000, stage: 'closed_won', region: 'EMEA' },
-  { name: 'Nestlé SA', size: 'Enterprise', industry: 'Consumer Goods', deal: 620000, stage: 'negotiation', region: 'EMEA' },
-  { name: 'Johnson Controls', size: 'Enterprise', industry: 'Industrial', deal: 310000, stage: 'eval_planning', region: 'NA' },
-  { name: 'Deloitte LLP', size: 'Enterprise', industry: 'Professional Services', deal: 275000, stage: 'closed_won', region: 'NA' },
-  { name: 'BASF SE', size: 'Enterprise', industry: 'Chemicals', deal: 540000, stage: 'solution_accepted', region: 'EMEA' },
-  { name: 'Honeywell Intl', size: 'Enterprise', industry: 'Conglomerate', deal: 390000, stage: 'disco_completed', region: 'NA' },
-  { name: 'Colgate-Palmolive', size: 'Enterprise', industry: 'Consumer Goods', deal: 220000, stage: 'closed_lost', region: 'NA' },
-  { name: 'Roche Holding', size: 'Enterprise', industry: 'Pharma', deal: 680000, stage: 'eval_planning', region: 'EMEA' },
-  { name: 'BHP Group', size: 'Enterprise', industry: 'Mining', deal: 445000, stage: 'disco_set', region: 'APAC' },
-  { name: 'Toyota Motor Corp', size: 'Enterprise', industry: 'Automotive', deal: 720000, stage: 'negotiation', region: 'APAC' },
-  { name: 'Pfizer Inc', size: 'Enterprise', industry: 'Pharma', deal: 350000, stage: 'closed_won', region: 'NA' },
-  { name: 'Unilever PLC', size: 'Enterprise', industry: 'Consumer Goods', deal: 290000, stage: 'solution_accepted', region: 'EMEA' },
-  { name: 'Dow Chemical', size: 'Enterprise', industry: 'Chemicals', deal: 410000, stage: 'disco_completed', region: 'NA' },
-  { name: 'Continental AG', size: 'Mid-Market', industry: 'Automotive', deal: 185000, stage: 'closed_lost', region: 'EMEA' },
-  { name: 'Kimberly-Clark', size: 'Enterprise', industry: 'Consumer Goods', deal: 255000, stage: 'disco_set', region: 'NA' },
-  { name: 'Merck KGaA', size: 'Enterprise', industry: 'Pharma', deal: 520000, stage: 'eval_planning', region: 'EMEA' },
-  { name: 'Caterpillar Inc', size: 'Enterprise', industry: 'Heavy Equipment', deal: 375000, stage: 'disco_completed', region: 'NA' },
-  { name: 'ABB Ltd', size: 'Enterprise', industry: 'Industrial', deal: 430000, stage: 'solution_accepted', region: 'EMEA' },
-  { name: 'Lenovo Group', size: 'Enterprise', industry: 'Technology', deal: 295000, stage: 'closed_lost', region: 'APAC' },
-  { name: 'Procter & Gamble', size: 'Enterprise', industry: 'Consumer Goods', deal: 550000, stage: 'negotiation', region: 'NA' },
-  { name: 'Volvo Group', size: 'Enterprise', industry: 'Automotive', deal: 340000, stage: 'disco_set', region: 'EMEA' },
-  { name: 'Baker Hughes', size: 'Mid-Market', industry: 'Energy', deal: 210000, stage: 'disco_set', region: 'NA' },
-  { name: 'Sanofi SA', size: 'Enterprise', industry: 'Pharma', deal: 480000, stage: 'eval_planning', region: 'EMEA' },
-  { name: 'Emerson Electric', size: 'Enterprise', industry: 'Industrial', deal: 320000, stage: 'disco_completed', region: 'NA' },
+  { name: 'Apex Financial', size: 'Enterprise', industry: 'Financial Services', deal: 485000, stage: 'closed_won', region: 'EMEA' },
+  { name: 'NovaTech Solutions', size: 'Enterprise', industry: 'Technology', deal: 620000, stage: 'negotiation', region: 'EMEA' },
+  { name: 'Meridian Health', size: 'Enterprise', industry: 'Healthcare', deal: 310000, stage: 'eval_planning', region: 'NA' },
+  { name: 'Stratton Consulting', size: 'Enterprise', industry: 'Professional Services', deal: 275000, stage: 'closed_won', region: 'NA' },
+  { name: 'Vantage Logistics', size: 'Enterprise', industry: 'Logistics', deal: 540000, stage: 'solution_accepted', region: 'EMEA' },
+  { name: 'Orion Industries', size: 'Enterprise', industry: 'Manufacturing', deal: 390000, stage: 'disco_completed', region: 'NA' },
+  { name: 'Pinnacle Retail', size: 'Enterprise', industry: 'Retail', deal: 220000, stage: 'closed_lost', region: 'NA' },
+  { name: 'Helix Biotech', size: 'Enterprise', industry: 'Biotech', deal: 680000, stage: 'eval_planning', region: 'EMEA' },
+  { name: 'Pacific Minerals', size: 'Enterprise', industry: 'Mining', deal: 445000, stage: 'disco_set', region: 'APAC' },
+  { name: 'Zenith Motors', size: 'Enterprise', industry: 'Automotive', deal: 720000, stage: 'negotiation', region: 'APAC' },
+  { name: 'Cascade Pharma', size: 'Enterprise', industry: 'Pharma', deal: 350000, stage: 'closed_won', region: 'NA' },
+  { name: 'Broadleaf Media', size: 'Enterprise', industry: 'Media', deal: 290000, stage: 'solution_accepted', region: 'EMEA' },
+  { name: 'Titan Chemical', size: 'Enterprise', industry: 'Chemicals', deal: 410000, stage: 'disco_completed', region: 'NA' },
+  { name: 'Cobalt Engineering', size: 'Mid-Market', industry: 'Engineering', deal: 185000, stage: 'closed_lost', region: 'EMEA' },
+  { name: 'Ironwood Consumer', size: 'Enterprise', industry: 'Consumer Goods', deal: 255000, stage: 'disco_set', region: 'NA' },
+  { name: 'Vertex Genomics', size: 'Enterprise', industry: 'Biotech', deal: 520000, stage: 'eval_planning', region: 'EMEA' },
+  { name: 'Atlas Heavy Ind', size: 'Enterprise', industry: 'Heavy Equipment', deal: 375000, stage: 'disco_completed', region: 'NA' },
+  { name: 'Nordic Automation', size: 'Enterprise', industry: 'Industrial', deal: 430000, stage: 'solution_accepted', region: 'EMEA' },
+  { name: 'Quantum Systems', size: 'Enterprise', industry: 'Technology', deal: 295000, stage: 'closed_lost', region: 'APAC' },
+  { name: 'Summit Brands', size: 'Enterprise', industry: 'Consumer Goods', deal: 550000, stage: 'negotiation', region: 'NA' },
+  { name: 'Fjord Mobility', size: 'Enterprise', industry: 'Automotive', deal: 340000, stage: 'disco_set', region: 'EMEA' },
+  { name: 'Trident Energy', size: 'Mid-Market', industry: 'Energy', deal: 210000, stage: 'disco_set', region: 'NA' },
+  { name: 'Lumina Sciences', size: 'Enterprise', industry: 'Pharma', deal: 480000, stage: 'eval_planning', region: 'EMEA' },
+  { name: 'Sterling Robotics', size: 'Enterprise', industry: 'Industrial', deal: 320000, stage: 'disco_completed', region: 'NA' },
 ];
 
 // Seeded random for deterministic data

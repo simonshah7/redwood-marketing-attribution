@@ -37,7 +37,7 @@ export function exportTableAsCsv(
 
   const link = document.createElement('a');
   link.href = url;
-  link.download = `redwood-attribution-${filename}-${DATA_SNAPSHOT_DATE}.csv`;
+  link.download = `acme-attribution-${filename}-${DATA_SNAPSHOT_DATE}.csv`;
   link.click();
 
   URL.revokeObjectURL(url);

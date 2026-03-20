@@ -14,8 +14,8 @@ export async function exportChartAsPng(
   const overlay = document.createElement('div');
   overlay.style.cssText = 'position:absolute;bottom:0;left:0;right:0;display:flex;justify-content:space-between;align-items:flex-end;padding:16px 24px;pointer-events:none;z-index:10;';
   overlay.innerHTML = `
-    <span style="font-size:10px;color:rgba(255,255,255,0.5);font-family:system-ui;">RunMyJobs Marketing Attribution · Data as of ${new Date(DATA_SNAPSHOT_DATE).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-    <span style="font-size:10px;color:rgba(255,255,255,0.3);font-family:system-ui;">Redwood</span>
+    <span style="font-size:10px;color:rgba(255,255,255,0.5);font-family:system-ui;">Acme Cloud Marketing Attribution · Data as of ${new Date(DATA_SNAPSHOT_DATE).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+    <span style="font-size:10px;color:rgba(255,255,255,0.3);font-family:system-ui;">Acme Cloud</span>
   `;
 
   if (activeFilters) {
@@ -38,7 +38,7 @@ export async function exportChartAsPng(
     });
 
     const link = document.createElement('a');
-    link.download = `redwood-attribution-${filename}-${DATA_SNAPSHOT_DATE}.png`;
+    link.download = `acme-attribution-${filename}-${DATA_SNAPSHOT_DATE}.png`;
     link.href = dataUrl;
     link.click();
     return true;

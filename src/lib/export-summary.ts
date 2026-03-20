@@ -34,14 +34,14 @@ export function generateExecutiveSummary(data: SummaryData) {
 
   // Title
   pdf.setFontSize(16);
-  pdf.setTextColor(227, 52, 47);
-  pdf.text('RUNMYJOBS MARKETING ATTRIBUTION — EXECUTIVE SUMMARY', 15, y);
+  pdf.setTextColor(109, 58, 232);
+  pdf.text('ACME CLOUD MARKETING ATTRIBUTION — EXECUTIVE SUMMARY', 15, y);
   y += 7;
   pdf.setFontSize(9);
   pdf.setTextColor(160, 160, 160);
   pdf.text(`Data as of: ${dateLabel}`, 15, y);
   y += 4;
-  pdf.text('Filters: RMJ Enterprise New Logo', 15, y);
+  pdf.text('Filters: CWP Enterprise New Logo', 15, y);
   y += 8;
 
   // Separator
@@ -130,7 +130,7 @@ export function generateExecutiveSummary(data: SummaryData) {
   pdf.setFontSize(7);
   pdf.setTextColor(120, 120, 120);
   const pageH = pdf.internal.pageSize.getHeight();
-  pdf.text('Confidential — Redwood Software', 15, pageH - 5);
+  pdf.text('Confidential — Acme Cloud', 15, pageH - 5);
 
-  pdf.save(`redwood-rmj-executive-summary-${DATA_SNAPSHOT_DATE}.pdf`);
+  pdf.save(`acme-cwp-executive-summary-${DATA_SNAPSHOT_DATE}.pdf`);
 }

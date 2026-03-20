@@ -5,7 +5,7 @@ import { Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-const STORAGE_KEY = "redwood-attribution-budgets";
+const STORAGE_KEY = "acme-attribution-budgets";
 
 export interface ChannelBudgets {
   linkedin_ads: number;
@@ -25,7 +25,7 @@ const DEFAULT_BUDGETS: ChannelBudgets = {
 
 const BUDGET_LABELS: Record<keyof ChannelBudgets, string> = {
   linkedin_ads: "LinkedIn Ads — Quarterly Spend",
-  marketo_email: "Marketo Email — Quarterly Spend",
+  marketo_email: "HubSpot Email — Quarterly Spend",
   events_webinars: "Events & Webinars — Quarterly Spend",
   web_content: "Web / Content — Quarterly Spend",
   bdr_team: "BDR Team — Quarterly Spend",

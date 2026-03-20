@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { X, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const STORAGE_KEY = "redwood-start-here-dismissed";
+const STORAGE_KEY = "acme-start-here-dismissed";
 
 export function StartHereCard() {
   const [dismissed, setDismissed] = useState(true); // default hidden to avoid flash
@@ -50,7 +50,7 @@ export function StartHereCard() {
               </div>
               <div className="space-y-2 pr-6">
                 <p className="text-sm font-semibold text-foreground">
-                  Welcome to Redwood Marketing Intelligence
+                  Welcome to Acme Marketing Intelligence
                 </p>
                 <ul className="space-y-1.5 text-sm text-muted-foreground">
                   <li className="flex gap-2">
